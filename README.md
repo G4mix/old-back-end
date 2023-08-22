@@ -22,8 +22,8 @@ Se você deseja contribuir com o desenvolvimento do Back-end da plataforma Gamix
 
 Para dúvidas ou sugestões relacionadas ao Back-end Gamix, entre em contato com o time de desenvolvimento responsável:
 
-- [Gabriel Vicente](https://github.com/gabrielOliv1)
-- [Lucas Christian](https://github.com/Lucas-Christian)
+- [Gabriel Vicente - Sênior Back-end](https://github.com/gabrielOliv1)
+- [Lucas Christian - Engenheiro de Software](https://github.com/Lucas-Christian)
 
 Agradecemos por ser parte da comunidade Gamix e por contribuir para a construção de projetos de jogos emocionantes!
 
