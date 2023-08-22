@@ -16,7 +16,7 @@ A plataforma Gamix é uma comunidade que une amantes de jogos, desenvolvedores e
 
 ## Como Contribuir
 
-Se você deseja contribuir com o desenvolvimento do Back-end da plataforma Gamix, você é bem-vindo! Sinta-se à vontade para explorar o código, enviar pull requests e colaborar com melhorias e novas funcionalidades. Consulte as [diretrizes de contribuição](CONTRIBUTING.md) para obter mais informações sobre como contribuir.
+Se você deseja contribuir com o desenvolvimento do Back-end da plataforma Gamix, você é bem-vindo! Sinta-se à vontade para explorar o código, enviar pull requests e colaborar com melhorias e novas funcionalidades. Consulte as [diretrizes de contribuição](docs/CONTRIBUTING.md) para obter mais informações sobre como contribuir.
 
 ## Contato
 
