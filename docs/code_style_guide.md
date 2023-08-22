@@ -27,4 +27,61 @@ Neste projeto, seguimos um guia de estilo de código para manter a consistência
 
 ## Estrutura de Diretórios
 
-Organize os pacotes e classes de acordo com a estrutura lógica do projeto.
+A estrutura de diretórios a seguir é comum em projetos Java que utilizam o framework Spring Boot. Ela ajuda a organizar o código-fonte de maneira lógica e modular.
+
+- `src/`: O diretório de origem (source) do projeto, onde fica o código-fonte.
+
+- `main/`: Contém o código de produção do aplicativo.
+
+- `java/`: Armazena o código Java da aplicação.
+
+- `com/`: Prefixo de pacote para evitar conflitos de nome. Indica uma organização, como "com.gamix".
+
+- `gamix/`: Pacote da aplicação, onde você coloca as classes relacionadas.
+
+Dentro do pacote `com.gamix`, a estrutura padrão do projeto Spring Boot inclui:
+
+- `controller/`: Classes que recebem requisições HTTP e direcionam para operações no serviço.
+
+- `service/`: Lógica de negócios da aplicação, interagindo com repositórios.
+
+- `repository/`: Interfaces ou classes que definem como acessar dados no banco de dados.
+
+- `model/`: Classes que representam entidades do domínio, mapeando para tabelas no banco de dados.
+
+## Tratamento de Exceções
+
+- Sempre trate exceções de forma adequada e forneça mensagens de erro úteis para facilitar a depuração.
+- Evite capturar exceções genéricas, especifique exceções específicas sempre que possível.
+
+## Exemplo de Código
+
+```java
+package com.gamix.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class GameController {
+
+    @GetMapping("/games")
+    public List<Game> getGames() {
+        List<Game> games = gameService.getAllGames();
+        return games;
+    }
+}
+```
+
+## Contato
+
+Se você tiver dúvidas ou precisar de assistência com as diretrizes de estilo de código, entre em contato com o time de desenvolvimento responsável pelo Back-end:
+
+- [Gabriel Vicente - Sênior Back-end](https://github.com/gabrielOliv1)
+- [Lucas Christian - Engenheiro de Software](https://github.com/Lucas-Christian)
+
+Obrigado por contribuir para a plataforma Gamix e ajudar a criar jogos incríveis para nossa comunidade!
+
+---
+
+© 2023 Gamix. Todos os direitos reservados.
