@@ -2,8 +2,9 @@
 
 ## Padrão de commit
 
-Neste projeto, adotamos um padrão de commits claro e descritivo para facilitar o entendimento das mudanças realizadas.
-Certifique-se de seguir esses padrões ao fazer commits no Back-end da plataforma Gamix.
+Neste projeto, usamos a ferramenta Commitizen para padronizar nossos commits. Para começar, certifique-se de ter as dependências do Gamix instaladas (`npm install`).
+Após fazer as modificações necessárias, adicione as mudanças que deseja commitar e, em seguida, utilize o comando `npm run commit` para criar um commit.
+Isso abrirá um assistente interativo onde você poderá escolher uma categoria de commit e fornecer mais detalhes sobre suas alterações.
 
 ## Categorias de commit
 
