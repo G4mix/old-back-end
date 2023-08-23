@@ -33,6 +33,8 @@ A estrutura de diretórios a seguir é comum em projetos Java que utilizam o fra
 
 - `main/`: Contém o código de produção do aplicativo.
 
+- `resources/graphql`: Contém o schema da aplicação, onde serão definidos todas as Queries, Mutations e etc.
+
 - `java/`: Armazena o código Java da aplicação.
 
 - `com/`: Prefixo de pacote para evitar conflitos de nome. Indica uma organização, como "com.gamix".
@@ -56,20 +58,60 @@ Dentro do pacote `com.gamix`, a estrutura padrão do projeto Spring Boot inclui:
 
 ## Exemplo de Código
 
+UserController.java:
 ```java
 package com.gamix.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.stereotype.Controller;
 
-@RestController
-public class GameController {
+import com.gamix.models.UserEntity;
+import com.gamix.service.EntityService;
 
-    @GetMapping("/games")
-    public List<Game> getGames() {
-        List<Game> games = gameService.getAllGames();
-        return games;
+@Controller
+public class UserController {
+
+    private final EntityService userService;
+
+    @Autowired
+    public UserController(EntityService userService) {
+        this.userService = userService;
     }
+
+    @QueryMapping
+    public Iterable<UserEntity> getUser() {
+        return userService.getAllUsers();
+    }
+
+    @MutationMapping
+    public UserEntity addUser(@Argument UserInput userInput) {
+        UserEntity newUser = new UserEntity(userInput.name);
+        return userService.addUser(newUser);
+    }
+
+    record UserInput(String name) {}
+}
+```
+Schema.graphqls:
+```graphqls
+type Query {
+    user: [User]
+}
+
+type Mutation {
+    addUser(user: UserInput): User
+}
+
+type User {
+    id: ID!
+    name: String!
+}
+
+input UserInput {
+    name: String!
 }
 ```
 
