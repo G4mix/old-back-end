@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "commit": "node node_modules/cz-customizable/standalone.js",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.7.1",
+    "@commitlint/config-conventional": "^17.7.0",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-customizable": "^7.0.0",
+    "husky": "^8.0.3"
+  },
+  "config": {
+    "cz-customizable": {
+      "config": "./cz-config.js"
+    }
+  }
+}
