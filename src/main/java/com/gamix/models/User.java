@@ -1,5 +1,8 @@
 package com.gamix.models;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -9,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,4 +33,6 @@ public class User {
     private String email;
     @Column(nullable = true)
     private String icon;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<SocialAccount> socialAccounts;
 }
