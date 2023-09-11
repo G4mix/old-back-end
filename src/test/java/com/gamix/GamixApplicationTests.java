@@ -1,9 +1,9 @@
-package com.gamix.gamix;
+package com.gamix;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(classes = GamixApplication.class)
 class GamixApplicationTests {
 
 	@Test
