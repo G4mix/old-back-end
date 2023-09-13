@@ -1,5 +1,9 @@
 package com.gamix.repositories;
 
-public class UserRepository {
-    
+import org.springframework.data.repository.CrudRepository;
+
+import com.gamix.models.User;
+
+public interface UserRepository extends CrudRepository<User, Integer> {
+    User findByEmail(String email);
 }
