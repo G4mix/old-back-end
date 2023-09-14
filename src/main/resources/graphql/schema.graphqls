@@ -13,7 +13,7 @@ type UserPassword implements User {
     icon: String
     socialAccounts: [SocialAccount]
     password: String!
-    verifiedEmail: String!
+    verifiedEmail: Boolean
 }
 
 type SocialAccount {
@@ -22,44 +22,6 @@ type SocialAccount {
     socialAccountId: String!
 }
 
-type UserSocialAccount {
-    user: User!
-    socialAccount: SocialAccount!
-}
-
 type Query {
-    users: [User]
-    user(email: String!): User
-    socialAccount(userId: ID!): SocialAccount
-}
-
-type Mutation {
-    updateUser(id: ID!, userInput: UserInput): User
-    deleteAccount(id: ID!): Boolean
-    authenticate(password: String!): Boolean
-    checkEmail(email: String!): Boolean
-    changeEmail(email: String!): EmailUpdateResponse
-    changePassword(changePasswordInput: ChangePasswordInput): PasswordUpdateResponse
-    socialAuthentication(): Boolean
-    deleteSocialAccount(): Boolean
-}
-
-type PasswordUpdateResponse {
-    success: Boolean!
-    message: String
-}
-
-type EmailUpdateResponse {
-    success: Boolean!
-    email: String
-}
-
-input UserInput {
-    name: String
-    icon: String
-}
-
-input ChangePasswordInput {
-    currentPassword: String!
-    newPassword: String!
+    findAllUsers: [User]
 }

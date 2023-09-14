@@ -1,30 +1,35 @@
 package com.gamix.controller;
 
-import java.util.List;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.Arguments;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 import com.gamix.models.User;
-import com.gamix.repositories.UserRepository;
 import com.gamix.service.UserService;
 
 
 @Controller
 public class UserController {
-    UserService userService;
-    UserRepository userRepository;
+
+    private final UserService userService;
 
     UserController(UserService userService) {
         this.userService = userService;
     }
 
+    @MutationMapping
+    ResponseEntity<String> createUser(UserInput userInput) {
+        userService.createUser(userInput);
+        return ResponseEntity.ok("usuário criado");
+    }
+
     @QueryMapping
-    List<User> findAllUsers() {
-        List<User> users = userService.findAllUsers();
+    Iterable<User> findAllUsers() {
+        Iterable<User> users = userService.findAllUsers();
         return users;
     }
 
@@ -36,8 +41,8 @@ public class UserController {
     }
 
     @MutationMapping
-    User updateUser(@Arguments Integer id, UserInput userInput) {
-        User updatedUser = userService.updateUser(id,userInput);
+    User updateUser(@Arguments Integer id, PartialUserInput userInput) {
+        User updatedUser = userService.updateUser(id, userInput);
         return updatedUser;
     }
 
@@ -46,5 +51,10 @@ public class UserController {
         userService.deleteAccount(id);
     }
 
-    public record UserInput(String username, String icon) {}
+    public record UserInput(String username, String email, String password, String icon) {}
+    public record PartialUserInput(String username, String icon) {
+        public PartialUserInput(UserInput userInput) {
+            this(userInput.username(), userInput.icon());
+        }
+    }
 }

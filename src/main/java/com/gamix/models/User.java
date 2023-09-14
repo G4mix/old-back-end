@@ -31,8 +31,11 @@ public class User {
     private Integer id;
     private String username;
     private String email;
+
     @Column(nullable = true)
     private String icon;
+
+    @Column(nullable = true)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<SocialAccount> socialAccounts;
 }
