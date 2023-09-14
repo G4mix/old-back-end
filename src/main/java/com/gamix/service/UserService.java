@@ -21,24 +21,23 @@ public class UserService {
     public PasswordUser createUser(UserInput userInput) {
         User existingUser = userRepository.findByEmail(userInput.email());
         
-        if (existingUser == null) {
-	        User user = new User();
-	        user.setUsername(userInput.username());
-	        user.setEmail(userInput.email());
-	        user.setIcon(userInput.icon());
-	
-	        PasswordUser passwordUser = new PasswordUser();
-	        passwordUser.setPassword(userInput.password());
-	        passwordUser.setVerifiedEmail(false);
-	
-	        passwordUser.setUser(user);
-	        user.setPasswordUser(passwordUser);
-	
-	        userRepository.save(user);
-	
-	        return passwordUser;
-        }
-        return null;
+        if (existingUser != null) return null;
+
+        User user = new User();
+        user.setUsername(userInput.username());
+        user.setEmail(userInput.email());
+        user.setIcon(userInput.icon());
+
+        PasswordUser passwordUser = new PasswordUser();
+        passwordUser.setPassword(userInput.password());
+        passwordUser.setVerifiedEmail(false);
+
+        passwordUser.setUser(user);
+        user.setPasswordUser(passwordUser);
+
+        userRepository.save(user);
+
+        return passwordUser;
     }
 
     public Iterable<User> findAllUsers() {
