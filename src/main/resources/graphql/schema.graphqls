@@ -1,23 +1,22 @@
-type User {
+interface User {
     id: Int!
     username: String!
     email: String!
     icon: String
     socialAccounts: [SocialAccount]
+    passwordUser: PasswordUser
 }
 
-type UserPassword implements User {
+type PasswordUser {
     id: Int!
-    username: String!
-    email: String!
-    icon: String
-    socialAccounts: [SocialAccount]
+    user: User!
     password: String!
     verifiedEmail: Boolean
 }
 
 type SocialAccount {
     id: Int!
+    user: User!
     provider: String!
     socialAccountId: String!
 }

@@ -4,38 +4,83 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.DiscriminatorColumn;
-import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
-@Table(name = "users")
+@Table(name="users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-    private String username;
-    private String email;
+    private Long id;
 
+    private String username;
+
+    private String email;
+    
     @Column(nullable = true)
     private String icon;
 
-    @Column(nullable = true)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<SocialAccount> socialAccounts;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private PasswordUser passwordUser;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+    
+    public List<SocialAccount> getSocialAccounts() {
+        return socialAccounts;
+    }
+
+    public void setSocialAccounts(List<SocialAccount> socialAccounts) {
+        this.socialAccounts = socialAccounts;
+    }
+
+    public PasswordUser getPasswordUser() {
+    	return passwordUser;
+    }
+    
+    public void setPasswordUser(PasswordUser passwordUser) {
+    	this.passwordUser = passwordUser;
+    	passwordUser.setUser(this);
+    }
 }
+

@@ -17,19 +17,28 @@ public class UserService {
     UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
+    
     public PasswordUser createUser(UserInput userInput) {
-        PasswordUser passwordUser = new PasswordUser();
         User existingUser = userRepository.findByEmail(userInput.email());
         
         if (existingUser == null) {
-            passwordUser.setUsername(userInput.username());
-            passwordUser.setEmail(userInput.email());
-            passwordUser.setPassword(userInput.password());
-            passwordUser.setIcon(userInput.icon());
+	        User user = new User();
+	        user.setUsername(userInput.username());
+	        user.setEmail(userInput.email());
+	        user.setIcon(userInput.icon());
+	
+	        PasswordUser passwordUser = new PasswordUser();
+	        passwordUser.setPassword(userInput.password());
+	        passwordUser.setVerifiedEmail(false);
+	
+	        passwordUser.setUser(user);
+	        user.setPasswordUser(passwordUser);
+	
+	        userRepository.save(user);
+	
+	        return passwordUser;
         }
-
-        return passwordUser;
+        return null;
     }
 
     public Iterable<User> findAllUsers() {
