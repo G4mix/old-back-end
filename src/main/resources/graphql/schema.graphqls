@@ -24,3 +24,14 @@ type SocialAccount {
 type Query {
     findAllUsers(skip: Int = 0, limit: Int = 10): [User]
 }
+
+type Mutation {
+    createUser(input: UserInput!): User
+}
+
+input UserInput {
+    username: String!
+    email: String!
+    password: String!
+}
+
