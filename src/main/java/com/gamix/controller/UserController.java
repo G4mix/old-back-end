@@ -1,10 +1,11 @@
 package com.gamix.controller;
 
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.Arguments;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
+import graphql.GraphQLError;
+import graphql.schema.DataFetchingEnvironment;
+import org.springframework.graphql.data.method.annotation.*;
+import org.springframework.graphql.execution.ErrorType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 
 import com.gamix.models.User;
@@ -53,6 +54,17 @@ public class UserController {
     @MutationMapping
     void deleteAccount(@Argument Integer id) {
         userService.deleteAccount(id);
+    }
+
+    @GraphQlExceptionHandler
+    public GraphQLError handle(@NonNull Throwable ex, @NonNull DataFetchingEnvironment environment){
+        return GraphQLError
+                .newError()
+                .errorType(ErrorType.BAD_REQUEST)
+                .message(ex.getMessage())
+                .path(environment.getExecutionStepInfo().getPath())
+                .location(environment.getField().getSourceLocation())
+                .build();
     }
 
     public record UserInput(String username, String email, String password, String icon) {}
