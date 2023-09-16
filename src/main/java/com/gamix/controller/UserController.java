@@ -1,6 +1,5 @@
 package com.gamix.controller;
 
-
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.Arguments;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -36,7 +35,6 @@ public class UserController {
     @QueryMapping
     User findUserByEmail(@Argument String email) {
         User user = userService.findUserByEmail(email);
-
         return user;
     }
 

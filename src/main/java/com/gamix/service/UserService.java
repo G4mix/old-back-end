@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -8,6 +9,9 @@ import com.gamix.controller.UserController.UserInput;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 
 @Service
 public class UserService {
@@ -46,14 +50,37 @@ public class UserService {
     }
 
     public User findUserByEmail(String email) {
-        return null;
+        return userRepository.findByEmail(email);
     }
 
     public User updateUser(Integer id, PartialUserInput userInput) {
-        return null;
-    }
 
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            if (userInput.username() != null) {
+                user.setUsername(userInput.username());
+            }
+            if (userInput.icon() != null) {
+                user.setIcon(userInput.icon());
+            }
+
+            User updatedUser = userRepository.save(user);
+
+            return updatedUser;
+        } else {
+            throw new EntityNotFoundException("Usuário não encontrado com o ID: " + id);
+        }
+    }
+    
     public void deleteAccount(Integer id) {
+        if(userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+        } else {
+            throw new EntityNotFoundException("Usuário não encontrado com o ID: " + id);
+        }
     }
     
 }
