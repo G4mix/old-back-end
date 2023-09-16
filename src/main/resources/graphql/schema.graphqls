@@ -1,4 +1,4 @@
-interface User {
+type User {
     id: Int!
     username: String!
     email: String!
@@ -22,5 +22,5 @@ type SocialAccount {
 }
 
 type Query {
-    findAllUsers: [User]
+    findAllUsers(skip: Int = 0, limit: Int = 10): [User]
 }

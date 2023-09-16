@@ -1,5 +1,6 @@
 package com.gamix.controller;
 
+import org.springframework.data.domain.Page;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.Arguments;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Controller;
 
 import com.gamix.models.User;
 import com.gamix.service.UserService;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 
 @Controller
@@ -27,8 +31,11 @@ public class UserController {
     }
 
     @QueryMapping
-    Iterable<User> findAllUsers() {
-        Iterable<User> users = userService.findAllUsers();
+    List<User> findAllUsers(
+            @RequestParam(name = "skip", defaultValue = "0") int skip,
+            @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
+        List<User> users = userService.findAllUsers(skip, limit);
         return users;
     }
 

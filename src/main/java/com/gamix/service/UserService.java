@@ -1,5 +1,8 @@
 package com.gamix.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -10,6 +13,8 @@ import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+
+import java.util.List;
 
 
 @Service
@@ -41,9 +46,11 @@ public class UserService {
         return passwordUser;
     }
 
-    public Iterable<User> findAllUsers() {
-        Iterable<User> users = userRepository.findAll();
-        return users;
+    public List<User> findAllUsers(int skip, int limit) {
+        Pageable page = PageRequest.of(skip, limit);
+        Page<User> users = userRepository.findAll(page);
+
+        return users.getContent();
     }
 
     public User findUserByEmail(String email) {
