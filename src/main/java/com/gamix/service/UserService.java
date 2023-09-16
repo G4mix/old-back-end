@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.gamix.controller.UserController.PartialUserInput;
 import com.gamix.controller.UserController.UserInput;
 import com.gamix.models.PasswordUser;
@@ -33,7 +34,9 @@ public class UserService {
         user.setIcon(userInput.icon());
 
         PasswordUser passwordUser = new PasswordUser();
-        passwordUser.setPassword(userInput.password());
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(userInput.password());
+        passwordUser.setPassword(encodedPassword);
         passwordUser.setVerifiedEmail(false);
 
         passwordUser.setUser(user);
