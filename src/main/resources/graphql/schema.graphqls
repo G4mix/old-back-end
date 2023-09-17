@@ -11,6 +11,7 @@ type PasswordUser {
     id: Int!
     user: User!
     password: String!
+    role: Role!
     verifiedEmail: Boolean
 }
 
@@ -21,12 +22,23 @@ type SocialAccount {
     socialAccountId: String!
 }
 
+enum Role {
+    USER
+}
+
 type Query {
     findAllUsers(skip: Int = 0, limit: Int = 10): [User]
 }
 
 type Mutation {
-    registerPasswordUser(input: UserInput!): User
+    registerPasswordUser(input: UserInput!): JwtUser
+    signInPasswordUser(input: SigninInput): JwtUser
+}
+
+type JwtUser {
+    user: User!
+    password: String!
+    token: String
 }
 
 input UserInput {
@@ -35,3 +47,7 @@ input UserInput {
     password: String!
 }
 
+input SigninInput {
+    username: String!
+    password: String!
+}
