@@ -45,3 +45,4 @@ replay_pid*
 
 # JS packages
 node_modules/
+.env
