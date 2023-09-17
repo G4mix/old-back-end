@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,30 +20,24 @@ import java.util.List;
 
 @Service
 public class UserService {
-
-    private final UserRepository userRepository;
-
-    UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
     
-    public PasswordUser createUser(UserInput userInput) {
-        if (userRepository.findByEmail(userInput.email()) != null) return null;
-        
-        User user = new User();
-        user.setUsername(userInput.username());
-        user.setEmail(userInput.email());
-        user.setIcon(userInput.icon());
-
+    public PasswordUser registerPasswordUser(UserInput userInput) {
+        User user = userRepository.findByEmail(userInput.email());
+    
+        if (user == null) user = this.createUser(userInput);
+        if (user.getPasswordUser() != null) return null;        
+    
         PasswordUser passwordUser = new PasswordUser();
         passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
         passwordUser.setVerifiedEmail(false);
         passwordUser.setUser(user);
-
+    
         user.setPasswordUser(passwordUser);
-
+    
         userRepository.save(user);
-
+    
         return passwordUser;
     }
 
@@ -71,5 +66,13 @@ public class UserService {
         if(!userRepository.existsById(id)) throw new EntityNotFoundException("Usuário não encontrado com o ID: " + id);
         userRepository.deleteById(id);
     }
+
+    public User createUser(UserInput userInput) {
+        User user = new User();
+        user.setUsername(userInput.username());
+        user.setEmail(userInput.email());
+        user.setIcon(userInput.icon());
     
+        return user;
+    }
 }

@@ -2,12 +2,15 @@ package com.gamix.controller;
 
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 
+import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.service.UserService;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,18 +20,18 @@ import java.util.List;
 
 @Controller
 public class UserController {
-
-    private final UserService userService;
-
-    UserController(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private UserService userService;
 
     @MutationMapping
-    ResponseEntity<String> createUser(UserInput userInput) {
-        userService.createUser(userInput);
-        return ResponseEntity.ok("usuário criado");
+    public ResponseEntity<String> registerPasswordUser(UserInput userInput) {
+        PasswordUser passwordUser = userService.registerPasswordUser(userInput);
+        if (passwordUser == null) {
+            return ResponseEntity.badRequest().body("Unable to register password user.");
+        }
+        return ResponseEntity.ok("created user");
     }
+
 
     @QueryMapping
     List<User> findAllUsers(
