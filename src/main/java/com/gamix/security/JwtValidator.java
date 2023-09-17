@@ -15,14 +15,12 @@ public class JwtValidator {
     @Autowired
     private Dotenv dotenv;
 
-    private String secret = dotenv.get("JWT_SIGNING_KEY_SECRET");
-
     public PasswordUser validate(String token) {
 
         PasswordUser jwtUser = null;
         try {
             Claims body = Jwts.parser()
-                    .setSigningKey(secret)
+                    .setSigningKey(dotenv.get("JWT_SIGNING_KEY_SECRET"))
                     .parseClaimsJws(token)
                     .getBody();
 
