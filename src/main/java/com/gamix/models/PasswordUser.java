@@ -9,7 +9,6 @@ import jakarta.persistence.OneToOne;
 
 @Entity
 public class PasswordUser {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,9 +17,7 @@ public class PasswordUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-
-    private String password;
-
+    private String password, role;
     private Boolean verifiedEmail;
 
     public Long getId() {
@@ -45,6 +42,14 @@ public class PasswordUser {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public Boolean getVerifiedEmail() {
