@@ -10,7 +10,6 @@ type User {
 type PasswordUser {
     id: Int!
     user: User!
-    password: String!
     role: Role!
     verifiedEmail: Boolean
 }
@@ -31,14 +30,8 @@ type Query {
 }
 
 type Mutation {
-    registerPasswordUser(input: UserInput!): JwtUser
-    signInPasswordUser(input: SigninInput): JwtUser
-}
-
-type JwtUser {
-    user: User!
-    password: String!
-    token: String
+    signIn(input: SigninInput): PasswordUser
+    signOut: Boolean
 }
 
 input UserInput {

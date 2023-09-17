@@ -1,44 +1,48 @@
 package com.gamix.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.gamix.controller.UserController.PartialUserInput;
 import com.gamix.controller.UserController.UserInput;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
+import com.gamix.repositories.PasswordUserRepository;
+import com.gamix.security.JwtGenerator;
 
 import jakarta.persistence.EntityNotFoundException;
-
-import java.util.List;
-
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordUserRepository passwordUserRepository;
+    
+    @Autowired
+    private JwtGenerator jwtGenerator;
     
     public PasswordUser registerPasswordUser(UserInput userInput) {
         User user = userRepository.findByEmail(userInput.email());
-    
+        
         if (user == null) user = this.createUser(userInput);
-        if (user.getPasswordUser() != null) return null;        
-    
+        if (user.getPasswordUser() != null) return null;
+        
         PasswordUser passwordUser = new PasswordUser();
+        passwordUser.setUser(user);
         passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
         passwordUser.setVerifiedEmail(false);
-        passwordUser.setUser(user);
-    
-        user.setPasswordUser(passwordUser);
-    
-        userRepository.save(user);
-    
-        return passwordUser;
+        passwordUser.setToken(jwtGenerator.generate(passwordUser));
+
+        return passwordUserRepository.save(passwordUser);
     }
 
     public List<User> findAllUsers(int skip, int limit) {
@@ -50,6 +54,10 @@ public class UserService {
 
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public User findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public User updateUser(Integer id, PartialUserInput userInput) {
@@ -73,6 +81,6 @@ public class UserService {
         user.setEmail(userInput.email());
         user.setIcon(userInput.icon());
     
-        return user;
+        return userRepository.save(user);
     }
 }

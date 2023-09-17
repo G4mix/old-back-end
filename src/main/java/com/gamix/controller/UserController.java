@@ -1,37 +1,28 @@
 package com.gamix.controller;
 
-import graphql.GraphQLError;
-import graphql.schema.DataFetchingEnvironment;
+import java.util.List;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.method.annotation.*;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.service.UserService;
 
-import java.util.List;
-
+import graphql.GraphQLError;
+import graphql.schema.DataFetchingEnvironment;
 
 @Controller
 public class UserController {
     @Autowired
     private UserService userService;
-
-    @MutationMapping
-    public ResponseEntity<String> registerPasswordUser(UserInput userInput) {
-        PasswordUser passwordUser = userService.registerPasswordUser(userInput);
-        if (passwordUser == null) {
-            return ResponseEntity.badRequest().body("Unable to register password user.");
-        }
-        return ResponseEntity.ok("created user");
-    }
-
 
     @PreAuthorize("hasRole('USER')")    
     @QueryMapping
@@ -52,14 +43,14 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @MutationMapping
-    User updateUser(@Arguments Integer id, PartialUserInput userInput) {
+    User updateUser(@PathVariable Integer id, PartialUserInput userInput) {
         User updatedUser = userService.updateUser(id, userInput);
         return updatedUser;
     }
 
     @PreAuthorize("hasRole('USER')")
     @MutationMapping
-    void deleteAccount(@Argument Integer id) {
+    void deleteAccount(@PathVariable Integer id) {
         userService.deleteAccount(id);
     }
 
@@ -74,10 +65,14 @@ public class UserController {
                 .build();
     }
 
-    public record UserInput(String username, String email, String password, String icon) {}
+    public record UserInput(String username, String email, String password, String icon) {
+        public UserInput(UserInput userInput) {
+            this(userInput.username(), userInput.email(), userInput.password(), userInput.icon());
+        }
+    }
     public record PartialUserInput(String username, String icon) {
         public PartialUserInput(UserInput userInput) {
             this(userInput.username(), userInput.icon());
         }
-    }
+    }    
 }

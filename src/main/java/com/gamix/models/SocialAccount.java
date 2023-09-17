@@ -6,18 +6,48 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Data;
 
 @Entity
-@Data
 public class SocialAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String provider;
     private String socialAccountId; 
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getSocialAccountId() {
+        return socialAccountId;
+    }
+
+    public void setSocialAccountId(String socialAccountId) {
+        this.socialAccountId = socialAccountId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
