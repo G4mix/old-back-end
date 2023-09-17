@@ -3,6 +3,7 @@ package com.gamix.controller;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.graphql.execution.ErrorType;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Controller;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.service.UserService;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -33,27 +33,31 @@ public class UserController {
     }
 
 
+    @PreAuthorize("hasRole('USER')")    
     @QueryMapping
     List<User> findAllUsers(
-            @RequestParam(name = "skip", defaultValue = "0") int skip,
-            @RequestParam(name = "limit", defaultValue = "10") int limit
+            @Argument("skip") int skip,
+            @Argument("limit") int limit
     ) {
         List<User> users = userService.findAllUsers(skip, limit);
         return users;
     }
 
+    @PreAuthorize("hasRole('USER')")
     @QueryMapping
     User findUserByEmail(@Argument String email) {
         User user = userService.findUserByEmail(email);
         return user;
     }
 
+    @PreAuthorize("hasRole('USER')")
     @MutationMapping
     User updateUser(@Arguments Integer id, PartialUserInput userInput) {
         User updatedUser = userService.updateUser(id, userInput);
         return updatedUser;
     }
 
+    @PreAuthorize("hasRole('USER')")
     @MutationMapping
     void deleteAccount(@Argument Integer id) {
         userService.deleteAccount(id);
