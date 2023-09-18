@@ -1,7 +1,5 @@
 package com.gamix.models;
 
-import com.gamix.utils.Role;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,11 +18,14 @@ public class PasswordUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String password;
     
-    private Role role;
     private Boolean verifiedEmail;
+
+    private String role;
+
+    @Column(length = 500)
     private String token;
     
     public Integer getId() {
@@ -41,10 +42,10 @@ public class PasswordUser {
         this.user = user;
     }
     
-    public Role getRole() {
+    public String getRole() {
         return role;
     }
-    public void setRole(Role role) {
+    public void setRole(String role) {
         this.role = role;
     }
     

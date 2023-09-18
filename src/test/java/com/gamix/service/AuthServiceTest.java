@@ -37,38 +37,38 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void registerPasswordUser_UserDoesNotExist() {
+    public void signUpPasswordUser_UserDoesNotExist() {
         configureUserDoesNotExist();
 
-        PasswordUser createdPasswordUser = authService.registerPasswordUser(userInput);
+        PasswordUser createdPasswordUser = authService.signUpPasswordUser(userInput);
 
-        verify(authService).registerPasswordUser(userInput);
+        verify(authService).signUpPasswordUser(userInput);
         assertNotNull(createdPasswordUser);
     }
 
     @Test
-    public void registerPasswordUser_UserExistsWithoutPasswordUser() {
+    public void signUpPasswordUser_UserExistsWithoutPasswordUser() {
         configureUserExistsWithoutPasswordUser();
         
-        PasswordUser createdPasswordUser = authService.registerPasswordUser(userInput);
+        PasswordUser createdPasswordUser = authService.signUpPasswordUser(userInput);
         
-        verify(authService).registerPasswordUser(userInput);
+        verify(authService).signUpPasswordUser(userInput);
         assertEqualsPasswordUser(userInput.password(), createdPasswordUser.getPassword());
     }
     
     @Test
-    public void registerPasswordUser_UserExistsWithPasswordUser() {
+    public void signUpPasswordUser_UserExistsWithPasswordUser() {
         configureUserExistsWithPasswordUser();
         
-        PasswordUser createdPasswordUser = authService.registerPasswordUser(userInput);
+        PasswordUser createdPasswordUser = authService.signUpPasswordUser(userInput);
 
-        verify(authService).registerPasswordUser(userInput);
+        verify(authService).signUpPasswordUser(userInput);
         assertNull(createdPasswordUser);
     }
     
     private void configureUserDoesNotExist() {
         when(userRepository.findByEmail(userInput.email())).thenReturn(null);
-        when(authService.registerPasswordUser(userInput)).thenReturn(new PasswordUser());
+        when(authService.signUpPasswordUser(userInput)).thenReturn(new PasswordUser());
     }
 
     private User createExistingUserWithoutPasswordUser() {
@@ -90,7 +90,7 @@ public class AuthServiceTest {
         existingUser.setPasswordUser(passwordUser);
 
         when(authService.createUser(userInput)).thenReturn(existingUser);
-        when(authService.registerPasswordUser(userInput)).thenReturn(passwordUser);
+        when(authService.signUpPasswordUser(userInput)).thenReturn(passwordUser);
     }
 
     private User createExistingUserWithPasswordUser() {
@@ -106,7 +106,7 @@ public class AuthServiceTest {
     private void configureUserExistsWithPasswordUser() {
         User existingUser = createExistingUserWithPasswordUser();
         when(userRepository.findByEmail(userInput.email())).thenReturn(existingUser);
-        when(authService.registerPasswordUser(userInput)).thenReturn(null);
+        when(authService.signUpPasswordUser(userInput)).thenReturn(null);
     }
 
     private void assertEqualsPasswordUser(String expectedPassword, String actualPassword) {

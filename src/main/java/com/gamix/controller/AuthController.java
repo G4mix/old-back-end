@@ -28,7 +28,7 @@ public class AuthController {
 
     @PostMapping("/auth/signup")
     public ResponseEntity<String> signUpPasswordUser(@RequestBody UserInput userInput) {
-        PasswordUser passwordUser = authService.registerPasswordUser(userInput);
+        PasswordUser passwordUser = authService.signUpPasswordUser(userInput);
         
         if (passwordUser == null) {
             return ResponseEntity.badRequest().body("unable to register password user.");
@@ -55,9 +55,9 @@ public class AuthController {
     ) {
         PasswordUser passwordUser = null;
         if(username != null) {
-            passwordUser = authService.loginWithUsername(username, userPasswordInput.password());
+            passwordUser = authService.signInWithUsername(username, userPasswordInput.password());
         } else {
-            passwordUser = authService.loginWithEmail(email, userPasswordInput.password());
+            passwordUser = authService.signInWithEmail(email, userPasswordInput.password());
         }
         HttpHeaders headers = new HttpHeaders();
         if (passwordUser != null) {
@@ -77,7 +77,7 @@ public class AuthController {
 
     @GetMapping("/auth/signout")
     public ResponseEntity<String> signOutPasswordUser(@RequestParam(value = "username", required = false) String username) {
-        authService.signoutPasswordUser(username);
+        authService.signOutPasswordUser(username);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", dotenv.get("FRONT_END_BASE_URL") + "/login");
     

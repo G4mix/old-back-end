@@ -11,6 +11,7 @@ import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtGenerator;
 import com.gamix.security.JwtValidator;
+import com.gamix.utils.Role;
 
 @Service
 public class AuthService {
@@ -26,7 +27,7 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    public PasswordUser registerPasswordUser(UserInput userInput) {
+    public PasswordUser signUpPasswordUser(UserInput userInput) {
         User user = userRepository.findByEmail(userInput.email());
         
         if (user == null) user = this.createUser(userInput);
@@ -34,6 +35,7 @@ public class AuthService {
         
         PasswordUser passwordUser = new PasswordUser();
         passwordUser.setUser(user);
+        passwordUser.setRole(Role.USER.toString());
         passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
         passwordUser.setVerifiedEmail(false);
         passwordUser.setToken(jwtGenerator.generate(passwordUser));
@@ -41,7 +43,7 @@ public class AuthService {
         return passwordUserRepository.save(passwordUser);
     }
 
-    public PasswordUser loginWithUsername(String username, String password) {
+    public PasswordUser signInWithUsername(String username, String password) {
         User user = userRepository.findByUsername(username);
     
         if (user == null) return null;
@@ -58,7 +60,7 @@ public class AuthService {
         }
     }
     
-    public PasswordUser loginWithEmail(String email, String password) {
+    public PasswordUser signInWithEmail(String email, String password) {
         User user = userRepository.findByEmail(email);
     
         if (user == null) return null;
@@ -75,7 +77,7 @@ public class AuthService {
         }
     }
 
-    public void signoutPasswordUser(String username) {
+    public void signOutPasswordUser(String username) {
         User user = userRepository.findByUsername(username);
         if (user == null) return;
 

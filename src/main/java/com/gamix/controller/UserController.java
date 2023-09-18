@@ -25,7 +25,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("hasRole('USER')")    
+    @PreAuthorize("hasAuthority('USER')")  
     @QueryMapping
     List<User> findAllUsers(
             @Argument("skip") int skip,
@@ -35,21 +35,21 @@ public class UserController {
         return users;
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByEmail(@Argument String email) {
         User user = userService.findUserByEmail(email);
         return user;
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     User updateUser(@PathVariable Integer id, PartialUserInput userInput) {
         User updatedUser = userService.updateUser(id, userInput);
         return updatedUser;
     }
 
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     void deleteAccount(@PathVariable Integer id) {
         userService.deleteAccount(id);

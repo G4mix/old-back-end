@@ -22,7 +22,7 @@ public class JwtValidator {
     @Autowired
     private Dotenv dotenv;
 
-    private Claims getTokenClaims(String token) {
+    public Claims getTokenClaims(String token) {
         return Jwts.parser()
             .setSigningKey(dotenv.get("JWT_SIGNING_KEY_SECRET"))
             .parseClaimsJws(token)
@@ -35,11 +35,11 @@ public class JwtValidator {
     
             String username = body.getSubject();
             PasswordUser passwordUser = userService.findUserByUsername(username).getPasswordUser();
-            
+
             Date expirationDate = body.getExpiration();
             Date currentDate = new Date();
             if (expirationDate != null && expirationDate.before(currentDate)) return false;
-    
+
             return passwordUser != null;
         } catch (Exception e) {
             System.out.println(e);
