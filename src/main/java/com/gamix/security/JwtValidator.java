@@ -29,22 +29,24 @@ public class JwtValidator {
             .getBody();
     }
 
-    public PasswordUser validate(String token) {
-
-        PasswordUser passwordUser = null;
+    public boolean validate(String token) {
         try {
             Claims body = getTokenClaims(token);
-
+    
             String username = body.getSubject();
-            passwordUser = userService.findUserByUsername(username).getPasswordUser();
-        }
-        catch (Exception e) {
+            PasswordUser passwordUser = userService.findUserByUsername(username).getPasswordUser();
+            
+            Date expirationDate = body.getExpiration();
+            Date currentDate = new Date();
+            if (expirationDate != null && expirationDate.before(currentDate)) return false;
+    
+            return passwordUser != null;
+        } catch (Exception e) {
             System.out.println(e);
+            return false;
         }
-
-        return passwordUser;
     }
-
+    
     public String invalidate(String token) {
         Claims claims = getTokenClaims(token);
     

@@ -1,82 +1,24 @@
 package com.gamix.service;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.gamix.controller.UserController.PartialUserInput;
-import com.gamix.controller.UserController.UserInput;
-import com.gamix.models.PasswordUser;
+import com.gamix.records.UserRecords.PartialUserInput;
 import com.gamix.models.User;
-import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
-import com.gamix.security.JwtGenerator;
-import com.gamix.security.JwtValidator;
 
-import io.github.cdimascio.dotenv.Dotenv;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private PasswordUserRepository passwordUserRepository;
     
-    @Autowired
-    private JwtGenerator jwtGenerator;
-
-    @Autowired
-    private Dotenv dotenv;
-    
-    public PasswordUser registerPasswordUser(UserInput userInput) {
-        User user = userRepository.findByEmail(userInput.email());
-        
-        if (user == null) user = this.createUser(userInput);
-        if (user.getPasswordUser() != null) return null;
-        
-        PasswordUser passwordUser = new PasswordUser();
-        passwordUser.setUser(user);
-        passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
-        passwordUser.setVerifiedEmail(false);
-        passwordUser.setToken(jwtGenerator.generate(passwordUser));
-
-        return passwordUserRepository.save(passwordUser);
-    }
-
-    public String loginWithUsername(String username, String password) {
-        User user = userRepository.findByUsername(username);
-    
-        if (user == null) return null;
-        
-        PasswordUser passwordUser = user.getPasswordUser();
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        
-        if (passwordEncoder.matches(password, passwordUser.getPassword())) {
-            return passwordUser.getToken();
-        } else {
-            return null;
-        }
-    }
-
-    public void signoutPasswordUser(String username) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) return;
-
-        String token = user.getPasswordUser().getToken();
-        String expiredToken = new JwtValidator().invalidate(token);
-        
-    }
-
     public List<User> findAllUsers(int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit);
         Page<User> users = userRepository.findAll(page);
@@ -105,14 +47,5 @@ public class UserService {
     public void deleteAccount(Integer id) {
         if(!userRepository.existsById(id)) throw new EntityNotFoundException("Usuário não encontrado com o ID: " + id);
         userRepository.deleteById(id);
-    }
-
-    public User createUser(UserInput userInput) {
-        User user = new User();
-        user.setUsername(userInput.username());
-        user.setEmail(userInput.email());
-        user.setIcon(userInput.icon());
-    
-        return userRepository.save(user);
     }
 }

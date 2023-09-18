@@ -30,7 +30,6 @@ type Query {
 }
 
 type Mutation {
-    signIn(input: SigninInput): PasswordUser
     signOut: Boolean
 }
 

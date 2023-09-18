@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.gamix.models.User;
+import com.gamix.records.UserRecords.PartialUserInput;
 import com.gamix.service.UserService;
 
 import graphql.GraphQLError;
@@ -64,20 +65,4 @@ public class UserController {
                 .location(environment.getField().getSourceLocation())
                 .build();
     }
-
-    public record UserInput(String username, String email, String password, String icon) {
-        public UserInput(UserInput userInput) {
-            this(userInput.username(), userInput.email(), userInput.password(), userInput.icon());
-        }
-    }
-    public record LoginWithPasswordUserInput(String username, String password) {
-        public LoginWithPasswordUserInput(LoginWithPasswordUserInput userInput) {
-            this(userInput.username(), userInput.password());
-        }
-    }
-    public record PartialUserInput(String username, String icon) {
-        public PartialUserInput(UserInput userInput) {
-            this(userInput.username(), userInput.icon());
-        }
-    }    
 }

@@ -3,22 +3,12 @@ package com.gamix.models;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.Getter;
-
 import java.util.Collection;
 import java.util.List;
 
 public class JwtUserDetails implements UserDetails {
-    @Getter
-    private String username;
-    
-    @Getter
-    private String token;
+    private String username, token, password;
 
-    @Getter
-    private String password;
-
-    @Getter
     private Collection<? extends GrantedAuthority> authorities;
 
     public JwtUserDetails(String username, String password, String token, List<GrantedAuthority> grantedAuthorities) {
@@ -27,6 +17,22 @@ public class JwtUserDetails implements UserDetails {
         this.token= token;
         this.authorities = grantedAuthorities;
     }
+
+    public String getToken() {
+        return this.token;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.authorities;
+    } 
 
     @Override
     public boolean isAccountNonExpired() {

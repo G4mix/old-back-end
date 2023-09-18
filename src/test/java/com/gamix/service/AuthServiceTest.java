@@ -14,20 +14,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.gamix.controller.UserController;
-import com.gamix.controller.UserController.UserInput;
+import com.gamix.records.UserRecords.UserInput;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(UserController.class)
-public class UserServiceTest {
+public class AuthServiceTest {
 
     @MockBean
     private UserRepository userRepository;
 
     @MockBean
-    private UserService userService;
+    private AuthService authService;
 
     private UserInput userInput;
 
@@ -40,9 +40,9 @@ public class UserServiceTest {
     public void registerPasswordUser_UserDoesNotExist() {
         configureUserDoesNotExist();
 
-        PasswordUser createdPasswordUser = userService.registerPasswordUser(userInput);
+        PasswordUser createdPasswordUser = authService.registerPasswordUser(userInput);
 
-        verify(userService).registerPasswordUser(userInput);
+        verify(authService).registerPasswordUser(userInput);
         assertNotNull(createdPasswordUser);
     }
 
@@ -50,9 +50,9 @@ public class UserServiceTest {
     public void registerPasswordUser_UserExistsWithoutPasswordUser() {
         configureUserExistsWithoutPasswordUser();
         
-        PasswordUser createdPasswordUser = userService.registerPasswordUser(userInput);
+        PasswordUser createdPasswordUser = authService.registerPasswordUser(userInput);
         
-        verify(userService).registerPasswordUser(userInput);
+        verify(authService).registerPasswordUser(userInput);
         assertEqualsPasswordUser(userInput.password(), createdPasswordUser.getPassword());
     }
     
@@ -60,15 +60,15 @@ public class UserServiceTest {
     public void registerPasswordUser_UserExistsWithPasswordUser() {
         configureUserExistsWithPasswordUser();
         
-        PasswordUser createdPasswordUser = userService.registerPasswordUser(userInput);
+        PasswordUser createdPasswordUser = authService.registerPasswordUser(userInput);
 
-        verify(userService).registerPasswordUser(userInput);
+        verify(authService).registerPasswordUser(userInput);
         assertNull(createdPasswordUser);
     }
     
     private void configureUserDoesNotExist() {
         when(userRepository.findByEmail(userInput.email())).thenReturn(null);
-        when(userService.registerPasswordUser(userInput)).thenReturn(new PasswordUser());
+        when(authService.registerPasswordUser(userInput)).thenReturn(new PasswordUser());
     }
 
     private User createExistingUserWithoutPasswordUser() {
@@ -89,8 +89,8 @@ public class UserServiceTest {
         passwordUser.setVerifiedEmail(false);
         existingUser.setPasswordUser(passwordUser);
 
-        when(userService.createUser(userInput)).thenReturn(existingUser);
-        when(userService.registerPasswordUser(userInput)).thenReturn(passwordUser);
+        when(authService.createUser(userInput)).thenReturn(existingUser);
+        when(authService.registerPasswordUser(userInput)).thenReturn(passwordUser);
     }
 
     private User createExistingUserWithPasswordUser() {
@@ -106,7 +106,7 @@ public class UserServiceTest {
     private void configureUserExistsWithPasswordUser() {
         User existingUser = createExistingUserWithPasswordUser();
         when(userRepository.findByEmail(userInput.email())).thenReturn(existingUser);
-        when(userService.registerPasswordUser(userInput)).thenReturn(null);
+        when(authService.registerPasswordUser(userInput)).thenReturn(null);
     }
 
     private void assertEqualsPasswordUser(String expectedPassword, String actualPassword) {
