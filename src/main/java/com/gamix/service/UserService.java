@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,14 @@ import com.gamix.controller.UserController.PartialUserInput;
 import com.gamix.controller.UserController.UserInput;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.repositories.UserRepository;
 import com.gamix.repositories.PasswordUserRepository;
+import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtGenerator;
+import com.gamix.security.JwtValidator;
 
+import io.github.cdimascio.dotenv.Dotenv;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
@@ -29,6 +34,9 @@ public class UserService {
     
     @Autowired
     private JwtGenerator jwtGenerator;
+
+    @Autowired
+    private Dotenv dotenv;
     
     public PasswordUser registerPasswordUser(UserInput userInput) {
         User user = userRepository.findByEmail(userInput.email());
@@ -43,6 +51,30 @@ public class UserService {
         passwordUser.setToken(jwtGenerator.generate(passwordUser));
 
         return passwordUserRepository.save(passwordUser);
+    }
+
+    public String loginWithUsername(String username, String password) {
+        User user = userRepository.findByUsername(username);
+    
+        if (user == null) return null;
+        
+        PasswordUser passwordUser = user.getPasswordUser();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        
+        if (passwordEncoder.matches(password, passwordUser.getPassword())) {
+            return passwordUser.getToken();
+        } else {
+            return null;
+        }
+    }
+
+    public void signoutPasswordUser(String username) {
+        User user = userRepository.findByUsername(username);
+        if (user == null) return;
+
+        String token = user.getPasswordUser().getToken();
+        String expiredToken = new JwtValidator().invalidate(token);
+        
     }
 
     public List<User> findAllUsers(int skip, int limit) {

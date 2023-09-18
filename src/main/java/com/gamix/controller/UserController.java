@@ -70,6 +70,11 @@ public class UserController {
             this(userInput.username(), userInput.email(), userInput.password(), userInput.icon());
         }
     }
+    public record LoginWithPasswordUserInput(String username, String password) {
+        public LoginWithPasswordUserInput(LoginWithPasswordUserInput userInput) {
+            this(userInput.username(), userInput.password());
+        }
+    }
     public record PartialUserInput(String username, String icon) {
         public PartialUserInput(UserInput userInput) {
             this(userInput.username(), userInput.icon());
