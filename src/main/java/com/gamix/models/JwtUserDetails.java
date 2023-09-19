@@ -7,19 +7,19 @@ import java.util.Collection;
 import java.util.List;
 
 public class JwtUserDetails implements UserDetails {
-    private String username, token, password;
+    private String username, accessToken, password;
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public JwtUserDetails(String username, String password, String token, List<GrantedAuthority> grantedAuthorities) {
+    public JwtUserDetails(String username, String password, String accessToken, List<GrantedAuthority> grantedAuthorities) {
         this.username = username;
         this.password = password;
-        this.token= token;
+        this.accessToken= accessToken;
         this.authorities = grantedAuthorities;
     }
 
-    public String getToken() {
-        return this.token;
+    public String getAccessToken() {
+        return this.accessToken;
     }
 
     public String getPassword() {

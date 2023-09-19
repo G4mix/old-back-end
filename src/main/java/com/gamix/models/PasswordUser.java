@@ -21,12 +21,12 @@ public class PasswordUser {
     @Column(nullable = false, length = 1000)
     private String password;
     
-    private Boolean verifiedEmail;
+    private Boolean verifiedEmail, rememberMe;
 
     private String role;
 
     @Column(length = 500)
-    private String token;
+    private String accessToken, refreshToken;
     
     public Integer getId() {
         return id;
@@ -63,10 +63,24 @@ public class PasswordUser {
         this.verifiedEmail = verifiedEmail;
     }
     
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
     }
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public Boolean getRememberMe() {
+        return rememberMe;
+    }
+    public void setRememberMe(Boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 }

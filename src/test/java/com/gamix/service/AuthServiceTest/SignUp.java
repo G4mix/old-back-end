@@ -17,7 +17,7 @@ import com.gamix.records.UserRecords.UserInput;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
-import com.gamix.security.JwtGenerator;
+import com.gamix.security.JwtManager;
 import com.gamix.service.AuthService;
 import com.gamix.utils.Role;
 
@@ -29,7 +29,7 @@ public class SignUp {
     private UserRepository userRepository;
 
     @MockBean
-    private JwtGenerator jwtGenerator;
+    private JwtManager jwtManager;
 
     @MockBean
     private AuthService authService;
@@ -38,7 +38,7 @@ public class SignUp {
 
     @Before
     public void setUp() {
-        userInput = new UserInput("user1", "user1@example.com", "password1", "icon1");
+        userInput = new UserInput("user1", "user1@example.com", "password1", "icon1", true);
     }
 
     @Test
@@ -82,7 +82,8 @@ public class SignUp {
         passwordUser.setRole(Role.USER.toString());
         passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
         passwordUser.setVerifiedEmail(false);
-        passwordUser.setToken("token_here");
+        passwordUser.setAccessToken("token_here");
+        passwordUser.setRefreshToken("token_here");
         return passwordUser;
     }
 
@@ -93,7 +94,7 @@ public class SignUp {
     
         PasswordUser newPasswordUser = createNewPasswordUser();
         String token = "token_here";
-        when(jwtGenerator.generate(newPasswordUser)).thenReturn(token);
+        when(jwtManager.generateAccessToken(newPasswordUser)).thenReturn(token);
     
         when(authService.signUpPasswordUser(userInput)).thenReturn(newPasswordUser);
     }

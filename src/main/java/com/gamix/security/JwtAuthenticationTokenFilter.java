@@ -1,5 +1,6 @@
 package com.gamix.security;
 
+import com.gamix.exceptions.AccessTokenExpiredException;
 import com.gamix.models.JwtAuthenticationToken;
 
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
 
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new RuntimeException("JWT Token is missing");
+            throw new AccessTokenExpiredException("JWT Token is missing");
         }
 
         String authenticationToken = header.substring(7);

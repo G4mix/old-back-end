@@ -11,8 +11,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.gamix.exceptions.AccessTokenExpiredException;
 import com.gamix.models.JwtAuthenticationToken;
 import com.gamix.models.JwtUserDetails;
+import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
 
@@ -21,7 +23,7 @@ import io.jsonwebtoken.Claims;
 @Component
 public class JwtAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
     @Autowired
-    private JwtValidator validator;
+    private JwtManager jwtManager;
 
     @Autowired
     private UserRepository userRepository;
@@ -37,18 +39,26 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     ) throws AuthenticationException {
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
         String token = jwtAuthenticationToken.getToken();
-        
-        if (!validator.validate(token)) throw new RuntimeException("JWT Token is incorrect");
-        
-        Claims body = validator.getTokenClaims(token);
+
+        if (!jwtManager.validate(token)) {
+            throw new AccessTokenExpiredException("JWT Token is incorrect");
+        }
+
+        Claims body = jwtManager.getTokenClaims(token);
         User user = userRepository.findByUsername(body.getSubject());
+
+        if (user == null) throw new RuntimeException("user not found");
+        
+        PasswordUser passwordUser = user.getPasswordUser();
+
+        if (passwordUser == null) throw new RuntimeException("passwordUser not found");
 
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                 .commaSeparatedStringToAuthorityList(user.getPasswordUser().getRole());
         return new JwtUserDetails(
             user.getUsername(), 
             user.getPasswordUser().getPassword(),
-            user.getPasswordUser().getToken(),
+            user.getPasswordUser().getAccessToken(),
             grantedAuthorities
         );
     }

@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.gamix.exceptions.AccessTokenExpiredException;
+import com.gamix.exceptions.RefreshTokenExpiredException;
 import com.gamix.models.User;
 import com.gamix.records.UserRecords.PartialUserInput;
 import com.gamix.service.UserService;
@@ -55,14 +57,35 @@ public class UserController {
         userService.deleteAccount(id);
     }
 
-    @GraphQlExceptionHandler
-    public GraphQLError handle(@NonNull Throwable ex, @NonNull DataFetchingEnvironment environment){
+@GraphQlExceptionHandler
+public GraphQLError handle(@NonNull Throwable ex, @NonNull DataFetchingEnvironment environment) {
+    if (ex instanceof RefreshTokenExpiredException) {
         return GraphQLError
-                .newError()
-                .errorType(ErrorType.BAD_REQUEST)
-                .message(ex.getMessage())
-                .path(environment.getExecutionStepInfo().getPath())
-                .location(environment.getField().getSourceLocation())
-                .build();
+            .newError()
+            .errorType(ErrorType.UNAUTHORIZED)
+            .message("refresh token has expired")
+            .path(environment.getExecutionStepInfo().getPath())
+            .location(environment.getField().getSourceLocation())
+            .build();
     }
+
+    if (ex instanceof AccessTokenExpiredException) {
+        return GraphQLError
+            .newError()
+            .errorType(ErrorType.UNAUTHORIZED)
+            .message("access token has expired")
+            .path(environment.getExecutionStepInfo().getPath())
+            .location(environment.getField().getSourceLocation())
+            .build();
+    }
+
+    return GraphQLError
+            .newError()
+            .errorType(ErrorType.BAD_REQUEST)
+            .message(ex.getMessage())
+            .path(environment.getExecutionStepInfo().getPath())
+            .location(environment.getField().getSourceLocation())
+            .build();
+}
+
 }
