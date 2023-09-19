@@ -37,16 +37,15 @@ public class AuthController {
     public ResponseEntity<String> signUpPasswordUser(@RequestBody UserInput userInput) {
         PasswordUser passwordUser = authService.signUpPasswordUser(userInput);
         
+        HttpHeaders headers = new HttpHeaders();
+
         if (passwordUser == null) {
-            HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.LOCATION, dotenv.get("FRONT_END_BASE_URL") + "/register");
             return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body(null);
         }
 
         List<String> cookieStrings = CookieUtils.generateCookies(passwordUser, userInput.rememberMe());
 
-        HttpHeaders headers = new HttpHeaders();
-        
         headers.addAll(HttpHeaders.SET_COOKIE, cookieStrings);
         headers.add(HttpHeaders.LOCATION, dotenv.get("FRONT_END_BASE_URL") + "/");
 
