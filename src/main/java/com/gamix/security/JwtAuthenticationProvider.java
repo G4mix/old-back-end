@@ -39,12 +39,13 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
         String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
     ) throws AuthenticationException {
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
-        String token = jwtAuthenticationToken.getToken();
+        String accessToken = jwtAuthenticationToken.getToken();
 
-        if (!jwtManager.validate(token)) throw new BackendException("invalid accessToken", HttpStatus.UNAUTHORIZED);
+        if (!jwtManager.validate(accessToken)) throw new BackendException("invalid accessToken", HttpStatus.UNAUTHORIZED);
 
-        Claims body = jwtManager.getTokenClaims(token);
+        Claims body = jwtManager.getTokenClaims(accessToken);
         User user = userRepository.findByUsername(body.getSubject());
+        String role = (String) body.get("role");
 
         if (user == null) throw new BackendException("user not found", HttpStatus.UNAUTHORIZED);
         
@@ -53,11 +54,11 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
         if (passwordUser == null) throw new BackendException("passwordUser not found", HttpStatus.UNAUTHORIZED);
 
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-                .commaSeparatedStringToAuthorityList(user.getPasswordUser().getRole());
+                .commaSeparatedStringToAuthorityList(role);
         return new JwtUserDetails(
             user.getUsername(), 
             user.getPasswordUser().getPassword(),
-            user.getPasswordUser().getAccessToken(),
+            accessToken,
             grantedAuthorities
         );
     }

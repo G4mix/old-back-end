@@ -5,8 +5,10 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gamix.models.PasswordUser;
-import com.gamix.service.UserService;
+import com.gamix.enums.ExpirationTime;
+import com.gamix.enums.Role;
+import com.gamix.records.JwtRecords.GenerateTokenArgs;
+import com.gamix.records.JwtRecords.JwtTokens;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
@@ -16,23 +18,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtManager {
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private Dotenv dotenv;
-
-    private final long accessTokenExpirationTime = 3600000;
-    private final long refreshTokenExpirationTime = 604800000;
-    private final long refreshTokenRembemberMeExpirationTime = 2592000000L;
-
-    public String generateAccessToken(PasswordUser passwordUser) {
-        return generateToken(passwordUser, accessTokenExpirationTime);
-    }
-
-    public String generateRefreshToken(PasswordUser passwordUser) {
-        long expirationTime = passwordUser.getRememberMe() ? refreshTokenRembemberMeExpirationTime : refreshTokenExpirationTime;
-        return generateToken(passwordUser, expirationTime);
-    }
 
     public Claims getTokenClaims(String token) {
         return Jwts.parser()
@@ -45,15 +31,10 @@ public class JwtManager {
         try {
             Claims body = getTokenClaims(token);
 
-            String username = body.getSubject();
-            PasswordUser passwordUser = userService.findUserByUsername(username).getPasswordUser();
-
             Date expirationDate = body.getExpiration();
             Date currentDate = new Date();
 
-            boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-
-            if (isExpired || !passwordUser.getAccessToken().equals(token)) return false;
+            if (expirationDate != null && expirationDate.before(currentDate)) return false;
 
             return true;
         } catch (Exception e) {
@@ -67,19 +48,31 @@ public class JwtManager {
 
         String newToken = Jwts.builder()
             .setClaims(claims)
-            .setExpiration(new Date(1))
+            .setExpiration(new Date(0))
             .signWith(SignatureAlgorithm.HS512, dotenv.get("JWT_SIGNING_KEY_SECRET"))
             .compact();
 
         return newToken;
     }
 
-    private String generateToken(PasswordUser passwordUser, long expirationTime) {
-        Claims claims = Jwts.claims().setSubject(passwordUser.getUser().getUsername());
-        claims.put("password", String.valueOf(passwordUser.getPassword()));
-        claims.put("role", passwordUser.getRole());
+    public JwtTokens generateTokens(String username, boolean rememberMe) {
+        GenerateTokenArgs generateAccessTokenArgs = new GenerateTokenArgs(
+            username, ExpirationTime.ACCESS_TOKEN
+        );
+        GenerateTokenArgs generateRefreshTokenArgs = new GenerateTokenArgs(
+            username, rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN
+        );
+        String accessToken = generateToken(generateAccessTokenArgs);
+        String refreshToken = generateToken(generateRefreshTokenArgs);
 
-        Date expirationDate = new Date(System.currentTimeMillis() + expirationTime);
+        return new JwtTokens(accessToken, refreshToken);
+    }
+
+    public String generateToken(GenerateTokenArgs generateTokenArgs) {
+        Claims claims = Jwts.claims().setSubject(generateTokenArgs.username());
+        claims.put("role", Role.USER.toString());
+
+        Date expirationDate = new Date(System.currentTimeMillis() + generateTokenArgs.expirationTime().getValue());
 
         return Jwts.builder()
             .setClaims(claims)

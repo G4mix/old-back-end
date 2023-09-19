@@ -21,12 +21,7 @@ public class PasswordUser {
     @Column(nullable = false, length = 1000)
     private String password;
     
-    private Boolean verifiedEmail, rememberMe;
-
-    private String role;
-
-    @Column(length = 500)
-    private String accessToken, refreshToken;
+    private Boolean verifiedEmail;
     
     public Integer getId() {
         return id;
@@ -42,13 +37,6 @@ public class PasswordUser {
         this.user = user;
     }
     
-    public String getRole() {
-        return role;
-    }
-    public void setRole(String role) {
-        this.role = role;
-    }
-    
     public String getPassword() {
         return password;
     }
@@ -61,26 +49,5 @@ public class PasswordUser {
     }
     public void setVerifiedEmail(Boolean verifiedEmail) {
         this.verifiedEmail = verifiedEmail;
-    }
-    
-    public String getAccessToken() {
-        return accessToken;
-    }
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public Boolean getRememberMe() {
-        return rememberMe;
-    }
-    public void setRememberMe(Boolean rememberMe) {
-        this.rememberMe = rememberMe;
     }
 }

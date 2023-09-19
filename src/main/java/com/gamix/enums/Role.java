@@ -1,4 +1,4 @@
-package com.gamix.utils;
+package com.gamix.enums;
 
 public enum Role {
     USER

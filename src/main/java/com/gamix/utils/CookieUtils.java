@@ -3,19 +3,11 @@ package com.gamix.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.gamix.models.PasswordUser;
-import com.gamix.records.UserRecords.UserSession;
-
 import jakarta.servlet.http.Cookie;
 
 public class CookieUtils {
-    public static List<String> generateCookies(PasswordUser passwordUser, boolean rememberMe) {
-        UserSession userSession = new UserSession(
-            passwordUser.getUser().getUsername(), passwordUser.getUser().getEmail(),
-            passwordUser.getUser().getIcon(), passwordUser.getAccessToken()
-        );
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", passwordUser.getRefreshToken());
+    public static List<String> generateCookies(String accessToken, String refreshToken, boolean rememberMe) {
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setPath("/");
 
         if (rememberMe) {
@@ -24,7 +16,7 @@ public class CookieUtils {
             refreshTokenCookie.setMaxAge(24 * 60 * 60);
         }
 
-        Cookie sessionCookie = new Cookie("session", userSession.toString());
+        Cookie sessionCookie = new Cookie("accessToken", accessToken);
         sessionCookie.setPath("/");
         sessionCookie.setMaxAge(3600);
 
@@ -34,6 +26,7 @@ public class CookieUtils {
 
         return cookieStrings;
     }
+
     private static String buildSetCookieString(Cookie cookie) {
         StringBuilder cookieString = new StringBuilder();
         cookieString.append(cookie.getName()).append("=").append(cookie.getValue());

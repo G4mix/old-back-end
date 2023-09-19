@@ -8,12 +8,12 @@ import org.springframework.stereotype.Service;
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.records.UserRecords.RefreshedTokens;
+import com.gamix.records.JwtRecords.JwtTokens;
+import com.gamix.records.SessionRecords.UserSessionWithRefreshToken;
 import com.gamix.records.UserRecords.UserInput;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
-import com.gamix.utils.Role;
 
 import io.jsonwebtoken.Claims;
 
@@ -28,25 +28,22 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    public PasswordUser signUpPasswordUser(UserInput userInput) {
+    public UserSessionWithRefreshToken signUpPasswordUser(UserInput userInput) {
         User user = userRepository.findByEmail(userInput.email());
         
-        if (user == null) user = this.createUser(userInput);
+        if (user == null) user = createUser(userInput);
         if (user.getPasswordUser() != null) return null;
         
-        PasswordUser passwordUser = new PasswordUser();
-        passwordUser.setUser(user);
-        passwordUser.setRole(Role.USER.toString());
-        passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
-        passwordUser.setVerifiedEmail(false);
-        passwordUser.setAccessToken(jwtManager.generateAccessToken(passwordUser));
-        passwordUser.setRememberMe(userInput.rememberMe());
-        passwordUser.setRefreshToken(jwtManager.generateRefreshToken(passwordUser));
+        createPasswordUser(user, userInput);
+        
+        JwtTokens jwtTokens = jwtManager.generateTokens(userInput.username(), userInput.rememberMe());
 
-        return passwordUserRepository.save(passwordUser);
+        return new UserSessionWithRefreshToken (
+            user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
+        );
     }
 
-    public PasswordUser signInWithUsername(String username, String password, boolean rememberMe) {
+    public UserSessionWithRefreshToken signInWithUsername(String username, String password, boolean rememberMe) {
         User user = userRepository.findByUsername(username);
         if (user == null) return null;
         
@@ -55,17 +52,14 @@ public class AuthService {
 
         if (!passwordEncoder.matches(password, passwordUser.getPassword())) return null;
 
-        boolean expiredAccessToken = !jwtManager.validate(passwordUser.getAccessToken());
-        boolean expiredRefreshToken = !jwtManager.validate(passwordUser.getRefreshToken());
+        JwtTokens jwtTokens = jwtManager.generateTokens(user.getUsername(), rememberMe);
 
-        if (expiredAccessToken) passwordUser.setAccessToken(jwtManager.generateAccessToken(passwordUser));
-        passwordUser.setRememberMe(rememberMe);
-        if (expiredRefreshToken) passwordUser.setRefreshToken(jwtManager.generateRefreshToken(passwordUser));
-
-        return passwordUserRepository.save(passwordUser);
+        return new UserSessionWithRefreshToken (
+            user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
+        );
     }
     
-    public PasswordUser signInWithEmail(String email, String password, boolean rememberMe) {
+    public UserSessionWithRefreshToken signInWithEmail(String email, String password, boolean rememberMe) {
         User user = userRepository.findByEmail(email);
         if (user == null) return null;
         
@@ -74,54 +68,21 @@ public class AuthService {
 
         if (!passwordEncoder.matches(password, passwordUser.getPassword())) return null;
 
-        boolean expiredAccessToken = !jwtManager.validate(passwordUser.getAccessToken());
-        boolean expiredRefreshToken = !jwtManager.validate(passwordUser.getRefreshToken());
+        JwtTokens jwtTokens = jwtManager.generateTokens(user.getUsername(), rememberMe);
 
-        if (expiredAccessToken) passwordUser.setAccessToken(jwtManager.generateAccessToken(passwordUser));
-        passwordUser.setRememberMe(rememberMe);
-        if (expiredRefreshToken) passwordUser.setRefreshToken(jwtManager.generateRefreshToken(passwordUser));
-
-        return passwordUserRepository.save(passwordUser);
+        return new UserSessionWithRefreshToken (
+            user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
+        );
     }
 
-    public void signOutPasswordUser(String accessToken) {
-        if (accessToken == null) return;
-  
-        Claims body = jwtManager.getTokenClaims(accessToken);
-        String username = body.getSubject();
-    
-        User user = userRepository.findByUsername(username);
-        if (user == null) return;
-    
-        PasswordUser passwordUser = user.getPasswordUser();
-        if (!passwordUser.getAccessToken().equals(accessToken)) return;
-    
-        String expiredAccessToken = jwtManager.invalidate(passwordUser.getAccessToken());
-        String expiredRefreshToken = jwtManager.invalidate(passwordUser.getRefreshToken());
-    
-        user.getPasswordUser().setAccessToken(expiredAccessToken);
-        user.getPasswordUser().setRefreshToken(expiredRefreshToken);
-        userRepository.save(user);
-    }    
-
-    public RefreshedTokens refreshToken(String refreshToken) {
+    public JwtTokens refreshToken(String refreshToken) {
         if (!jwtManager.validate(refreshToken))  throw new BackendException("invalid refreshToken", HttpStatus.UNAUTHORIZED);
         Claims body = jwtManager.getTokenClaims(refreshToken);
 
         String username = body.getSubject();
+        boolean rememberMe = (boolean) body.get("rememberMe");
 
-        User user = userRepository.findByUsername(username);
-        PasswordUser passwordUser = user.getPasswordUser();
-
-        String newAccessToken = jwtManager.generateAccessToken(passwordUser);
-        passwordUser.setAccessToken(newAccessToken);
-
-        String newRefreshToken = jwtManager.generateRefreshToken(passwordUser);
-        passwordUser.setRefreshToken(newRefreshToken);
-
-        passwordUserRepository.save(passwordUser);
-
-        return new RefreshedTokens(newAccessToken, newRefreshToken);
+        return jwtManager.generateTokens(username, rememberMe);
     }
 
     public User createUser(UserInput userInput) {
@@ -131,5 +92,14 @@ public class AuthService {
         user.setIcon(userInput.icon());
     
         return userRepository.save(user);
+    }
+
+    public PasswordUser createPasswordUser(User user, UserInput userInput) {
+        PasswordUser passwordUser = new PasswordUser();
+        passwordUser.setUser(user);
+        passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
+        passwordUser.setVerifiedEmail(false);
+
+        return passwordUserRepository.save(passwordUser);
     }
 }

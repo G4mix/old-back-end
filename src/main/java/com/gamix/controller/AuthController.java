@@ -1,6 +1,7 @@
 package com.gamix.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -16,10 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gamix.exceptions.BackendException;
-import com.gamix.models.PasswordUser;
-import com.gamix.records.UserRecords.RefreshedTokens;
+import com.gamix.records.JwtRecords.JwtTokens;
+import com.gamix.records.SessionRecords.UserSessionWithRefreshToken;
 import com.gamix.records.UserRecords.UserInput;
-import com.gamix.records.UserRecords.UserPasswordInput;
 import com.gamix.service.AuthService;
 import com.gamix.utils.CookieUtils;
 
@@ -35,16 +35,20 @@ public class AuthController {
 
     @PostMapping("/auth/signup")
     public ResponseEntity<String> signUpPasswordUser(@RequestBody UserInput userInput) {
-        PasswordUser passwordUser = authService.signUpPasswordUser(userInput);
+        UserSessionWithRefreshToken userSessionWithRefreshToken = authService.signUpPasswordUser(userInput);
         
         HttpHeaders headers = new HttpHeaders();
 
-        if (passwordUser == null) {
+        if (userSessionWithRefreshToken == null) {
             headers.add(HttpHeaders.LOCATION, dotenv.get("FRONT_END_BASE_URL") + "/register");
             return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body(null);
         }
 
-        List<String> cookieStrings = CookieUtils.generateCookies(passwordUser, userInput.rememberMe());
+        List<String> cookieStrings = CookieUtils.generateCookies(
+            userSessionWithRefreshToken.accessToken(), 
+            userSessionWithRefreshToken.refreshToken(), 
+            userInput.rememberMe()
+        );
 
         headers.addAll(HttpHeaders.SET_COOKIE, cookieStrings);
         headers.add(HttpHeaders.LOCATION, dotenv.get("FRONT_END_BASE_URL") + "/");
@@ -57,23 +61,26 @@ public class AuthController {
         @RequestParam(value = "username", required = false) String username,
         @RequestParam(value = "email", required = false) String email,
         @RequestParam(value = "rememberMe", required = false) boolean rememberMe,
-        @RequestBody UserPasswordInput userPasswordInput
+        @RequestBody Map<String, String> requestBody
     ) {
-        PasswordUser passwordUser = null;
+        UserSessionWithRefreshToken userSessionWithRefreshToken;
 
         if(username != null) {
-            passwordUser = authService.signInWithUsername(username, userPasswordInput.password(), rememberMe);
+            userSessionWithRefreshToken = authService.signInWithUsername(username, requestBody.get("password"), rememberMe);
         } else {
-            passwordUser = authService.signInWithEmail(email, userPasswordInput.password(), rememberMe);
+            userSessionWithRefreshToken = authService.signInWithEmail(email, requestBody.get("password"), rememberMe);
         }
         
         HttpHeaders headers = new HttpHeaders();
-        if (passwordUser == null) {
+        if (userSessionWithRefreshToken == null) {
             headers.add("Location", dotenv.get("FRONT_END_BASE_URL")+"/login");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).body(null);
         }
 
-        List<String> cookieStrings = CookieUtils.generateCookies(passwordUser, rememberMe);
+        List<String> cookieStrings = CookieUtils.generateCookies(
+            userSessionWithRefreshToken.accessToken(), 
+            userSessionWithRefreshToken.refreshToken(), rememberMe
+        );
 
         headers.addAll(HttpHeaders.SET_COOKIE, cookieStrings);
         headers.add(HttpHeaders.LOCATION, dotenv.get("FRONT_END_BASE_URL") + "/");
@@ -84,9 +91,7 @@ public class AuthController {
     @GetMapping("/auth/signout")
     public ResponseEntity<String> signOutPasswordUser(
         @RequestHeader("Authorization") String token
-    ) {
-        String accessToken = token.substring(7);
-        authService.signOutPasswordUser(accessToken);
+    ) {        
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", dotenv.get("FRONT_END_BASE_URL") + "/login");
     
@@ -95,9 +100,9 @@ public class AuthController {
 
     @PostMapping("/auth/refreshtoken")
     public ResponseEntity<String> refreshTokenPasswodUser(
-        @RequestBody String refreshToken
+        @RequestBody Map<String, String> requestBody
     ) {
-        RefreshedTokens refreshedTokens = authService.refreshToken(refreshToken);
+        JwtTokens refreshedTokens = authService.refreshToken(requestBody.get("refreshToken"));
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", dotenv.get("FRONT_END_BASE_URL") + "/");
     

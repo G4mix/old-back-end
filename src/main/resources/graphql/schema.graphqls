@@ -10,7 +10,6 @@ type User {
 type PasswordUser {
     id: Int!
     user: User!
-    role: Role!
     verifiedEmail: Boolean
 }
 
@@ -19,10 +18,6 @@ type SocialAccount {
     user: User!
     provider: String!
     socialAccountId: String!
-}
-
-enum Role {
-    USER
 }
 
 type Query {
