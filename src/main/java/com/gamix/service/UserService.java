@@ -8,8 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.gamix.records.UserRecords.PartialUserInput;
 import com.gamix.models.User;
+import com.gamix.records.UserRecords.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;

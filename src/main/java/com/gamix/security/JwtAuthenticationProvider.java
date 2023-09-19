@@ -3,6 +3,7 @@ package com.gamix.security;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -11,7 +12,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.gamix.exceptions.AccessTokenExpiredException;
+import com.gamix.exceptions.BackendException;
 import com.gamix.models.JwtAuthenticationToken;
 import com.gamix.models.JwtUserDetails;
 import com.gamix.models.PasswordUser;
@@ -40,18 +41,16 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
         String token = jwtAuthenticationToken.getToken();
 
-        if (!jwtManager.validate(token)) {
-            throw new AccessTokenExpiredException("JWT Token is incorrect");
-        }
+        if (!jwtManager.validate(token)) throw new BackendException("invalid accessToken", HttpStatus.UNAUTHORIZED);
 
         Claims body = jwtManager.getTokenClaims(token);
         User user = userRepository.findByUsername(body.getSubject());
 
-        if (user == null) throw new RuntimeException("user not found");
+        if (user == null) throw new BackendException("user not found", HttpStatus.UNAUTHORIZED);
         
         PasswordUser passwordUser = user.getPasswordUser();
 
-        if (passwordUser == null) throw new RuntimeException("passwordUser not found");
+        if (passwordUser == null) throw new BackendException("passwordUser not found", HttpStatus.UNAUTHORIZED);
 
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                 .commaSeparatedStringToAuthorityList(user.getPasswordUser().getRole());

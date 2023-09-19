@@ -1,17 +1,19 @@
 package com.gamix.security;
 
-import com.gamix.exceptions.AccessTokenExpiredException;
-import com.gamix.models.JwtAuthenticationToken;
+import java.io.IOException;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+
+import com.gamix.exceptions.BackendException;
+import com.gamix.models.JwtAuthenticationToken;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessingFilter {
     public JwtAuthenticationTokenFilter() {
@@ -25,7 +27,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
 
 
         if (header == null || !header.startsWith("Bearer ")) {
-            throw new AccessTokenExpiredException("JWT Token is missing");
+            throw new BackendException("invalid accessToken", HttpStatus.UNAUTHORIZED);
         }
 
         String authenticationToken = header.substring(7);

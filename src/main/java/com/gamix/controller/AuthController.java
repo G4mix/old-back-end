@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gamix.exceptions.BackendException;
 import com.gamix.models.PasswordUser;
 import com.gamix.records.UserRecords.RefreshedTokens;
 import com.gamix.records.UserRecords.UserInput;
@@ -102,4 +105,11 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(refreshedTokens.toString());
     }
 
+    @ControllerAdvice
+    public class GlobalExceptionHandler {
+        @ExceptionHandler(BackendException.class)
+        public ResponseEntity<Object> handleJwtAuthenticationException(BackendException ex) {
+            return ResponseEntity.status(ex.getStatus()).body(ex.getMessage());
+        }
+    }
 }

@@ -1,14 +1,15 @@
 package com.gamix.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.gamix.records.UserRecords.RefreshedTokens;
-import com.gamix.records.UserRecords.UserInput;
-import com.gamix.exceptions.RefreshTokenExpiredException;
+import com.gamix.exceptions.BackendException;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
+import com.gamix.records.UserRecords.RefreshedTokens;
+import com.gamix.records.UserRecords.UserInput;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
@@ -104,7 +105,7 @@ public class AuthService {
     }    
 
     public RefreshedTokens refreshToken(String refreshToken) {
-        if (!jwtManager.validate(refreshToken)) throw new RefreshTokenExpiredException("invalid refreshToken");
+        if (!jwtManager.validate(refreshToken))  throw new BackendException("invalid refreshToken", HttpStatus.UNAUTHORIZED);
         Claims body = jwtManager.getTokenClaims(refreshToken);
 
         String username = body.getSubject();
