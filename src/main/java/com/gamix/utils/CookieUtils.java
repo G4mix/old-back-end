@@ -1,12 +1,12 @@
 package com.gamix.utils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.servlet.http.Cookie;
 
 public class CookieUtils {
-    public static List<String> generateCookies(String accessToken, String refreshToken, boolean rememberMe) {
+    public static Map<String, String> generateCookies(String accessToken, String refreshToken, boolean rememberMe) {
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setPath("/");
 
@@ -16,13 +16,13 @@ public class CookieUtils {
             refreshTokenCookie.setMaxAge(24 * 60 * 60);
         }
 
-        Cookie sessionCookie = new Cookie("accessToken", accessToken);
-        sessionCookie.setPath("/");
-        sessionCookie.setMaxAge(3600);
+        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setMaxAge(3600);
 
-        List<String> cookieStrings = new ArrayList<>();
-        cookieStrings.add(buildSetCookieString(refreshTokenCookie));
-        cookieStrings.add(buildSetCookieString(sessionCookie));
+        Map<String, String> cookieStrings = new HashMap<>();
+        cookieStrings.put("refreshToken", buildSetCookieString(refreshTokenCookie));
+        cookieStrings.put("accessToken", buildSetCookieString(accessTokenCookie));
 
         return cookieStrings;
     }

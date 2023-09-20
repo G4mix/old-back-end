@@ -32,8 +32,9 @@ public class UserService {
     }
 
     public User findUserByToken(String token) {
-        Claims claims = jwtManager.getTokenClaims(token);
-        return findUserByUsername(claims.getSubject());
+        String accessToken = token.substring(7);
+        Claims claims = jwtManager.getTokenClaims(accessToken);
+        return userRepository.findByUsername(claims.getSubject());
     }
 
     public User findUserByEmail(String email) {
