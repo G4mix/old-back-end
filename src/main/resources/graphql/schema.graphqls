@@ -24,7 +24,7 @@ type Query {
     findAllUsers(skip: Int = 0, limit: Int = 10): [User]
     findUserByUsername(username: String!): User
     findUserByEmail(email: String!): User
-    findUserByToken: User
+    findUserByToken(accessToken: String!): User
 }
 
 type Mutation {

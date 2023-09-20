@@ -31,8 +31,8 @@ public class UserService {
         return users.getContent();
     }
 
-    public User findUserByToken(String token) {
-        String accessToken = token.substring(7);
+    public User findUserByToken(String accessToken) {
+        System.out.println(">>>> TOKEN IN SERVICE: "+accessToken);
         Claims claims = jwtManager.getTokenClaims(accessToken);
         return userRepository.findByUsername(claims.getSubject());
     }

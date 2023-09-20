@@ -54,8 +54,8 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
 
         if (passwordUser == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
 
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-                .commaSeparatedStringToAuthorityList(role);
+        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(role);
+
         return new JwtUserDetails(
             user.getUsername(), 
             user.getPasswordUser().getPassword(),

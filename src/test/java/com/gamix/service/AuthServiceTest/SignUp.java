@@ -13,7 +13,6 @@
 // import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 // import org.springframework.test.context.junit4.SpringRunner;
 
-// import com.gamix.enums.Role;
 // import com.gamix.models.PasswordUser;
 // import com.gamix.models.User;
 // import com.gamix.records.UserRecords.UserInput;
@@ -79,7 +78,6 @@
 //     private PasswordUser createNewPasswordUser() {
 //         PasswordUser passwordUser = new PasswordUser();
 //         passwordUser.setUser(createNewUser());
-//         passwordUser.setRole(Role.USER.toString());
 //         passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
 //         passwordUser.setVerifiedEmail(false);
 //         return passwordUser;

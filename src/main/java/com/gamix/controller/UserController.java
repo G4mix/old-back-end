@@ -12,7 +12,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.User;
@@ -40,8 +39,8 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
-    User findUserByToken(@RequestHeader("Authorization") String token) {
-        User user = userService.findUserByToken(token);
+    User findUserByToken(@Argument String accessToken) {
+        User user = userService.findUserByToken(accessToken);
         return user;
     }
 
