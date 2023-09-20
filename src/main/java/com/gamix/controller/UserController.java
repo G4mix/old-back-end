@@ -76,7 +76,7 @@ public class UserController {
         if (ex instanceof BackendException) {
             return GraphQLError
                 .newError()
-                .errorType((ErrorClassification) ((BackendException) ex).getStatus())
+                .errorType(ErrorClassification.errorClassification(ex.getMessage()))
                 .message(ex.getMessage())
                 .path(environment.getExecutionStepInfo().getPath())
                 .location(environment.getField().getSourceLocation())
