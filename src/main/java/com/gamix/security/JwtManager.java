@@ -57,19 +57,20 @@ public class JwtManager {
 
     public JwtTokens generateTokens(String username, boolean rememberMe) {
         GenerateTokenArgs generateAccessTokenArgs = new GenerateTokenArgs(
-            username, ExpirationTime.ACCESS_TOKEN
+            username, ExpirationTime.ACCESS_TOKEN, rememberMe
         );
         GenerateTokenArgs generateRefreshTokenArgs = new GenerateTokenArgs(
-            username, rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN
+            username, rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN, rememberMe
         );
         String accessToken = generateToken(generateAccessTokenArgs);
         String refreshToken = generateToken(generateRefreshTokenArgs);
 
-        return new JwtTokens(accessToken, refreshToken);
+        return new JwtTokens(accessToken, refreshToken, rememberMe);
     }
 
     public String generateToken(GenerateTokenArgs generateTokenArgs) {
         Claims claims = Jwts.claims().setSubject(generateTokenArgs.username());
+        claims.put("rememberMe", generateTokenArgs.rememberMe());
         claims.put("role", Role.USER.toString());
 
         Date expirationDate = new Date(System.currentTimeMillis() + generateTokenArgs.expirationTime().getValue());

@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
+import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.JwtAuthenticationToken;
 
@@ -27,7 +28,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     
     
             if (header == null || !header.startsWith("Bearer ")) {
-                throw new BackendException("invalid accessToken", HttpStatus.UNAUTHORIZED);
+                throw new BackendException(ExceptionMessage.INVALID_ACCESS_TOKEN, HttpStatus.UNAUTHORIZED);
             }
     
             String authenticationToken = header.substring(7);

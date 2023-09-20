@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.JwtAuthenticationToken;
 import com.gamix.models.JwtUserDetails;
@@ -41,17 +42,17 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
         String accessToken = jwtAuthenticationToken.getToken();
 
-        if (!jwtManager.validate(accessToken)) throw new BackendException("invalid accessToken", HttpStatus.UNAUTHORIZED);
+        if (!jwtManager.validate(accessToken)) throw new BackendException(ExceptionMessage.INVALID_ACCESS_TOKEN, HttpStatus.UNAUTHORIZED);
 
         Claims body = jwtManager.getTokenClaims(accessToken);
         User user = userRepository.findByUsername(body.getSubject());
         String role = (String) body.get("role");
 
-        if (user == null) throw new BackendException("user not found", HttpStatus.UNAUTHORIZED);
+        if (user == null) throw new BackendException(ExceptionMessage.USER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
         
         PasswordUser passwordUser = user.getPasswordUser();
 
-        if (passwordUser == null) throw new BackendException("passwordUser not found", HttpStatus.UNAUTHORIZED);
+        if (passwordUser == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_NOT_FOUND, HttpStatus.UNAUTHORIZED);
 
         List<GrantedAuthority> grantedAuthorities = AuthorityUtils
                 .commaSeparatedStringToAuthorityList(role);

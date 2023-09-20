@@ -12,6 +12,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.User;
@@ -35,6 +36,20 @@ public class UserController {
     ) {
         List<User> users = userService.findAllUsers(skip, limit);
         return users;
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @QueryMapping
+    User findUserByToken(@RequestHeader("Authorization") String token) {
+        User user = userService.findUserByToken(token);
+        return user;
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @QueryMapping
+    User findUserByUsername(@Argument String username) {
+        User user = userService.findUserByUsername(username);
+        return user;
     }
 
     @PreAuthorize("hasAuthority('USER')")

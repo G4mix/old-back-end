@@ -11,19 +11,29 @@ import org.springframework.stereotype.Service;
 import com.gamix.models.User;
 import com.gamix.records.UserRecords.PartialUserInput;
 import com.gamix.repositories.UserRepository;
+import com.gamix.security.JwtManager;
 
+import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JwtManager jwtManager;
     
     public List<User> findAllUsers(int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit);
         Page<User> users = userRepository.findAll(page);
 
         return users.getContent();
+    }
+
+    public User findUserByToken(String token) {
+        Claims claims = jwtManager.getTokenClaims(token);
+        return findUserByUsername(claims.getSubject());
     }
 
     public User findUserByEmail(String email) {

@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
@@ -76,7 +77,7 @@ public class AuthService {
     }
 
     public JwtTokens refreshToken(String refreshToken) {
-        if (!jwtManager.validate(refreshToken))  throw new BackendException("invalid refreshToken", HttpStatus.UNAUTHORIZED);
+        if (!jwtManager.validate(refreshToken))  throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN, HttpStatus.UNAUTHORIZED);
         Claims body = jwtManager.getTokenClaims(refreshToken);
 
         String username = body.getSubject();

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -89,9 +88,7 @@ public class AuthController {
     }
 
     @GetMapping("/auth/signout")
-    public ResponseEntity<String> signOutPasswordUser(
-        @RequestHeader("Authorization") String token
-    ) {        
+    public ResponseEntity<String> signOutPasswordUser() {        
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", dotenv.get("FRONT_END_BASE_URL") + "/login");
     
@@ -103,17 +100,25 @@ public class AuthController {
         @RequestBody Map<String, String> requestBody
     ) {
         JwtTokens refreshedTokens = authService.refreshToken(requestBody.get("refreshToken"));
+
         HttpHeaders headers = new HttpHeaders();
+        List<String> cookieStrings = CookieUtils.generateCookies(
+            refreshedTokens.accessToken(), 
+            refreshedTokens.refreshToken(),
+            refreshedTokens.rememberMe()
+        );
+            
         headers.add("Location", dotenv.get("FRONT_END_BASE_URL") + "/");
-    
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(refreshedTokens.toString());
+        headers.addAll(HttpHeaders.SET_COOKIE, cookieStrings);
+
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(null);
     }
 
     @ControllerAdvice
     public class GlobalExceptionHandler {
         @ExceptionHandler(BackendException.class)
         public ResponseEntity<Object> handleJwtAuthenticationException(BackendException ex) {
-            return ResponseEntity.status(ex.getStatus()).body(ex.getMessage());
+            return ResponseEntity.status(ex.getStatus()).body(ex);
         }
     }
 }
