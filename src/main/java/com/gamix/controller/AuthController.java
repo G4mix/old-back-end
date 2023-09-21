@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gamix.exceptions.BackendException;
-import com.gamix.records.JwtRecords.JwtTokens;
-import com.gamix.records.SessionRecords.UserSessionWithRefreshToken;
-import com.gamix.records.UserRecords.UserInput;
+import com.gamix.records.inputs.UserInput;
+import com.gamix.records.returns.jwt.JwtSessionWithRefreshToken;
+import com.gamix.records.returns.jwt.JwtTokens;
 import com.gamix.service.AuthService;
 import com.gamix.utils.CookieUtils;
 
@@ -29,17 +29,17 @@ public class AuthController {
 
     @PostMapping("/auth/signup")
     public ResponseEntity<Object> signUpPasswordUser(@RequestBody UserInput userInput) {
-        UserSessionWithRefreshToken userSessionWithRefreshToken = authService.signUpPasswordUser(userInput);
+        JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signUpPasswordUser(userInput);
         
         HttpHeaders headers = new HttpHeaders();
 
-        if (userSessionWithRefreshToken == null) {
+        if (jwtSessionWithRefreshToken == null) {
             return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body(null);
         }
 
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
-            userSessionWithRefreshToken.accessToken(), 
-            userSessionWithRefreshToken.refreshToken(), 
+            jwtSessionWithRefreshToken.accessToken(), 
+            jwtSessionWithRefreshToken.refreshToken(), 
             userInput.rememberMe()
         );
 
@@ -53,22 +53,22 @@ public class AuthController {
         @RequestParam(value = "rememberMe", required = false) boolean rememberMe,
         @RequestBody Map<String, String> requestBody
     ) {
-        UserSessionWithRefreshToken userSessionWithRefreshToken;
+        JwtSessionWithRefreshToken jwtSessionWithRefreshToken;
 
         if(username != null) {
-            userSessionWithRefreshToken = authService.signInWithUsername(username, requestBody.get("password"), rememberMe);
+            jwtSessionWithRefreshToken = authService.signInWithUsername(username, requestBody.get("password"), rememberMe);
         } else {
-            userSessionWithRefreshToken = authService.signInWithEmail(email, requestBody.get("password"), rememberMe);
+            jwtSessionWithRefreshToken = authService.signInWithEmail(email, requestBody.get("password"), rememberMe);
         }
         
         HttpHeaders headers = new HttpHeaders();
-        if (userSessionWithRefreshToken == null) {
+        if (jwtSessionWithRefreshToken == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).body(null);
         }
 
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
-            userSessionWithRefreshToken.accessToken(), 
-            userSessionWithRefreshToken.refreshToken(), rememberMe
+            jwtSessionWithRefreshToken.accessToken(), 
+            jwtSessionWithRefreshToken.refreshToken(), rememberMe
         );
 
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);

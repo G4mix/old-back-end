@@ -9,9 +9,9 @@ import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.records.JwtRecords.JwtTokens;
-import com.gamix.records.SessionRecords.UserSessionWithRefreshToken;
-import com.gamix.records.UserRecords.UserInput;
+import com.gamix.records.returns.jwt.JwtSessionWithRefreshToken;
+import com.gamix.records.inputs.UserInput;
+import com.gamix.records.returns.jwt.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
@@ -29,7 +29,7 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    public UserSessionWithRefreshToken signUpPasswordUser(UserInput userInput) {
+    public JwtSessionWithRefreshToken signUpPasswordUser(UserInput userInput) {
         User user = userRepository.findByEmail(userInput.email());
         
         if (user == null) user = createUser(userInput);
@@ -37,14 +37,14 @@ public class AuthService {
         
         createPasswordUser(user, userInput);
         
-        JwtTokens jwtTokens = jwtManager.generateTokens(userInput.username(), userInput.rememberMe());
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(userInput.username(), userInput.rememberMe());
 
-        return new UserSessionWithRefreshToken (
+        return new JwtSessionWithRefreshToken (
             user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
         );
     }
 
-    public UserSessionWithRefreshToken signInWithUsername(String username, String password, boolean rememberMe) {
+    public JwtSessionWithRefreshToken signInWithUsername(String username, String password, boolean rememberMe) {
         User user = userRepository.findByUsername(username);
         if (user == null) return null;
         
@@ -53,14 +53,14 @@ public class AuthService {
 
         if (!passwordEncoder.matches(password, passwordUser.getPassword())) return null;
 
-        JwtTokens jwtTokens = jwtManager.generateTokens(user.getUsername(), rememberMe);
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(user.getUsername(), rememberMe);
 
-        return new UserSessionWithRefreshToken (
+        return new JwtSessionWithRefreshToken (
             user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
         );
     }
     
-    public UserSessionWithRefreshToken signInWithEmail(String email, String password, boolean rememberMe) {
+    public JwtSessionWithRefreshToken signInWithEmail(String email, String password, boolean rememberMe) {
         User user = userRepository.findByEmail(email);
         if (user == null) return null;
         
@@ -69,9 +69,9 @@ public class AuthService {
 
         if (!passwordEncoder.matches(password, passwordUser.getPassword())) return null;
 
-        JwtTokens jwtTokens = jwtManager.generateTokens(user.getUsername(), rememberMe);
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(user.getUsername(), rememberMe);
 
-        return new UserSessionWithRefreshToken (
+        return new JwtSessionWithRefreshToken (
             user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
         );
     }
@@ -83,7 +83,7 @@ public class AuthService {
         String username = body.getSubject();
         boolean rememberMe = (boolean) body.get("rememberMe");
 
-        return jwtManager.generateTokens(username, rememberMe);
+        return jwtManager.generateJwtTokens(username, rememberMe);
     }
 
     public User createUser(UserInput userInput) {

@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.gamix.models.User;
-import com.gamix.records.UserRecords.PartialUserInput;
+import com.gamix.records.inputs.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.gamix.enums.ExpirationTime;
 import com.gamix.enums.Role;
-import com.gamix.records.JwtRecords.GenerateTokenArgs;
-import com.gamix.records.JwtRecords.JwtTokens;
+import com.gamix.interfaces.jwt.JwtManagerInterface;
+import com.gamix.records.returns.jwt.JwtTokens;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
@@ -16,7 +16,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
-public class JwtManager {
+public class JwtManager implements JwtManagerInterface {
     @Autowired
     private Dotenv dotenv;
 
@@ -55,25 +55,25 @@ public class JwtManager {
         return newToken;
     }
 
-    public JwtTokens generateTokens(String username, boolean rememberMe) {
-        GenerateTokenArgs generateAccessTokenArgs = new GenerateTokenArgs(
-            username, ExpirationTime.ACCESS_TOKEN, rememberMe
+    public JwtTokens generateJwtTokens(String username, boolean rememberMe) {
+        String accessToken = generateToken(
+            username, rememberMe, ExpirationTime.ACCESS_TOKEN
         );
-        GenerateTokenArgs generateRefreshTokenArgs = new GenerateTokenArgs(
-            username, rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN, rememberMe
+        String refreshToken = generateToken(
+            username, 
+            rememberMe,
+            rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN
         );
-        String accessToken = generateToken(generateAccessTokenArgs);
-        String refreshToken = generateToken(generateRefreshTokenArgs);
 
         return new JwtTokens(accessToken, refreshToken, rememberMe);
     }
 
-    public String generateToken(GenerateTokenArgs generateTokenArgs) {
-        Claims claims = Jwts.claims().setSubject(generateTokenArgs.username());
-        claims.put("rememberMe", generateTokenArgs.rememberMe());
+    public String generateToken(String username, boolean rememberMe, ExpirationTime expirationTime) {
+        Claims claims = Jwts.claims().setSubject(username);
+        claims.put("rememberMe", rememberMe);
         claims.put("role", Role.USER.toString());
 
-        Date expirationDate = new Date(System.currentTimeMillis() + generateTokenArgs.expirationTime().getValue());
+        Date expirationDate = new Date(System.currentTimeMillis() + expirationTime.getValue());
 
         return Jwts.builder()
             .setClaims(claims)

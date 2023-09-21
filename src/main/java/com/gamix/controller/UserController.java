@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.User;
-import com.gamix.records.UserRecords.PartialUserInput;
+import com.gamix.records.inputs.PartialUserInput;
 import com.gamix.service.UserService;
 
 import graphql.ErrorClassification;
