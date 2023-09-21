@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.gamix.enums.ExpirationTime;
 import com.gamix.enums.Role;
-import com.gamix.interfaces.jwt.JwtManagerInterface;
-import com.gamix.records.returns.jwt.JwtTokens;
+import com.gamix.interfaces.security.JwtManagerInterface;
+import com.gamix.records.returns.security.JwtTokens;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
@@ -20,6 +20,7 @@ public class JwtManager implements JwtManagerInterface {
     @Autowired
     private Dotenv dotenv;
 
+    @Override
     public Claims getTokenClaims(String token) {
         return Jwts.parser()
             .setSigningKey(dotenv.get("JWT_SIGNING_KEY_SECRET"))
@@ -27,6 +28,7 @@ public class JwtManager implements JwtManagerInterface {
             .getBody();
     }
 
+    @Override
     public boolean validate(String token) {
         try {
             Claims body = getTokenClaims(token);
@@ -43,6 +45,7 @@ public class JwtManager implements JwtManagerInterface {
         }
     }
 
+    @Override
     public String invalidate(String token) {
         Claims claims = getTokenClaims(token);
 
@@ -55,20 +58,20 @@ public class JwtManager implements JwtManagerInterface {
         return newToken;
     }
 
+    @Override
     public JwtTokens generateJwtTokens(String username, boolean rememberMe) {
         String accessToken = generateToken(
             username, rememberMe, ExpirationTime.ACCESS_TOKEN
         );
         String refreshToken = generateToken(
-            username, 
-            rememberMe,
+            username, rememberMe,
             rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN
         );
 
         return new JwtTokens(accessToken, refreshToken, rememberMe);
     }
 
-    public String generateToken(String username, boolean rememberMe, ExpirationTime expirationTime) {
+    private String generateToken(String username, boolean rememberMe, ExpirationTime expirationTime) {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("rememberMe", rememberMe);
         claims.put("role", Role.USER.toString());

@@ -26,28 +26,32 @@ public class PasswordUser {
     public Integer getId() {
         return id;
     }
-    public void setId(Integer id) {
+    public PasswordUser setId(Integer id) {
         this.id = id;
+        return this;
     }
     
     public User getUser() {
         return user;
     }
-    public void setUser(User user) {
+    public PasswordUser setUser(User user) {
         this.user = user;
+        return this;
     }
     
     public String getPassword() {
         return password;
     }
-    public void setPassword(String password) {
+    public PasswordUser setPassword(String password) {
         this.password = password;
+        return this;
     }
     
     public Boolean getVerifiedEmail() {
         return verifiedEmail;
     }
-    public void setVerifiedEmail(Boolean verifiedEmail) {
+    public PasswordUser setVerifiedEmail(Boolean verifiedEmail) {
         this.verifiedEmail = verifiedEmail;
+        return this;
     }
 }

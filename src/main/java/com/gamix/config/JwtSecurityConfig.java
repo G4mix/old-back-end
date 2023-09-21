@@ -42,8 +42,8 @@ public class JwtSecurityConfig  {
             .authorizeHttpRequests(
                 (authorize) -> authorize
                     .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/signin").anonymous()
-                    .requestMatchers(HttpMethod.GET, "/auth/signout").authenticated()
-                    .requestMatchers(HttpMethod.POST, "/graphql").authenticated()
+                    .requestMatchers(HttpMethod.GET, "/auth/signout").hasAuthority("USER")
+                    .requestMatchers(HttpMethod.POST, "/graphql").hasAuthority("USER")
                     .anyRequest().denyAll()
             )
             .sessionManagement(

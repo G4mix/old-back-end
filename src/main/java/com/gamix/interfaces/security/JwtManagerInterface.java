@@ -1,7 +1,6 @@
-package com.gamix.interfaces.jwt;
+package com.gamix.interfaces.security;
 
-import com.gamix.enums.ExpirationTime;
-import com.gamix.records.returns.jwt.JwtTokens;
+import com.gamix.records.returns.security.JwtTokens;
 
 import io.jsonwebtoken.Claims;
 
@@ -10,5 +9,4 @@ public interface JwtManagerInterface {
     public boolean validate(String token);
     public String invalidate(String token);
     public JwtTokens generateJwtTokens(String username, boolean rememberMe);
-    public String generateToken(String username, boolean rememberMe, ExpirationTime expirationTime);
 }

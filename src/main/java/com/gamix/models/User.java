@@ -38,47 +38,53 @@ public class User {
         return id;
     }
 
-    public void setId(Integer id) {
+    public User setId(Integer id) {
         this.id = id;
+        return this;
     }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
+    public User setUsername(String username) {
         this.username = username;
+        return this;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    public User setEmail(String email) {
         this.email = email;
+        return this;
     }
 
     public String getIcon() {
         return icon;
     }
 
-    public void setIcon(String icon) {
+    public User setIcon(String icon) {
         this.icon = icon;
+        return this;
     }
 
     public List<SocialAccount> getSocialAccounts() {
         return socialAccounts;
     }
 
-    public void setSocialAccounts(List<SocialAccount> socialAccounts) {
+    public User setSocialAccounts(List<SocialAccount> socialAccounts) {
         this.socialAccounts = socialAccounts;
+        return this;
     }
 
     public PasswordUser getPasswordUser() {
         return passwordUser;
     }
 
-    public void setPasswordUser(PasswordUser passwordUser) {
+    public User setPasswordUser(PasswordUser passwordUser) {
         this.passwordUser = passwordUser;
+        return this;
     }
 }

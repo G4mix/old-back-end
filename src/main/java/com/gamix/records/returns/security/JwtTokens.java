@@ -1,4 +1,4 @@
-package com.gamix.records.returns.jwt;
+package com.gamix.records.returns.security;
 
 public record JwtTokens(String accessToken, String refreshToken, boolean rememberMe) {
     public JwtTokens(JwtTokens jwtTokens) {

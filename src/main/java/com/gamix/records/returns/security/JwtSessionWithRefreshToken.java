@@ -1,4 +1,4 @@
-package com.gamix.records.returns.jwt;
+package com.gamix.records.returns.security;
 
 public record JwtSessionWithRefreshToken(
     String username, String email, 

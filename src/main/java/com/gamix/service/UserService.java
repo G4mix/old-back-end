@@ -8,8 +8,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.gamix.interfaces.services.UserServiceInterface;
 import com.gamix.models.User;
-import com.gamix.records.inputs.PartialUserInput;
+import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 
@@ -17,13 +18,14 @@ import io.jsonwebtoken.Claims;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
-public class UserService {
+public class UserService implements UserServiceInterface {
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private JwtManager jwtManager;
     
+    @Override
     public List<User> findAllUsers(int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit);
         Page<User> users = userRepository.findAll(page);
@@ -31,20 +33,24 @@ public class UserService {
         return users.getContent();
     }
 
+    @Override
     public User findUserByToken(String accessToken) {
         System.out.println(">>>> TOKEN IN SERVICE: "+accessToken);
         Claims claims = jwtManager.getTokenClaims(accessToken);
         return userRepository.findByUsername(claims.getSubject());
     }
 
+    @Override
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
+    @Override
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
+    @Override
     public User updateUser(Integer id, PartialUserInput userInput) {
         return userRepository.findById(id)
         		.map(user -> {
@@ -55,6 +61,7 @@ public class UserService {
 	            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com o ID: " + id));
     }
     
+    @Override
     public void deleteAccount(Integer id) {
         if(!userRepository.existsById(id)) throw new EntityNotFoundException("Usuário não encontrado com o ID: " + id);
         userRepository.deleteById(id);

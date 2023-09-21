@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
+import com.gamix.interfaces.services.AuthServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.records.returns.jwt.JwtSessionWithRefreshToken;
-import com.gamix.records.inputs.UserInput;
-import com.gamix.records.returns.jwt.JwtTokens;
+import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
+import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
@@ -19,7 +19,7 @@ import com.gamix.security.JwtManager;
 import io.jsonwebtoken.Claims;
 
 @Service
-public class AuthService {
+public class AuthService implements AuthServiceInterface {
     @Autowired
     private PasswordUserRepository passwordUserRepository;
     
@@ -29,21 +29,23 @@ public class AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    public JwtSessionWithRefreshToken signUpPasswordUser(UserInput userInput) {
-        User user = userRepository.findByEmail(userInput.email());
+    @Override
+    public JwtSessionWithRefreshToken signUpPasswordUser(String username, String email, String password) {
+        User user = userRepository.findByEmail(email);
         
-        if (user == null) user = createUser(userInput);
+        if (user == null) user = createUser(username, email, null);
         if (user.getPasswordUser() != null) return null;
         
-        createPasswordUser(user, userInput);
+        createPasswordUser(user, password);
         
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(userInput.username(), userInput.rememberMe());
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(username, false);
 
         return new JwtSessionWithRefreshToken (
             user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
         );
     }
 
+    @Override
     public JwtSessionWithRefreshToken signInWithUsername(String username, String password, boolean rememberMe) {
         User user = userRepository.findByUsername(username);
         if (user == null) return null;
@@ -59,7 +61,8 @@ public class AuthService {
             user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
         );
     }
-    
+
+    @Override
     public JwtSessionWithRefreshToken signInWithEmail(String email, String password, boolean rememberMe) {
         User user = userRepository.findByEmail(email);
         if (user == null) return null;
@@ -76,6 +79,7 @@ public class AuthService {
         );
     }
 
+    @Override
     public JwtTokens refreshToken(String refreshToken) {
         if (!jwtManager.validate(refreshToken))  throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN, HttpStatus.UNAUTHORIZED);
         Claims body = jwtManager.getTokenClaims(refreshToken);
@@ -86,20 +90,22 @@ public class AuthService {
         return jwtManager.generateJwtTokens(username, rememberMe);
     }
 
-    public User createUser(UserInput userInput) {
-        User user = new User();
-        user.setUsername(userInput.username());
-        user.setEmail(userInput.email());
-        user.setIcon(userInput.icon());
+    @Override
+    public User createUser(String username, String email, String icon) {
+        User user = new User()
+            .setUsername(username)
+            .setEmail(email)
+            .setIcon(icon);
     
         return userRepository.save(user);
     }
 
-    public PasswordUser createPasswordUser(User user, UserInput userInput) {
-        PasswordUser passwordUser = new PasswordUser();
-        passwordUser.setUser(user);
-        passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
-        passwordUser.setVerifiedEmail(false);
+    @Override
+    public PasswordUser createPasswordUser(User user, String password) {
+        PasswordUser passwordUser = new PasswordUser()
+            .setUser(user)
+            .setPassword(new BCryptPasswordEncoder().encode(password))
+            .setVerifiedEmail(false);
 
         return passwordUserRepository.save(passwordUser);
     }

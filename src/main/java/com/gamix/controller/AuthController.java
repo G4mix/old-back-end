@@ -7,18 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gamix.exceptions.BackendException;
-import com.gamix.records.inputs.UserInput;
-import com.gamix.records.returns.jwt.JwtSessionWithRefreshToken;
-import com.gamix.records.returns.jwt.JwtTokens;
+import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
+import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
+import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.AuthService;
 import com.gamix.utils.CookieUtils;
 
@@ -28,8 +30,10 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<Object> signUpPasswordUser(@RequestBody UserInput userInput) {
-        JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signUpPasswordUser(userInput);
+    public ResponseEntity<Object> signUpPasswordUser(@RequestBody SignUpPasswordUserInput signUpPasswordUserInput) {
+        JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signUpPasswordUser(
+            signUpPasswordUserInput.username(), signUpPasswordUserInput.email(), signUpPasswordUserInput.password()
+        );
         
         HttpHeaders headers = new HttpHeaders();
 
@@ -40,7 +44,7 @@ public class AuthController {
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
             jwtSessionWithRefreshToken.accessToken(), 
             jwtSessionWithRefreshToken.refreshToken(), 
-            userInput.rememberMe()
+            false
         );
 
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
@@ -68,14 +72,19 @@ public class AuthController {
 
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
             jwtSessionWithRefreshToken.accessToken(), 
-            jwtSessionWithRefreshToken.refreshToken(), rememberMe
+            jwtSessionWithRefreshToken.refreshToken(),
+            rememberMe
         );
 
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
     }
 
+    @PreAuthorize("@securityUtils.checkUsername(#accessToken) == #username")
     @GetMapping("/auth/signout")
-    public ResponseEntity<String> signOutPasswordUser() {        
+    public ResponseEntity<String> signOutPasswordUser(
+        @RequestParam String usernameFromToken,
+        @RequestHeader("Authorization") String accessToken
+    ) {        
         HttpHeaders headers = new HttpHeaders();
     
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(null);

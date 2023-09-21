@@ -9,13 +9,12 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import com.gamix.exceptions.BackendException;
 import com.gamix.models.User;
-import com.gamix.records.inputs.PartialUserInput;
+import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.service.UserService;
 
 import graphql.ErrorClassification;
@@ -27,7 +26,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PreAuthorize("hasAuthority('USER')")  
     @QueryMapping
     List<User> findAllUsers(
             @Argument("skip") int skip,
@@ -37,35 +35,30 @@ public class UserController {
         return users;
     }
 
-    @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByToken(@Argument String accessToken) {
         User user = userService.findUserByToken(accessToken);
         return user;
     }
 
-    @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByUsername(@Argument String username) {
         User user = userService.findUserByUsername(username);
         return user;
     }
 
-    @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByEmail(@Argument String email) {
         User user = userService.findUserByEmail(email);
         return user;
     }
 
-    @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     User updateUser(@PathVariable Integer id, PartialUserInput userInput) {
         User updatedUser = userService.updateUser(id, userInput);
         return updatedUser;
     }
 
-    @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     void deleteAccount(@PathVariable Integer id) {
         userService.deleteAccount(id);
