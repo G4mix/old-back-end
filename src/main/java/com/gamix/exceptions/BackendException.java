@@ -9,9 +9,9 @@ public class BackendException extends RuntimeException {
     private String message;
     private HttpStatus status;
     
-    public BackendException(ExceptionMessage message, HttpStatus status) {
-        this.message = message.toString();
-        this.status = status;
+    public BackendException(ExceptionMessage exceptionMessage) {
+        this.message = exceptionMessage.toString();
+        this.status = exceptionMessage.getHttpStatus();
     }
     
     public String getMessage() {

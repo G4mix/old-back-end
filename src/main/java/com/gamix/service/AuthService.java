@@ -1,7 +1,6 @@
 package com.gamix.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +14,7 @@ import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
+import com.gamix.utils.ParameterValidator;
 
 import io.jsonwebtoken.Claims;
 
@@ -29,13 +29,25 @@ public class AuthService implements AuthServiceInterface {
     @Autowired
     private UserRepository userRepository;
 
+        
     @Override
     public JwtSessionWithRefreshToken signUpPasswordUser(String username, String email, String password) {
-        User user = userRepository.findByEmail(email);
+        ParameterValidator.validateUsername(username);
+        ParameterValidator.validatePassword(password);
+        ParameterValidator.validateEmail(email);
         
-        if (user == null) user = createUser(username, email, null);
-        if (user.getPasswordUser() != null) return null;
+        User userWithSameUsername = userRepository.findByUsername(username);
+        User userWithSameEmail = userRepository.findByEmail(email);
         
+        if (userWithSameUsername != null && userWithSameUsername.getPasswordUser() != null) {
+            throw new BackendException(ExceptionMessage.USERNAME_ALREADY_EXISTS);
+        } else if (userWithSameEmail != null && userWithSameEmail.getPasswordUser() != null) {
+            throw new BackendException(ExceptionMessage.EMAIL_ALREADY_EXISTS);
+        } else if (userWithSameEmail != null || userWithSameUsername != null) {
+            return null;
+        }
+
+        User user = createUser(username, email, null);
         createPasswordUser(user, password);
         
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(username, false);
@@ -81,7 +93,7 @@ public class AuthService implements AuthServiceInterface {
 
     @Override
     public JwtTokens refreshToken(String refreshToken) {
-        if (!jwtManager.validate(refreshToken))  throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN, HttpStatus.UNAUTHORIZED);
+        if (!jwtManager.validate(refreshToken))  throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN);
         Claims body = jwtManager.getTokenClaims(refreshToken);
 
         String username = body.getSubject();

@@ -17,12 +17,16 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
 import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
+import com.gamix.records.options.CookieOptions;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.AuthService;
 import com.gamix.utils.CookieUtils;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 public class AuthController {
@@ -30,21 +34,19 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<Object> signUpPasswordUser(@RequestBody SignUpPasswordUserInput signUpPasswordUserInput) {
+    public ResponseEntity<Object> signUpPasswordUser(HttpServletRequest req, @RequestBody SignUpPasswordUserInput signUpPasswordUserInput) {
         JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signUpPasswordUser(
             signUpPasswordUserInput.username(), signUpPasswordUserInput.email(), signUpPasswordUserInput.password()
         );
         
         HttpHeaders headers = new HttpHeaders();
 
-        if (jwtSessionWithRefreshToken == null) {
-            return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body(null);
-        }
+        if (jwtSessionWithRefreshToken == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_ALREADY_EXISTS);
 
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
             jwtSessionWithRefreshToken.accessToken(), 
             jwtSessionWithRefreshToken.refreshToken(), 
-            false
+            new CookieOptions(false, req.isSecure())
         );
 
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
@@ -52,6 +54,7 @@ public class AuthController {
 
     @PostMapping("/auth/signin")
     public ResponseEntity<Object> signInPasswordUser(
+        HttpServletRequest req,
         @RequestParam(value = "username", required = false) String username,
         @RequestParam(value = "email", required = false) String email,
         @RequestParam(value = "rememberMe", required = false) boolean rememberMe,
@@ -73,7 +76,7 @@ public class AuthController {
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
             jwtSessionWithRefreshToken.accessToken(), 
             jwtSessionWithRefreshToken.refreshToken(),
-            rememberMe
+            new CookieOptions(rememberMe, req.isSecure())
         );
 
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
@@ -92,6 +95,7 @@ public class AuthController {
 
     @PostMapping("/auth/refreshtoken")
     public ResponseEntity<Object> refreshTokenPasswodUser(
+        HttpServletRequest req,
         @RequestBody Map<String, String> requestBody
     ) {
         JwtTokens refreshedTokens = authService.refreshToken(requestBody.get("refreshToken"));
@@ -100,7 +104,7 @@ public class AuthController {
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
             refreshedTokens.accessToken(), 
             refreshedTokens.refreshToken(),
-            refreshedTokens.rememberMe()
+            new CookieOptions(refreshedTokens.rememberMe(), req.isSecure())
         );
             
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
@@ -111,7 +115,7 @@ public class AuthController {
         @ExceptionHandler(BackendException.class)
         public ResponseEntity<Object> handleJwtAuthenticationException(BackendException ex) {
             Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", ex.getMessage());
+            errorResponse.put("error", ex.getMessage());
 
             return ResponseEntity.status(ex.getStatus()).body(ex);
         }
