@@ -35,10 +35,11 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/auth/signup")
-    public ResponseEntity<Object> signUpPasswordUser(HttpServletRequest req, @RequestBody SignUpPasswordUserInput signUpPasswordUserInput) {
-        JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signUpPasswordUser(
-            signUpPasswordUserInput.username(), signUpPasswordUserInput.email(), signUpPasswordUserInput.password()
-        );
+    public ResponseEntity<Object> signUpPasswordUser(
+        HttpServletRequest req, 
+        @RequestBody SignUpPasswordUserInput signUpPasswordUserInput
+    ) {
+        JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signUpPasswordUser(signUpPasswordUserInput);
         
         HttpHeaders headers = new HttpHeaders();
 

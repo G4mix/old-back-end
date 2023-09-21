@@ -10,6 +10,7 @@ import com.gamix.interfaces.services.AuthServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.records.inputs.AuthController.SignInPasswordUserInput;
+import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
@@ -32,13 +33,15 @@ public class AuthService implements AuthServiceInterface {
 
         
     @Override
-    public JwtSessionWithRefreshToken signUpPasswordUser(String username, String email, String password) {
-        ParameterValidator.validateUsername(username);
-        ParameterValidator.validatePassword(password);
-        ParameterValidator.validateEmail(email);
+    public JwtSessionWithRefreshToken signUpPasswordUser(
+        SignUpPasswordUserInput signUpPasswordUserInput
+    ) {
+        ParameterValidator.validateUsername(signUpPasswordUserInput.username());
+        ParameterValidator.validatePassword(signUpPasswordUserInput.password());
+        ParameterValidator.validateEmail(signUpPasswordUserInput.email());
         
-        User userWithSameUsername = userRepository.findByUsername(username);
-        User userWithSameEmail = userRepository.findByEmail(email);
+        User userWithSameUsername = userRepository.findByUsername(signUpPasswordUserInput.username());
+        User userWithSameEmail = userRepository.findByEmail(signUpPasswordUserInput.email());
         
         if (userWithSameUsername != null && userWithSameUsername.getPasswordUser() != null) {
             throw new BackendException(ExceptionMessage.USERNAME_ALREADY_EXISTS);
@@ -48,13 +51,21 @@ public class AuthService implements AuthServiceInterface {
             return null;
         }
 
-        User user = createUser(username, email, null);
-        createPasswordUser(user, password);
+        User user = createUser(
+            signUpPasswordUserInput.username(), 
+            signUpPasswordUserInput.email(), 
+            null
+        );
+        createPasswordUser(user, signUpPasswordUserInput.password());
         
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(username, false);
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(
+            signUpPasswordUserInput.username(), false
+        );
 
         return new JwtSessionWithRefreshToken (
-            user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
+            user.getUsername(), user.getEmail(), 
+            user.getIcon(), jwtTokens.accessToken(), 
+            jwtTokens.refreshToken()
         );
     }
 
@@ -88,7 +99,9 @@ public class AuthService implements AuthServiceInterface {
 
     @Override
     public JwtTokens refreshToken(String refreshToken) {
-        if (!jwtManager.validate(refreshToken))  throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN);
+        if (!jwtManager.validate(refreshToken))  {
+            throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN);
+        }
         Claims body = jwtManager.getTokenClaims(refreshToken);
 
         String username = body.getSubject();
