@@ -6,7 +6,8 @@ public enum ExceptionMessage {
     // Exceções relacionadas à autenticação e tokens
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
-
+    INVALID_JWT_SESSION_WITH_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
+    
     // Exceções relacionadas a usuários e senhas
     USER_NOT_FOUND(HttpStatus.NOT_FOUND), 
     PASSWORDUSER_NOT_FOUND(HttpStatus.NOT_FOUND),
@@ -27,6 +28,7 @@ public enum ExceptionMessage {
     EMAIL_INVALID_FORMAT(HttpStatus.BAD_REQUEST),
     EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST),
 
+    PASSWORD_WRONG(HttpStatus.BAD_REQUEST),
     PASSWORD_INVALID_FORMAT(HttpStatus.BAD_REQUEST),
     PASSWORD_TOO_SHORT(HttpStatus.BAD_REQUEST),
     PASSWORD_TOO_LONG(HttpStatus.BAD_REQUEST),

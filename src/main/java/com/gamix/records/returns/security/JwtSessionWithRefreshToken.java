@@ -6,6 +6,10 @@ public record JwtSessionWithRefreshToken(
     String refreshToken
 ) {
     public JwtSessionWithRefreshToken(JwtSessionWithRefreshToken jwtSession) {
-        this(jwtSession.username(), jwtSession.email(), jwtSession.icon(), jwtSession.accessToken(), jwtSession.refreshToken());
+        this(
+            jwtSession.username(), jwtSession.email(), 
+            jwtSession.icon(), jwtSession.accessToken(), 
+            jwtSession.refreshToken()
+        );
     }
 }

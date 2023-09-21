@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
+import com.gamix.records.inputs.AuthController.SignInPasswordUserInput;
 import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
 import com.gamix.records.options.CookieOptions;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
@@ -60,18 +61,17 @@ public class AuthController {
         @RequestParam(value = "rememberMe", required = false) boolean rememberMe,
         @RequestBody Map<String, String> requestBody
     ) {
-        JwtSessionWithRefreshToken jwtSessionWithRefreshToken;
-
-        if(username != null) {
-            jwtSessionWithRefreshToken = authService.signInWithUsername(username, requestBody.get("password"), rememberMe);
-        } else {
-            jwtSessionWithRefreshToken = authService.signInWithEmail(email, requestBody.get("password"), rememberMe);
+        SignInPasswordUserInput signInPasswordUserInput = new SignInPasswordUserInput(
+            username, email, requestBody.get("password"), rememberMe
+        );
+        JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signInPasswordUser(
+            signInPasswordUserInput
+        );
+        if (jwtSessionWithRefreshToken == null) {
+            throw new BackendException(ExceptionMessage.INVALID_JWT_SESSION_WITH_REFRESH_TOKEN);
         }
         
         HttpHeaders headers = new HttpHeaders();
-        if (jwtSessionWithRefreshToken == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).body(null);
-        }
 
         Map<String, String> cookieStrings = CookieUtils.generateCookies(
             jwtSessionWithRefreshToken.accessToken(), 

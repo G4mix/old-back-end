@@ -9,6 +9,7 @@ import com.gamix.exceptions.BackendException;
 import com.gamix.interfaces.services.AuthServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
+import com.gamix.records.inputs.AuthController.SignInPasswordUserInput;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
@@ -58,36 +59,30 @@ public class AuthService implements AuthServiceInterface {
     }
 
     @Override
-    public JwtSessionWithRefreshToken signInWithUsername(String username, String password, boolean rememberMe) {
-        User user = userRepository.findByUsername(username);
-        if (user == null) return null;
+    public JwtSessionWithRefreshToken signInPasswordUser(
+        SignInPasswordUserInput signInPasswordUserInput
+    ) {
+        User user = signInPasswordUserInput.email() != null 
+            ? userRepository.findByEmail(signInPasswordUserInput.email()) 
+            : userRepository.findByUsername(signInPasswordUserInput.username());
+        if (user == null) throw new BackendException(ExceptionMessage.USER_NOT_FOUND);
         
         PasswordUser passwordUser = user.getPasswordUser();
+        if (passwordUser == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
+
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (!passwordEncoder.matches(signInPasswordUserInput.password(), passwordUser.getPassword())) {
+            throw new BackendException(ExceptionMessage.PASSWORD_WRONG);
+        }
 
-        if (!passwordEncoder.matches(password, passwordUser.getPassword())) return null;
-
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(user.getUsername(), rememberMe);
-
-        return new JwtSessionWithRefreshToken (
-            user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(
+            user.getUsername(),
+            signInPasswordUserInput.rememberMe()
         );
-    }
-
-    @Override
-    public JwtSessionWithRefreshToken signInWithEmail(String email, String password, boolean rememberMe) {
-        User user = userRepository.findByEmail(email);
-        if (user == null) return null;
-        
-        PasswordUser passwordUser = user.getPasswordUser();
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-        if (!passwordEncoder.matches(password, passwordUser.getPassword())) return null;
-
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(user.getUsername(), rememberMe);
 
         return new JwtSessionWithRefreshToken (
-            user.getUsername(), user.getEmail(), user.getIcon(), jwtTokens.accessToken(), jwtTokens.refreshToken()
+            user.getUsername(), user.getEmail(), user.getIcon(),
+            jwtTokens.accessToken(), jwtTokens.refreshToken()
         );
     }
 
