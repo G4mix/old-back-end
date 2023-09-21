@@ -18,7 +18,7 @@ public class PasswordUser {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 60)
     private String password;
     
     private Boolean verifiedEmail;

@@ -19,13 +19,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 50)
     private String username;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 320)
     private String email;
     
-    @Column(nullable = true)
+    @Column(nullable = true, length = 120)
     private String icon;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
