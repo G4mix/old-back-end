@@ -5,6 +5,7 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
@@ -13,6 +14,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.gamix.security.JwtAuthenticationProvider;
 import com.gamix.security.JwtAuthenticationTokenFilter;
@@ -39,10 +43,11 @@ public class JwtSecurityConfig  {
 
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsFilter()))
             .authorizeHttpRequests(
                 (authorize) -> authorize
                     .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/signin").anonymous()
-                    .requestMatchers(HttpMethod.GET, "/auth/signout").hasAuthority("USER")
+                    .requestMatchers(HttpMethod.POST, "/auth/signout").hasAuthority("USER")
                     .requestMatchers(HttpMethod.POST, "/graphql").hasAuthority("USER")
                     .anyRequest().denyAll()
             )
@@ -52,5 +57,22 @@ public class JwtSecurityConfig  {
 
         http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         http.headers((header) -> header.cacheControl(Customizer.withDefaults()));
+    }
+
+    @Bean
+    public CorsConfigurationSource corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        
+        //config.addAllowedOrigin(dotenv.get("FRONT_END_BASE_URL"));
+        config.addAllowedOrigin("*");
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedHeader(HttpHeaders.AUTHORIZATION);
+        config.addAllowedHeader(HttpHeaders.CONTENT_TYPE);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 }
