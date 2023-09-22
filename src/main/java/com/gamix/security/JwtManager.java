@@ -9,6 +9,7 @@ import com.gamix.enums.ExpirationTime;
 import com.gamix.enums.Role;
 import com.gamix.interfaces.security.JwtManagerInterface;
 import com.gamix.records.returns.security.JwtTokens;
+import com.gamix.service.InvalidTokenService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
@@ -19,6 +20,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtManager implements JwtManagerInterface {
     @Autowired
     private Dotenv dotenv;
+
+    @Autowired
+    private InvalidTokenService invalidTokenService;
 
     @Override
     public Claims getTokenClaims(String token) {
@@ -50,10 +54,12 @@ public class JwtManager implements JwtManagerInterface {
     @Override
     public void invalidate(String token) {
         Claims claims = getTokenClaims(token);
-        System.out.println(">> EXPIRANDO O TOKEN");
-        claims.setExpiration(new Date());
-    }
 
+        long expirationTimeInSeconds = claims.getExpiration().getTime() / 1000;
+
+        // Adicione o token inválido no banco de dados e agende sua exclusão
+        invalidTokenService.addInvalidToken(token, expirationTimeInSeconds);
+    }
 
     @Override
     public JwtTokens generateJwtTokens(String username, boolean rememberMe) {

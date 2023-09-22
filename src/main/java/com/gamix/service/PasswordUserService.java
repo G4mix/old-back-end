@@ -6,12 +6,12 @@ import org.springframework.stereotype.Service;
 
 import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
-import com.gamix.interfaces.services.AuthServiceInterface;
+import com.gamix.interfaces.services.PasswordUserServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.records.inputs.AuthController.SignInPasswordUserInput;
-import com.gamix.records.inputs.AuthController.SignOutPasswordUserInput;
-import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
@@ -22,7 +22,7 @@ import com.gamix.utils.ParameterValidator;
 import io.jsonwebtoken.Claims;
 
 @Service
-public class AuthService implements AuthServiceInterface {
+public class PasswordUserService implements PasswordUserServiceInterface {
     @Autowired
     private PasswordUserRepository passwordUserRepository;
     

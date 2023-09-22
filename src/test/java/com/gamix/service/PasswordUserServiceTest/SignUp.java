@@ -1,3 +1,4 @@
+package com.gamix.service.PasswordUserServiceTest;
 // package com.gamix.service.AuthServiceTest;
 
 // import static org.junit.Assert.assertNotEquals;

@@ -1,4 +1,4 @@
-package com.gamix.records.inputs.AuthController;
+package com.gamix.records.inputs.PasswordUserController;
 
 public record SignOutPasswordUserInput(String accessToken, String refreshToken) {
     public SignOutPasswordUserInput(SignOutPasswordUserInput signOutPasswordUserInput) {

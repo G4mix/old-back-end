@@ -11,13 +11,10 @@ import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-
-import com.gamix.exceptions.BackendException;
 import com.gamix.models.User;
 import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.service.UserService;
 
-import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
 
@@ -66,18 +63,12 @@ public class UserController {
 
     @GraphQlExceptionHandler
     public GraphQLError handle(@NonNull Throwable ex, @NonNull DataFetchingEnvironment environment) {
-        if (ex instanceof BackendException) {
-            return GraphQLError
-                .newError()
-                .errorType(ErrorClassification.errorClassification(ex.getMessage()))
-                .message(ex.getMessage())
-                .build();
-        } else {
-            return GraphQLError
-                .newError()
-                .errorType(ErrorType.BAD_REQUEST)
-                .message(ex.getMessage())
-                .build();
-        }
+        return GraphQLError
+            .newError()
+            .errorType(ErrorType.BAD_REQUEST)
+            .message(ex.getMessage())
+            .path(environment.getExecutionStepInfo().getPath())
+            .location(environment.getField().getSourceLocation())
+            .build();
     }
 }

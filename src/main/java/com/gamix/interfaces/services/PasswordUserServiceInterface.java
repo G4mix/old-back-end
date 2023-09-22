@@ -2,13 +2,13 @@ package com.gamix.interfaces.services;
 
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.records.inputs.AuthController.SignInPasswordUserInput;
-import com.gamix.records.inputs.AuthController.SignOutPasswordUserInput;
-import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
 
-public interface AuthServiceInterface {
+public interface PasswordUserServiceInterface {
     public JwtSessionWithRefreshToken signUpPasswordUser(SignUpPasswordUserInput signUpPasswordUserInput);
     public JwtSessionWithRefreshToken signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput);
     public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput);

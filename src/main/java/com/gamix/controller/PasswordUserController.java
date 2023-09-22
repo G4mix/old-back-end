@@ -1,6 +1,5 @@
 package com.gamix.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,21 +16,22 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
-import com.gamix.records.inputs.AuthController.SignInPasswordUserInput;
-import com.gamix.records.inputs.AuthController.SignOutPasswordUserInput;
-import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.options.CookieOptions;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
-import com.gamix.service.AuthService;
+import com.gamix.service.PasswordUserService;
 import com.gamix.utils.CookieUtils;
+import static com.gamix.utils.ControllerUtils.throwError;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-public class AuthController {
+public class PasswordUserController {
     @Autowired
-    private AuthService authService;
+    private PasswordUserService authService;
 
     @PostMapping("/auth/signup")
     public ResponseEntity<Object> signUpPasswordUser(
@@ -97,9 +97,7 @@ public class AuthController {
         @RequestBody Map<String, String> requestBody
     ) {
         try {
-            System.out.println(">>>>>>>>>>>>>>>>>> a: "+accessToken);
             String refreshToken = requestBody.get("refreshToken");
-            System.out.println(">>>>>>>>>>>>>>>>>> r: "+refreshToken);
 
             SignOutPasswordUserInput signOutPasswordUserInput = new SignOutPasswordUserInput(accessToken, refreshToken);
             authService.signOutPasswordUser(signOutPasswordUserInput);
@@ -139,11 +137,5 @@ public class AuthController {
         public ResponseEntity<Object> handleJwtAuthenticationException(BackendException ex) {
             return throwError(ex);
         }
-    }
-
-    private ResponseEntity<Object> throwError(BackendException ex) {
-        Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", ex.getMessage());
-        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
     }
 }

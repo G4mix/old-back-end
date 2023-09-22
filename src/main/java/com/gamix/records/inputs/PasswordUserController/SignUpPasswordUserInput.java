@@ -1,4 +1,4 @@
-package com.gamix.records.inputs.AuthController;
+package com.gamix.records.inputs.PasswordUserController;
 
 public record SignUpPasswordUserInput(String username, String email, String password) {
     public SignUpPasswordUserInput(SignUpPasswordUserInput signUpPasswordUserInput) {
