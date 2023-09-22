@@ -12,8 +12,8 @@ public class InvalidToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(unique = true, nullable = false, length = 500) // Definir o length certo depois
-    private String tokenValue;
+    @Column(unique = true, nullable = false, length = 300)
+    private String token;
     
     @Column(nullable = false)
     private Long expirationTimeInSeconds;
@@ -26,12 +26,12 @@ public class InvalidToken {
         this.id = id;
     }
 
-    public String getTokenValue() {
-        return tokenValue;
+    public String getToken() {
+        return token;
     }
 
-    public void setTokenValue(String tokenValue) {
-        this.tokenValue = tokenValue;
+    public void setToken(String token) {
+        this.token = token;
     }
     
     public Long getExpirationTimeInSeconds() {

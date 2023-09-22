@@ -1,5 +1,10 @@
 package com.gamix.service;
 
+import java.time.LocalDateTime;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +37,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     @Autowired
     private UserRepository userRepository;
 
+    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         
     @Override
     public JwtSessionWithRefreshToken signUpPasswordUser(
@@ -82,16 +88,27 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         PasswordUser passwordUser = user.getPasswordUser();
         if (passwordUser == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
 
+        boolean attempsLessThanThree = passwordUser.getLoginAttempts() >= 3;
+        boolean notBlockedByTime = (passwordUser.getBlockedUntil() != null && passwordUser.getBlockedUntil().isAfter(LocalDateTime.now()));
+        if (attempsLessThanThree && notBlockedByTime) throw new BackendException(ExceptionMessage.EXCESSIVE_FAILED_LOGIN_ATTEMPTS);
+        
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(signInPasswordUserInput.password(), passwordUser.getPassword())) {
+            handleFailedLoginAttempt(passwordUser);
             throw new BackendException(ExceptionMessage.PASSWORD_WRONG);
         }
+
 
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(
             user.getUsername(),
             signInPasswordUserInput.rememberMe()
         );
 
+        if (jwtTokens == null) throw new BackendException(ExceptionMessage.INVALID_JWT_SESSION_WITH_REFRESH_TOKEN);
+
+        passwordUser.setLoginAttempts(0);
+        passwordUserRepository.save(passwordUser);
+        
         return new JwtSessionWithRefreshToken (
             user.getUsername(), user.getEmail(), user.getIcon(),
             jwtTokens.accessToken(), jwtTokens.refreshToken()
@@ -100,6 +117,8 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
     @Override
     public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput) {
+        System.out.println(signOutPasswordUserInput.accessToken());
+        System.out.println(signOutPasswordUserInput.refreshToken());
         if (jwtManager.validate(signOutPasswordUserInput.accessToken())) {
             jwtManager.invalidate(signOutPasswordUserInput.accessToken());
         }
@@ -138,5 +157,21 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             .setVerifiedEmail(false);
 
         return passwordUserRepository.save(passwordUser);
+    }
+
+    private void handleFailedLoginAttempt(PasswordUser passwordUser) {
+        passwordUser.setLoginAttempts(passwordUser.getLoginAttempts() + 1);
+
+        if (passwordUser.getLoginAttempts() >= 3) {
+            passwordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(30));
+
+            executorService.schedule(() -> {
+                passwordUser.setLoginAttempts(0);
+                passwordUser.setBlockedUntil(null);
+                passwordUserRepository.save(passwordUser);
+            }, 30, TimeUnit.MINUTES);
+        }
+
+        passwordUserRepository.save(passwordUser);
     }
 }

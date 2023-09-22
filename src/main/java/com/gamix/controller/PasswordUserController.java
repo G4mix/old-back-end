@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gamix.enums.ExceptionMessage;
@@ -60,15 +58,9 @@ public class PasswordUserController {
     @PostMapping("/auth/signin")
     public ResponseEntity<Object> signInPasswordUser(
         HttpServletRequest req,
-        @RequestParam(value = "username", required = false) String username,
-        @RequestParam(value = "email", required = false) String email,
-        @RequestParam(value = "rememberMe", required = false) boolean rememberMe,
-        @RequestBody Map<String, String> requestBody
+        @RequestBody SignInPasswordUserInput signInPasswordUserInput
     ) {
         try {
-            SignInPasswordUserInput signInPasswordUserInput = new SignInPasswordUserInput(
-                username, email, requestBody.get("password"), rememberMe
-            );
             JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signInPasswordUser(
                 signInPasswordUserInput
             );
@@ -81,7 +73,7 @@ public class PasswordUserController {
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
                 jwtSessionWithRefreshToken.accessToken(), 
                 jwtSessionWithRefreshToken.refreshToken(),
-                new CookieOptions(rememberMe, req.isSecure())
+                new CookieOptions(signInPasswordUserInput.rememberMe(), req.isSecure())
             );
 
             return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
@@ -90,13 +82,12 @@ public class PasswordUserController {
         }
     }
 
-    // @PreAuthorize("@securityUtils.checkUsername(#accessToken) == #requestBody.get("username")")
     @PostMapping("/auth/signout")
     public ResponseEntity<Object> signOutPasswordUser(
-        @RequestHeader("Authorization") String accessToken,
         @RequestBody Map<String, String> requestBody
     ) {
         try {
+            String accessToken = requestBody.get("accessToken");
             String refreshToken = requestBody.get("refreshToken");
 
             SignOutPasswordUserInput signOutPasswordUserInput = new SignOutPasswordUserInput(accessToken, refreshToken);

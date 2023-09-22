@@ -1,4 +1,4 @@
-package com.gamix.models;
+package com.gamix.security;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

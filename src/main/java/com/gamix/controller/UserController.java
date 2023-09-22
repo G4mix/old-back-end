@@ -11,6 +11,7 @@ import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+
 import com.gamix.models.User;
 import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.service.UserService;

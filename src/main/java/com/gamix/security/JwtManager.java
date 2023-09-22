@@ -41,8 +41,9 @@ public class JwtManager implements JwtManagerInterface {
             Date currentDate = new Date();
 
             boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
+            boolean isTokenOnBlacklist = invalidTokenService.isTokenOnBlacklist(token);
 
-            if (isExpired) return false;
+            if (isExpired || isTokenOnBlacklist) return false;
 
             return true;
         } catch (Exception e) {
@@ -54,10 +55,7 @@ public class JwtManager implements JwtManagerInterface {
     @Override
     public void invalidate(String token) {
         Claims claims = getTokenClaims(token);
-
         long expirationTimeInSeconds = claims.getExpiration().getTime() / 1000;
-
-        // Adicione o token inválido no banco de dados e agende sua exclusão
         invalidTokenService.addInvalidToken(token, expirationTimeInSeconds);
     }
 

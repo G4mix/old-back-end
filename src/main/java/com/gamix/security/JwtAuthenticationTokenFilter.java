@@ -8,7 +8,6 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 
 import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
-import com.gamix.models.JwtAuthenticationToken;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

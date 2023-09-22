@@ -13,8 +13,6 @@ import org.springframework.stereotype.Component;
 
 import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.BackendException;
-import com.gamix.models.JwtAuthenticationToken;
-import com.gamix.models.JwtUserDetails;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;

@@ -1,4 +1,4 @@
-package com.gamix.models;
+package com.gamix.security;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 

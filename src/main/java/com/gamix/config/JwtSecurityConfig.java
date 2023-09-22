@@ -46,8 +46,7 @@ public class JwtSecurityConfig  {
             .cors(cors -> cors.configurationSource(corsFilter()))
             .authorizeHttpRequests(
                 (authorize) -> authorize
-                    .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/signin").anonymous()
-                    .requestMatchers(HttpMethod.POST, "/auth/signout").hasAuthority("USER")
+                    .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/signin", "/auth/signout").anonymous()
                     .requestMatchers(HttpMethod.POST, "/graphql").hasAuthority("USER")
                     .anyRequest().denyAll()
             )

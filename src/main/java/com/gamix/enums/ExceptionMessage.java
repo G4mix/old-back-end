@@ -7,7 +7,8 @@ public enum ExceptionMessage {
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
     INVALID_JWT_SESSION_WITH_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED),
-    
+    EXCESSIVE_FAILED_LOGIN_ATTEMPTS(HttpStatus.TOO_MANY_REQUESTS),
+
     // Exceções relacionadas a usuários e senhas
     USER_NOT_FOUND(HttpStatus.NOT_FOUND), 
     PASSWORDUSER_NOT_FOUND(HttpStatus.NOT_FOUND),

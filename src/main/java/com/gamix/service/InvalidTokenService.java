@@ -18,12 +18,18 @@ public class InvalidTokenService {
 
     private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
-    public void addInvalidToken(String tokenValue, Long expirationTimeInSeconds) {
+    public void addInvalidToken(String token, Long expirationTimeInSeconds) {
         InvalidToken invalidToken = new InvalidToken();
-        invalidToken.setTokenValue(tokenValue);
+        invalidToken.setToken(token);
         invalidToken.setExpirationTimeInSeconds(expirationTimeInSeconds);
         invalidTokenRepository.save(invalidToken);
 
-        executorService.schedule(() -> invalidTokenRepository.deleteByTokenValue(tokenValue), expirationTimeInSeconds, TimeUnit.SECONDS);
+        executorService.schedule(() -> invalidTokenRepository.deleteByToken(token), expirationTimeInSeconds, TimeUnit.SECONDS);
+    }
+
+    public boolean isTokenOnBlacklist(String token) {
+        InvalidToken invalidToken = invalidTokenRepository.findByToken(token);
+        System.out.println(invalidToken);
+        return invalidToken != null;
     }
 }
