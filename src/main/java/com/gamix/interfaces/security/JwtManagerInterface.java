@@ -7,6 +7,6 @@ import io.jsonwebtoken.Claims;
 public interface JwtManagerInterface {
     public Claims getTokenClaims(String token);
     public boolean validate(String token);
-    public String invalidate(String token);
+    public void invalidate(String token);
     public JwtTokens generateJwtTokens(String username, boolean rememberMe);
 }

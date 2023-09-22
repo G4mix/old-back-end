@@ -71,16 +71,12 @@ public class UserController {
                 .newError()
                 .errorType(ErrorClassification.errorClassification(ex.getMessage()))
                 .message(ex.getMessage())
-                .path(environment.getExecutionStepInfo().getPath())
-                .location(environment.getField().getSourceLocation())
                 .build();
         } else {
             return GraphQLError
                 .newError()
                 .errorType(ErrorType.BAD_REQUEST)
                 .message(ex.getMessage())
-                .path(environment.getExecutionStepInfo().getPath())
-                .location(environment.getField().getSourceLocation())
                 .build();
         }
     }

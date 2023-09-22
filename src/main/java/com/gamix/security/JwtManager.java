@@ -36,7 +36,9 @@ public class JwtManager implements JwtManagerInterface {
             Date expirationDate = body.getExpiration();
             Date currentDate = new Date();
 
-            if (expirationDate != null && expirationDate.before(currentDate)) return false;
+            boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
+
+            if (isExpired) return false;
 
             return true;
         } catch (Exception e) {
@@ -46,17 +48,12 @@ public class JwtManager implements JwtManagerInterface {
     }
 
     @Override
-    public String invalidate(String token) {
+    public void invalidate(String token) {
         Claims claims = getTokenClaims(token);
-
-        String newToken = Jwts.builder()
-            .setClaims(claims)
-            .setExpiration(new Date(0))
-            .signWith(SignatureAlgorithm.HS512, dotenv.get("JWT_SIGNING_KEY_SECRET"))
-            .compact();
-
-        return newToken;
+        System.out.println(">> EXPIRANDO O TOKEN");
+        claims.setExpiration(new Date());
     }
+
 
     @Override
     public JwtTokens generateJwtTokens(String username, boolean rememberMe) {

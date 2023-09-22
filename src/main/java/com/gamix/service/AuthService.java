@@ -10,6 +10,7 @@ import com.gamix.interfaces.services.AuthServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.records.inputs.AuthController.SignInPasswordUserInput;
+import com.gamix.records.inputs.AuthController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.AuthController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
@@ -98,12 +99,21 @@ public class AuthService implements AuthServiceInterface {
     }
 
     @Override
+    public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput) {
+        if (jwtManager.validate(signOutPasswordUserInput.accessToken())) {
+            jwtManager.invalidate(signOutPasswordUserInput.accessToken());
+        }
+        if (jwtManager.validate(signOutPasswordUserInput.refreshToken())) {
+            jwtManager.invalidate(signOutPasswordUserInput.refreshToken());
+        }
+    }
+
+    @Override
     public JwtTokens refreshToken(String refreshToken) {
         if (!jwtManager.validate(refreshToken))  {
             throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN);
         }
         Claims body = jwtManager.getTokenClaims(refreshToken);
-
         String username = body.getSubject();
         boolean rememberMe = (boolean) body.get("rememberMe");
 
