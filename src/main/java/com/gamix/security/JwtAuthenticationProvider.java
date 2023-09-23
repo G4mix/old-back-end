@@ -18,7 +18,7 @@ import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserNotFound;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.repositories.UserRepository;
+import com.gamix.service.UserService;
 
 import io.jsonwebtoken.Claims;
 
@@ -28,7 +28,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     private JwtManager jwtManager;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Override
     protected void additionalAuthenticationChecks(
@@ -46,7 +46,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             if (!jwtManager.validate(accessToken)) throw new InvalidAccessToken();
     
             Claims body = jwtManager.getTokenClaims(accessToken);
-            User user = userRepository.findByUsername(body.getSubject());
+            User user = userService.findUserByUsername(body.getSubject());
             String role = (String) body.get("role");
     
             if (user == null) throw new UserNotFound();
@@ -64,7 +64,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
                 grantedAuthorities
             );
         } catch (ExceptionBase ex) {
-            throw new AuthenticationServiceException("ExceptionBase", ex);
+            throw new AuthenticationServiceException("error while trying to retrieveUser", ex);
         }
     }
 

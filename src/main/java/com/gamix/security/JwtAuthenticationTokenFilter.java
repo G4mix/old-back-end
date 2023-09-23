@@ -27,10 +27,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
         try {
             String header = httpServletRequest.getHeader("Authorization");
     
-    
-            if (header == null || !header.startsWith("Bearer ")) {
-                throw new InvalidAccessToken();
-            }
+            if (header == null || !header.startsWith("Bearer ")) throw new InvalidAccessToken();
     
             String authenticationToken = header.substring(7);
     
@@ -38,7 +35,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     
             return getAuthenticationManager().authenticate(token);
         } catch (ExceptionBase e) {
-            throw new AuthenticationServiceException("ExceptionBase", e);
+            throw new AuthenticationServiceException("error while trying to authenticate", e);
         }
     }
 
