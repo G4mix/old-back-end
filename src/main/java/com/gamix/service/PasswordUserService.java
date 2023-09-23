@@ -56,9 +56,9 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         User userWithSameUsername = userService.findUserByUsername(signUpPasswordUserInput.username());
         User userWithSameEmail = userService.findUserByEmail(signUpPasswordUserInput.email());
         
-        if (userWithSameUsername != null && userWithSameUsername.getPasswordUser() != null) {
+        if (userWithSameUsername != null) {
             throw new UserAlreadyExistsWithThisUsername();
-        } else if (userWithSameEmail != null && userWithSameEmail.getPasswordUser() != null) {
+        } else if (userWithSameEmail != null) {
             throw new UserAlreadyExistsWithThisEmail();
         }
 
