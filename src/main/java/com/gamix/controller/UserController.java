@@ -12,6 +12,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.gamix.exceptions.authentication.TokenClaimsException;
 import com.gamix.models.User;
 import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.service.UserService;
@@ -34,9 +35,13 @@ public class UserController {
     }
 
     @QueryMapping
-    User findUserByToken(@Argument String accessToken) {
-        User user = userService.findUserByToken(accessToken);
-        return user;
+    User findUserByToken(@Argument String accessToken) throws Exception {
+        try {
+            User user = userService.findUserByToken(accessToken);
+            return user;
+        } catch (TokenClaimsException ex) {
+            throw new Exception(ex);
+        }
     }
 
     @QueryMapping

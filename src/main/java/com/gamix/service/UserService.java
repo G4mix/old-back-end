@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.gamix.exceptions.authentication.TokenClaimsException;
 import com.gamix.interfaces.services.UserServiceInterface;
 import com.gamix.models.User;
 import com.gamix.records.inputs.UserController.PartialUserInput;
@@ -34,7 +35,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public User findUserByToken(String accessToken) {
+    public User findUserByToken(String accessToken) throws TokenClaimsException {
         System.out.println(">>>> TOKEN IN SERVICE: "+accessToken);
         Claims claims = jwtManager.getTokenClaims(accessToken);
         return userRepository.findByUsername(claims.getSubject());

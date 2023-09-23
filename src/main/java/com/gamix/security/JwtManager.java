@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 
 import com.gamix.enums.ExpirationTime;
 import com.gamix.enums.Role;
+import com.gamix.exceptions.authentication.TokenClaimsException;
+import com.gamix.exceptions.authentication.JwtTokensGenerationException;
+import com.gamix.exceptions.authentication.TokenInvalidationException;
+import com.gamix.exceptions.authentication.TokenValidationException;
 import com.gamix.interfaces.security.JwtManagerInterface;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.InvalidTokenService;
@@ -25,15 +29,19 @@ public class JwtManager implements JwtManagerInterface {
     private InvalidTokenService invalidTokenService;
 
     @Override
-    public Claims getTokenClaims(String token) {
-        return Jwts.parser()
-            .setSigningKey(dotenv.get("JWT_SIGNING_KEY_SECRET"))
-            .parseClaimsJws(token)
-            .getBody();
+    public Claims getTokenClaims(String token) throws TokenClaimsException {
+        try {
+            return Jwts.parser()
+                .setSigningKey(dotenv.get("JWT_SIGNING_KEY_SECRET"))
+                .parseClaimsJws(token)
+                .getBody();
+        } catch (Exception e) {
+            throw new TokenClaimsException();
+        }
     }
 
     @Override
-    public boolean validate(String token) {
+    public boolean validate(String token) throws TokenValidationException {
         try {
             Claims body = getTokenClaims(token);
 
@@ -46,30 +54,37 @@ public class JwtManager implements JwtManagerInterface {
             if (isExpired || isTokenOnBlacklist) return false;
 
             return true;
-        } catch (Exception e) {
-            System.out.println(e);
-            return false;
+        } catch (TokenClaimsException e) {
+            throw new TokenValidationException();
         }
     }
 
     @Override
-    public void invalidate(String token) {
-        Claims claims = getTokenClaims(token);
-        long expirationTimeInSeconds = claims.getExpiration().getTime() / 1000;
-        invalidTokenService.addInvalidToken(token, expirationTimeInSeconds);
+    public void invalidate(String token) throws TokenInvalidationException {
+        try {
+            Claims claims = getTokenClaims(token);
+            long expirationTimeInSeconds = claims.getExpiration().getTime() / 1000;
+            invalidTokenService.addInvalidToken(token, expirationTimeInSeconds);
+        } catch (TokenClaimsException e) {
+            throw new TokenInvalidationException();
+        }
     }
 
     @Override
-    public JwtTokens generateJwtTokens(String username, boolean rememberMe) {
-        String accessToken = generateToken(
-            username, rememberMe, ExpirationTime.ACCESS_TOKEN
-        );
-        String refreshToken = generateToken(
-            username, rememberMe,
-            rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN
-        );
+    public JwtTokens generateJwtTokens(String username, boolean rememberMe) throws JwtTokensGenerationException {
+        try {
+            String accessToken = generateToken(
+                username, rememberMe, ExpirationTime.ACCESS_TOKEN
+            );
+            String refreshToken = generateToken(
+                username, rememberMe,
+                rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN
+            );
 
-        return new JwtTokens(accessToken, refreshToken, rememberMe);
+            return new JwtTokens(accessToken, refreshToken, rememberMe);
+        } catch (Exception e) {
+            throw new JwtTokensGenerationException();
+        }
     }
 
     private String generateToken(String username, boolean rememberMe, ExpirationTime expirationTime) {
