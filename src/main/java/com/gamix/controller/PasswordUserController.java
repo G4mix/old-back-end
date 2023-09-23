@@ -34,17 +34,21 @@ public class PasswordUserController {
         HttpServletRequest req, 
         @RequestBody SignUpPasswordUserInput signUpPasswordUserInput
     ) {
-        JwtTokens jwtTokens = authService.signUpPasswordUser(signUpPasswordUserInput);
-        
-        HttpHeaders headers = new HttpHeaders();
-
-        Map<String, String> cookieStrings = CookieUtils.generateCookies(
-            jwtTokens.accessToken(), 
-            jwtTokens.refreshToken(), 
-            new CookieOptions(false, req.isSecure())
-        );
-
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
+        try {
+            JwtTokens jwtTokens = authService.signUpPasswordUser(signUpPasswordUserInput);
+            
+            HttpHeaders headers = new HttpHeaders();
+    
+            Map<String, String> cookieStrings = CookieUtils.generateCookies(
+                jwtTokens.accessToken(), 
+                jwtTokens.refreshToken(), 
+                new CookieOptions(false, req.isSecure())
+            );
+    
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
+        } catch(ExceptionBase ex) {
+            return throwError(ex);
+        }
     }
 
     @PostMapping("/auth/signin")
@@ -67,7 +71,7 @@ public class PasswordUserController {
 
             return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
         } catch (ExceptionBase ex) {
-            return ThrowError(ex);
+            return throwError(ex);
         }
     }
 

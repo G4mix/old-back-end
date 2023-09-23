@@ -9,11 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.gamix.enums.ExceptionMessage;
+import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
+import com.gamix.exceptions.authentication.InvalidAccessToken;
+import com.gamix.exceptions.authentication.InvalidRefreshToken;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.NullJwtTokens;
-import com.gamix.exceptions.parameters.email.EmailAlreadyExists;
-import com.gamix.exceptions.parameters.username.UsernameAlreadyExists;
+import com.gamix.exceptions.parameters.password.PasswordWrong;
+import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
+import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
+import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
+import com.gamix.exceptions.user.UserNotFound;
 import com.gamix.interfaces.services.PasswordUserServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
@@ -22,7 +27,6 @@ import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
-import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
 
@@ -37,7 +41,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     private JwtManager jwtManager;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     
@@ -49,18 +53,16 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         ParameterValidator.validatePassword(signUpPasswordUserInput.password());
         ParameterValidator.validateEmail(signUpPasswordUserInput.email());
         
-        User userWithSameUsername = userRepository.findByUsername(signUpPasswordUserInput.username());
-        User userWithSameEmail = userRepository.findByEmail(signUpPasswordUserInput.email());
+        User userWithSameUsername = userService.findUserByUsername(signUpPasswordUserInput.username());
+        User userWithSameEmail = userService.findUserByEmail(signUpPasswordUserInput.email());
         
         if (userWithSameUsername != null && userWithSameUsername.getPasswordUser() != null) {
-            throw new UsernameAlreadyExists();
+            throw new UserAlreadyExistsWithThisUsername();
         } else if (userWithSameEmail != null && userWithSameEmail.getPasswordUser() != null) {
-            throw new EmailAlreadyExists();
-        } else if (userWithSameEmail != null || userWithSameUsername != null) {
-            return null;
+            throw new UserAlreadyExistsWithThisEmail();
         }
 
-        User user = createUser(
+        User user = userService.createUser(
             signUpPasswordUserInput.username(), 
             signUpPasswordUserInput.email(), 
             null
@@ -81,21 +83,21 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         SignInPasswordUserInput signInPasswordUserInput
     ) throws ExceptionBase {
         User user = signInPasswordUserInput.email() != null 
-            ? userRepository.findByEmail(signInPasswordUserInput.email()) 
-            : userRepository.findByUsername(signInPasswordUserInput.username());
-        if (user == null) throw new ExceptionBase(ExceptionMessage.USER_NOT_FOUND);
+            ? userService.findUserByEmail(signInPasswordUserInput.email()) 
+            : userService.findUserByUsername(signInPasswordUserInput.username());
+        if (user == null) throw new UserNotFound();
         
         PasswordUser passwordUser = user.getPasswordUser();
-        if (passwordUser == null) throw new ExceptionBase(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
+        if (passwordUser == null) throw new PasswordUserNotFound();
 
         boolean attempsLessThanThree = passwordUser.getLoginAttempts() >= 3;
         boolean notBlockedByTime = (passwordUser.getBlockedUntil() != null && passwordUser.getBlockedUntil().isAfter(LocalDateTime.now()));
-        if (attempsLessThanThree && notBlockedByTime) throw new ExceptionBase(ExceptionMessage.EXCESSIVE_FAILED_LOGIN_ATTEMPTS);
+        if (attempsLessThanThree && notBlockedByTime) throw new ExcessiveFailedLoginAttempts();
         
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(signInPasswordUserInput.password(), passwordUser.getPassword())) {
             handleFailedLoginAttempt(passwordUser);
-            throw new ExceptionBase(ExceptionMessage.PASSWORD_WRONG);
+            throw new PasswordWrong();
         }
 
 
@@ -104,7 +106,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             signInPasswordUserInput.rememberMe()
         );
 
-        if (jwtTokens == null) throw new ExceptionBase(ExceptionMessage.NULL_JWT_TOKENS);
+        if (jwtTokens == null) throw new NullJwtTokens();
 
         passwordUser.setLoginAttempts(0);
         passwordUserRepository.save(passwordUser);
@@ -113,37 +115,26 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     }
 
     @Override
-    public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput) {
+    public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput) throws ExceptionBase {
         System.out.println(signOutPasswordUserInput.accessToken());
         System.out.println(signOutPasswordUserInput.refreshToken());
-        if (jwtManager.validate(signOutPasswordUserInput.accessToken())) {
-            jwtManager.invalidate(signOutPasswordUserInput.accessToken());
-        }
-        if (jwtManager.validate(signOutPasswordUserInput.refreshToken())) {
-            jwtManager.invalidate(signOutPasswordUserInput.refreshToken());
-        }
+
+        if (!jwtManager.validate(signOutPasswordUserInput.accessToken())) throw new InvalidAccessToken();
+        if (!jwtManager.validate(signOutPasswordUserInput.refreshToken())) throw new InvalidRefreshToken();
+        jwtManager.invalidate(signOutPasswordUserInput.accessToken());
+        jwtManager.invalidate(signOutPasswordUserInput.refreshToken());
+        
     }
 
     @Override
     public JwtTokens refreshToken(String refreshToken) throws ExceptionBase {
-        if (!jwtManager.validate(refreshToken))  {
-            throw new ExceptionBase(ExceptionMessage.INVALID_REFRESH_TOKEN);
-        }
+        if (!jwtManager.validate(refreshToken)) throw new InvalidRefreshToken();
+        
         Claims body = jwtManager.getTokenClaims(refreshToken);
         String username = body.getSubject();
         boolean rememberMe = (boolean) body.get("rememberMe");
 
         return jwtManager.generateJwtTokens(username, rememberMe);
-    }
-
-    @Override
-    public User createUser(String username, String email, String icon) {
-        User user = new User()
-            .setUsername(username)
-            .setEmail(email)
-            .setIcon(icon);
-    
-        return userRepository.save(user);
     }
 
     @Override

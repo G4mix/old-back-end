@@ -12,4 +12,5 @@ public interface UserServiceInterface {
     public User findUserByUsername(String username);
     public User updateUser(Integer id, PartialUserInput userInput);
     public void deleteAccount(Integer id);
+    public User createUser(String username, String email, String icon);
 }

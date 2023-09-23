@@ -66,4 +66,14 @@ public class UserService implements UserServiceInterface {
         if(!userRepository.existsById(id)) throw new EntityNotFoundException("Usuário não encontrado com o ID: " + id);
         userRepository.deleteById(id);
     }
+
+    @Override
+    public User createUser(String username, String email, String icon) {
+        User user = new User()
+            .setUsername(username)
+            .setEmail(email)
+            .setIcon(icon);
+    
+        return userRepository.save(user);
+    }
 }

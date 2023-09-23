@@ -28,19 +28,6 @@ public class JwtSecurityConfig  {
     @Autowired
     private JwtAuthenticationProvider authenticationProvider;
 
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        return new ProviderManager(Collections.singletonList(authenticationProvider));
-    }
-
-    @Bean
-    public JwtAuthenticationTokenFilter authenticationTokenFilter() {
-        JwtAuthenticationTokenFilter filter = new JwtAuthenticationTokenFilter();
-        filter.setAuthenticationManager(authenticationManager());
-        filter.setAuthenticationSuccessHandler(new JwtSuccessHandler());
-        return filter;
-    }
-
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsFilter()))
@@ -56,6 +43,19 @@ public class JwtSecurityConfig  {
 
         http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         http.headers((header) -> header.cacheControl(Customizer.withDefaults()));
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(Collections.singletonList(authenticationProvider));
+    }
+
+    @Bean
+    public JwtAuthenticationTokenFilter authenticationTokenFilter() {
+        JwtAuthenticationTokenFilter filter = new JwtAuthenticationTokenFilter();
+        filter.setAuthenticationManager(authenticationManager());
+        filter.setAuthenticationSuccessHandler(new JwtSuccessHandler());
+        return filter;
     }
 
     @Bean

@@ -13,6 +13,5 @@ public interface PasswordUserServiceInterface {
     public JwtTokens signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput) throws ExceptionBase;
     public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput) throws ExceptionBase;
     public JwtTokens refreshToken(String refreshToken) throws ExceptionBase;
-    public User createUser(String username, String email, String icon);
     public PasswordUser createPasswordUser(User user, String password);
 }

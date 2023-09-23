@@ -3,6 +3,7 @@ package com.gamix.security;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -11,8 +12,10 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.authentication.InvalidAccessToken;
+import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
+import com.gamix.exceptions.user.UserNotFound;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
@@ -40,17 +43,17 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
             String accessToken = jwtAuthenticationToken.getToken();
     
-            if (!jwtManager.validate(accessToken)) throw new ExceptionBase(ExceptionMessage.INVALID_ACCESS_TOKEN);
+            if (!jwtManager.validate(accessToken)) throw new InvalidAccessToken();
     
             Claims body = jwtManager.getTokenClaims(accessToken);
             User user = userRepository.findByUsername(body.getSubject());
             String role = (String) body.get("role");
     
-            if (user == null) throw new ExceptionBase(ExceptionMessage.USER_NOT_FOUND);
+            if (user == null) throw new UserNotFound();
             
             PasswordUser passwordUser = user.getPasswordUser();
     
-            if (passwordUser == null) throw new ExceptionBase(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
+            if (passwordUser == null) throw new PasswordUserNotFound();
     
             List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(role);
     
@@ -61,7 +64,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
                 grantedAuthorities
             );
         } catch (ExceptionBase ex) {
-            return null;
+            throw new AuthenticationServiceException("ExceptionBase", ex);
         }
     }
 
