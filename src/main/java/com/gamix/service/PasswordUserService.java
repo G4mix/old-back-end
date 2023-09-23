@@ -10,14 +10,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.gamix.enums.ExceptionMessage;
-import com.gamix.exceptions.BackendException;
+import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.authentication.NullJwtTokens;
+import com.gamix.exceptions.parameters.email.EmailAlreadyExists;
+import com.gamix.exceptions.parameters.username.UsernameAlreadyExists;
 import com.gamix.interfaces.services.PasswordUserServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
-import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
@@ -38,11 +40,11 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     private UserRepository userRepository;
 
     private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        
+    
     @Override
-    public JwtSessionWithRefreshToken signUpPasswordUser(
+    public JwtTokens signUpPasswordUser(
         SignUpPasswordUserInput signUpPasswordUserInput
-    ) {
+    ) throws ExceptionBase {
         ParameterValidator.validateUsername(signUpPasswordUserInput.username());
         ParameterValidator.validatePassword(signUpPasswordUserInput.password());
         ParameterValidator.validateEmail(signUpPasswordUserInput.email());
@@ -51,9 +53,9 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         User userWithSameEmail = userRepository.findByEmail(signUpPasswordUserInput.email());
         
         if (userWithSameUsername != null && userWithSameUsername.getPasswordUser() != null) {
-            throw new BackendException(ExceptionMessage.USERNAME_ALREADY_EXISTS);
+            throw new UsernameAlreadyExists();
         } else if (userWithSameEmail != null && userWithSameEmail.getPasswordUser() != null) {
-            throw new BackendException(ExceptionMessage.EMAIL_ALREADY_EXISTS);
+            throw new EmailAlreadyExists();
         } else if (userWithSameEmail != null || userWithSameUsername != null) {
             return null;
         }
@@ -69,33 +71,31 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             signUpPasswordUserInput.username(), false
         );
 
-        return new JwtSessionWithRefreshToken (
-            user.getUsername(), user.getEmail(), 
-            user.getIcon(), jwtTokens.accessToken(), 
-            jwtTokens.refreshToken()
-        );
+        if (jwtTokens == null) throw new NullJwtTokens();
+
+        return jwtTokens;
     }
 
     @Override
-    public JwtSessionWithRefreshToken signInPasswordUser(
+    public JwtTokens signInPasswordUser(
         SignInPasswordUserInput signInPasswordUserInput
-    ) {
+    ) throws ExceptionBase {
         User user = signInPasswordUserInput.email() != null 
             ? userRepository.findByEmail(signInPasswordUserInput.email()) 
             : userRepository.findByUsername(signInPasswordUserInput.username());
-        if (user == null) throw new BackendException(ExceptionMessage.USER_NOT_FOUND);
+        if (user == null) throw new ExceptionBase(ExceptionMessage.USER_NOT_FOUND);
         
         PasswordUser passwordUser = user.getPasswordUser();
-        if (passwordUser == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
+        if (passwordUser == null) throw new ExceptionBase(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
 
         boolean attempsLessThanThree = passwordUser.getLoginAttempts() >= 3;
         boolean notBlockedByTime = (passwordUser.getBlockedUntil() != null && passwordUser.getBlockedUntil().isAfter(LocalDateTime.now()));
-        if (attempsLessThanThree && notBlockedByTime) throw new BackendException(ExceptionMessage.EXCESSIVE_FAILED_LOGIN_ATTEMPTS);
+        if (attempsLessThanThree && notBlockedByTime) throw new ExceptionBase(ExceptionMessage.EXCESSIVE_FAILED_LOGIN_ATTEMPTS);
         
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(signInPasswordUserInput.password(), passwordUser.getPassword())) {
             handleFailedLoginAttempt(passwordUser);
-            throw new BackendException(ExceptionMessage.PASSWORD_WRONG);
+            throw new ExceptionBase(ExceptionMessage.PASSWORD_WRONG);
         }
 
 
@@ -104,15 +104,12 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             signInPasswordUserInput.rememberMe()
         );
 
-        if (jwtTokens == null) throw new BackendException(ExceptionMessage.INVALID_JWT_SESSION_WITH_REFRESH_TOKEN);
+        if (jwtTokens == null) throw new ExceptionBase(ExceptionMessage.NULL_JWT_TOKENS);
 
         passwordUser.setLoginAttempts(0);
         passwordUserRepository.save(passwordUser);
         
-        return new JwtSessionWithRefreshToken (
-            user.getUsername(), user.getEmail(), user.getIcon(),
-            jwtTokens.accessToken(), jwtTokens.refreshToken()
-        );
+        return jwtTokens;
     }
 
     @Override
@@ -128,9 +125,9 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     }
 
     @Override
-    public JwtTokens refreshToken(String refreshToken) {
+    public JwtTokens refreshToken(String refreshToken) throws ExceptionBase {
         if (!jwtManager.validate(refreshToken))  {
-            throw new BackendException(ExceptionMessage.INVALID_REFRESH_TOKEN);
+            throw new ExceptionBase(ExceptionMessage.INVALID_REFRESH_TOKEN);
         }
         Claims body = jwtManager.getTokenClaims(refreshToken);
         String username = body.getSubject();

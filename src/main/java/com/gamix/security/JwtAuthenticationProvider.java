@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.gamix.enums.ExceptionMessage;
-import com.gamix.exceptions.BackendException;
+import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
@@ -36,29 +36,33 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
     protected UserDetails retrieveUser(
         String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken
     ) throws AuthenticationException {
-        JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
-        String accessToken = jwtAuthenticationToken.getToken();
-
-        if (!jwtManager.validate(accessToken)) throw new BackendException(ExceptionMessage.INVALID_ACCESS_TOKEN);
-
-        Claims body = jwtManager.getTokenClaims(accessToken);
-        User user = userRepository.findByUsername(body.getSubject());
-        String role = (String) body.get("role");
-
-        if (user == null) throw new BackendException(ExceptionMessage.USER_NOT_FOUND);
-        
-        PasswordUser passwordUser = user.getPasswordUser();
-
-        if (passwordUser == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
-
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(role);
-
-        return new JwtUserDetails(
-            user.getUsername(), 
-            user.getPasswordUser().getPassword(),
-            accessToken,
-            grantedAuthorities
-        );
+        try {
+            JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
+            String accessToken = jwtAuthenticationToken.getToken();
+    
+            if (!jwtManager.validate(accessToken)) throw new ExceptionBase(ExceptionMessage.INVALID_ACCESS_TOKEN);
+    
+            Claims body = jwtManager.getTokenClaims(accessToken);
+            User user = userRepository.findByUsername(body.getSubject());
+            String role = (String) body.get("role");
+    
+            if (user == null) throw new ExceptionBase(ExceptionMessage.USER_NOT_FOUND);
+            
+            PasswordUser passwordUser = user.getPasswordUser();
+    
+            if (passwordUser == null) throw new ExceptionBase(ExceptionMessage.PASSWORDUSER_NOT_FOUND);
+    
+            List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(role);
+    
+            return new JwtUserDetails(
+                user.getUsername(), 
+                user.getPasswordUser().getPassword(),
+                accessToken,
+                grantedAuthorities
+            );
+        } catch (ExceptionBase ex) {
+            return null;
+        }
     }
 
     @Override

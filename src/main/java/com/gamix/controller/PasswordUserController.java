@@ -12,13 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gamix.enums.ExceptionMessage;
-import com.gamix.exceptions.BackendException;
+import com.gamix.exceptions.ExceptionBase;
 import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.options.CookieOptions;
-import com.gamix.records.returns.security.JwtSessionWithRefreshToken;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.PasswordUserService;
 import com.gamix.utils.CookieUtils;
@@ -36,23 +34,17 @@ public class PasswordUserController {
         HttpServletRequest req, 
         @RequestBody SignUpPasswordUserInput signUpPasswordUserInput
     ) {
-        try {
-            JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signUpPasswordUser(signUpPasswordUserInput);
-            
-            HttpHeaders headers = new HttpHeaders();
+        JwtTokens jwtTokens = authService.signUpPasswordUser(signUpPasswordUserInput);
+        
+        HttpHeaders headers = new HttpHeaders();
 
-            if (jwtSessionWithRefreshToken == null) throw new BackendException(ExceptionMessage.PASSWORDUSER_ALREADY_EXISTS);
+        Map<String, String> cookieStrings = CookieUtils.generateCookies(
+            jwtTokens.accessToken(), 
+            jwtTokens.refreshToken(), 
+            new CookieOptions(false, req.isSecure())
+        );
 
-            Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                jwtSessionWithRefreshToken.accessToken(), 
-                jwtSessionWithRefreshToken.refreshToken(), 
-                new CookieOptions(false, req.isSecure())
-            );
-
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
-        } catch (BackendException ex) {
-            return throwError(ex);
-        }
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
     }
 
     @PostMapping("/auth/signin")
@@ -61,24 +53,21 @@ public class PasswordUserController {
         @RequestBody SignInPasswordUserInput signInPasswordUserInput
     ) {
         try {
-            JwtSessionWithRefreshToken jwtSessionWithRefreshToken = authService.signInPasswordUser(
+            JwtTokens jwtTokens = authService.signInPasswordUser(
                 signInPasswordUserInput
             );
-            if (jwtSessionWithRefreshToken == null) {
-                throw new BackendException(ExceptionMessage.INVALID_JWT_SESSION_WITH_REFRESH_TOKEN);
-            }
             
             HttpHeaders headers = new HttpHeaders();
 
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                jwtSessionWithRefreshToken.accessToken(), 
-                jwtSessionWithRefreshToken.refreshToken(),
+                jwtTokens.accessToken(), 
+                jwtTokens.refreshToken(),
                 new CookieOptions(signInPasswordUserInput.rememberMe(), req.isSecure())
             );
 
             return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
-        } catch (BackendException ex) {
-            return throwError(ex);
+        } catch (ExceptionBase ex) {
+            return ThrowError(ex);
         }
     }
 
@@ -96,7 +85,7 @@ public class PasswordUserController {
             HttpHeaders headers = new HttpHeaders();
         
             return ResponseEntity.status(HttpStatus.OK).headers(headers).body(null);
-        } catch (BackendException ex) {
+        } catch (ExceptionBase ex) {
             return throwError(ex);
         }
     }
@@ -117,15 +106,15 @@ public class PasswordUserController {
             );
                 
             return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
-        } catch (BackendException ex) {
+        } catch (ExceptionBase ex) {
             return throwError(ex);
         }
     }
     
     @ControllerAdvice
     public class GlobalExceptionHandler {
-        @ExceptionHandler(BackendException.class)
-        public ResponseEntity<Object> handleJwtAuthenticationException(BackendException ex) {
+        @ExceptionHandler(ExceptionBase.class)
+        public ResponseEntity<Object> handleJwtAuthenticationException(ExceptionBase ex) {
             return throwError(ex);
         }
     }

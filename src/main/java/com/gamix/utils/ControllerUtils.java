@@ -5,12 +5,13 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
-import com.gamix.exceptions.BackendException;
+import com.gamix.exceptions.ExceptionBase;
 
 public class ControllerUtils {
-    public static ResponseEntity<Object> throwError(BackendException ex) {
+    public static ResponseEntity<Object> throwError(ExceptionBase ex) {
         Map<String, String> errorResponse = new HashMap<>();
-        errorResponse.put("error", ex.getMessage());
+        errorResponse.put("message", ex.getMessage());
+        errorResponse.put("error", ex.getError());
         return ResponseEntity.status(ex.getStatus()).body(errorResponse);
     }
 }

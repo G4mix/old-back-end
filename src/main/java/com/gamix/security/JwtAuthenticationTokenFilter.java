@@ -7,7 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 import com.gamix.enums.ExceptionMessage;
-import com.gamix.exceptions.BackendException;
+import com.gamix.exceptions.ExceptionBase;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,7 +26,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     
     
             if (header == null || !header.startsWith("Bearer ")) {
-                throw new BackendException(ExceptionMessage.INVALID_ACCESS_TOKEN);
+                throw new ExceptionBase(ExceptionMessage.INVALID_ACCESS_TOKEN);
             }
     
             String authenticationToken = header.substring(7);
@@ -34,7 +34,7 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
             JwtAuthenticationToken token = new JwtAuthenticationToken(authenticationToken);
     
             return getAuthenticationManager().authenticate(token);
-        } catch (BackendException e) {
+        } catch (ExceptionBase e) {
             httpServletResponse.setStatus(e.getStatus().value());
             httpServletResponse.getWriter().write(e.getMessage());
             return null;
