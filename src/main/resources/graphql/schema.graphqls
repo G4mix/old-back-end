@@ -24,20 +24,35 @@ type Query {
     findAllUsers(skip: Int = 0, limit: Int = 10): [User]
     findUserByUsername(username: String!): User
     findUserByEmail(email: String!): User
-    findUserByToken(accessToken: String!): User
+    findUserByToken: User
 }
 
 type Mutation {
-    signOut: Boolean
+    signUpPasswordUser(input: SignUpPasswordUserInput!): AuthTokens
+    signInPasswordUser(input: SignInPasswordUserInput!): AuthTokens
+    signOutPasswordUser(input: SignOutPasswordUserInput!): Boolean
+    refreshTokenPasswodUser(refreshToken: String!): AuthTokens
 }
 
-input UserInput {
+input SignUpPasswordUserInput {
     username: String!
     email: String!
     password: String!
 }
 
-input SigninInput {
-    username: String!
+input SignInPasswordUserInput {
+    username: String
+    email: String
     password: String!
+    rememberMe: Boolean!
+}
+
+input SignOutPasswordUserInput {
+    accessToken: String!
+    refreshToken: String!
+}
+
+type AuthTokens {
+    accessToken: String!
+    refreshToken: String!
 }

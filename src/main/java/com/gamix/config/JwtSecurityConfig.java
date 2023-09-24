@@ -33,8 +33,7 @@ public class JwtSecurityConfig  {
             .cors(cors -> cors.configurationSource(corsFilter()))
             .authorizeHttpRequests(
                 (authorize) -> authorize
-                    .requestMatchers(HttpMethod.POST, "/auth/signup", "/auth/signin", "/auth/signout").anonymous()
-                    .requestMatchers(HttpMethod.POST, "/graphql").hasAuthority("USER")
+                    .requestMatchers(HttpMethod.POST, "/graphql").anonymous()
                     .anyRequest().denyAll()
             )
             .sessionManagement(
@@ -64,7 +63,6 @@ public class JwtSecurityConfig  {
         
         //config.addAllowedOrigin(dotenv.get("FRONT_END_BASE_URL"));
         config.addAllowedOrigin("*");
-        config.addAllowedMethod("GET");
         config.addAllowedMethod("POST");
         config.addAllowedHeader(HttpHeaders.AUTHORIZATION);
         config.addAllowedHeader(HttpHeaders.CONTENT_TYPE);

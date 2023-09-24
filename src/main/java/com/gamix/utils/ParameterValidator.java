@@ -27,7 +27,7 @@ public class ParameterValidator {
         else if (password.length() < 8) throw new PasswordTooShort();
         else if (password.length() > 128) throw new PasswordTooLong();
         else if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) throw new PasswordMissingSpecialChar();
-        else if (!password.matches(".*\\d.*")) throw new PasswordMissingUppercase();
+        else if (!password.matches(".*\\d.*")) throw new PasswordMissingNumber();
         else if (!password.matches(".*[A-Z].*")) throw new PasswordMissingUppercase();
     }
 }

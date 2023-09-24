@@ -7,6 +7,7 @@ public enum ExceptionMessage {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Refresh token is invalid"),
     NULL_JWT_TOKENS(HttpStatus.INTERNAL_SERVER_ERROR, "NULL JWT tokens generated"),
     TOKEN_CLAIMS_EXCEPTION(HttpStatus.UNAUTHORIZED, "Error getting token claims"),
+    TOKEN_DO_NOT_MATCH_EXCEPTION(HttpStatus.UNAUTHORIZED, "Tokens do not match, send same tokens"),
     EXCESSIVE_FAILED_LOGIN_ATTEMPTS(HttpStatus.TOO_MANY_REQUESTS, "Excessive failed login attempts"),
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not found"), 

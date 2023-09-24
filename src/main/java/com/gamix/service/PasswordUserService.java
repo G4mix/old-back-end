@@ -14,6 +14,7 @@ import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.authentication.InvalidRefreshToken;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.NullJwtTokens;
+import com.gamix.exceptions.authentication.TokensDoNotMatchException;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
 import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
@@ -63,8 +64,8 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         }
 
         User user = userService.createUser(
-            signUpPasswordUserInput.username(), 
-            signUpPasswordUserInput.email(), 
+            signUpPasswordUserInput.username(),
+            signUpPasswordUserInput.email(),
             null
         );
         createPasswordUser(user, signUpPasswordUserInput.password());
@@ -116,14 +117,15 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
     @Override
     public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput) throws ExceptionBase {
-        System.out.println(signOutPasswordUserInput.accessToken());
-        System.out.println(signOutPasswordUserInput.refreshToken());
+        Claims accessToken = jwtManager.getTokenClaims(signOutPasswordUserInput.accessToken());
+        Claims refreshToken = jwtManager.getTokenClaims(signOutPasswordUserInput.refreshToken());
 
         if (!jwtManager.validate(signOutPasswordUserInput.accessToken())) throw new InvalidAccessToken();
         if (!jwtManager.validate(signOutPasswordUserInput.refreshToken())) throw new InvalidRefreshToken();
+        if (!accessToken.getSubject().equals(refreshToken.getSubject())) throw new TokensDoNotMatchException();
+
         jwtManager.invalidate(signOutPasswordUserInput.accessToken());
         jwtManager.invalidate(signOutPasswordUserInput.refreshToken());
-        
     }
 
     @Override

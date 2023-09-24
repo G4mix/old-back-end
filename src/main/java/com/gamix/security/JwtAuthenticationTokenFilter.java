@@ -1,14 +1,12 @@
 package com.gamix.security;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
-import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-
-import com.gamix.exceptions.ExceptionBase;
-import com.gamix.exceptions.authentication.InvalidAccessToken;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,21 +22,18 @@ public class JwtAuthenticationTokenFilter extends AbstractAuthenticationProcessi
     public Authentication attemptAuthentication(
         HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse
     ) throws AuthenticationException, IOException, ServletException {
-        try {
-            String header = httpServletRequest.getHeader("Authorization");
-    
-            if (header == null || !header.startsWith("Bearer ")) throw new InvalidAccessToken();
-    
-            String authenticationToken = header.substring(7);
-    
-            JwtAuthenticationToken token = new JwtAuthenticationToken(authenticationToken);
-    
-            return getAuthenticationManager().authenticate(token);
-        } catch (ExceptionBase e) {
-            throw new AuthenticationServiceException("error while trying to authenticate", e);
-        }
-    }
+        String header = httpServletRequest.getHeader("Authorization");
 
+        if (header == null || !header.startsWith("Bearer ")) {
+            return new UsernamePasswordAuthenticationToken(null, null, new ArrayList<>());
+        }
+
+        String authenticationToken = header.substring(7);
+
+        JwtAuthenticationToken token = new JwtAuthenticationToken(authenticationToken);
+        
+        return getAuthenticationManager().authenticate(token);
+    }
 
     @Override
     protected void successfulAuthentication(

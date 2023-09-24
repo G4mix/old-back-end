@@ -3,14 +3,12 @@ package com.gamix.controller;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
+import org.springframework.graphql.execution.ErrorType;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Controller;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
@@ -20,106 +18,107 @@ import com.gamix.records.options.CookieOptions;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.PasswordUserService;
 import com.gamix.utils.CookieUtils;
-import static com.gamix.utils.ControllerUtils.throwError;
 
-import jakarta.servlet.http.HttpServletRequest;
+import graphql.ErrorClassification;
+import graphql.GraphQLError;
+import graphql.schema.DataFetchingEnvironment;
 
-@RestController
+@Controller
 public class PasswordUserController {
     @Autowired
     private PasswordUserService authService;
 
-    @PostMapping("/auth/signup")
-    public ResponseEntity<Object> signUpPasswordUser(
-        HttpServletRequest req, 
-        @RequestBody SignUpPasswordUserInput signUpPasswordUserInput
-    ) {
+    @MutationMapping
+    public Object signUpPasswordUser(
+        @Argument("input") SignUpPasswordUserInput signUpPasswordUserInput
+        // HttpServletRequest req
+    ) throws ExceptionBase {
         try {
             JwtTokens jwtTokens = authService.signUpPasswordUser(signUpPasswordUserInput);
-            
-            HttpHeaders headers = new HttpHeaders();
-    
+
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
                 jwtTokens.accessToken(), 
                 jwtTokens.refreshToken(), 
-                new CookieOptions(false, req.isSecure())
+                new CookieOptions(false,false) // req.isSecure()
             );
     
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
+            return cookieStrings;
         } catch(ExceptionBase ex) {
-            return throwError(ex);
+            throw ex;
         }
     }
 
-    @PostMapping("/auth/signin")
-    public ResponseEntity<Object> signInPasswordUser(
-        HttpServletRequest req,
-        @RequestBody SignInPasswordUserInput signInPasswordUserInput
-    ) {
+    @MutationMapping
+    public Object signInPasswordUser(
+        @Argument("input") SignInPasswordUserInput signInPasswordUserInput
+        // HttpServletRequest req,
+    ) throws ExceptionBase {
         try {
             JwtTokens jwtTokens = authService.signInPasswordUser(
                 signInPasswordUserInput
             );
             
-            HttpHeaders headers = new HttpHeaders();
-
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
                 jwtTokens.accessToken(), 
                 jwtTokens.refreshToken(),
-                new CookieOptions(signInPasswordUserInput.rememberMe(), req.isSecure())
+                new CookieOptions(signInPasswordUserInput.rememberMe(), false) //req.isSecure()
             );
 
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
+            return cookieStrings;
         } catch (ExceptionBase ex) {
-            return throwError(ex);
+            throw ex;
         }
     }
 
-    @PostMapping("/auth/signout")
-    public ResponseEntity<Object> signOutPasswordUser(
-        @RequestBody Map<String, String> requestBody
-    ) {
+    @MutationMapping
+    public Object signOutPasswordUser(
+        @Argument("input") SignOutPasswordUserInput signOutPasswordUserInput
+    ) throws ExceptionBase {
         try {
-            String accessToken = requestBody.get("accessToken");
-            String refreshToken = requestBody.get("refreshToken");
-
-            SignOutPasswordUserInput signOutPasswordUserInput = new SignOutPasswordUserInput(accessToken, refreshToken);
             authService.signOutPasswordUser(signOutPasswordUserInput);
-
-            HttpHeaders headers = new HttpHeaders();
-        
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(null);
+            return true;
         } catch (ExceptionBase ex) {
-            return throwError(ex);
+            throw ex;
         }
     }
 
-    @PostMapping("/auth/refreshtoken")
-    public ResponseEntity<Object> refreshTokenPasswodUser(
-        HttpServletRequest req,
-        @RequestBody Map<String, String> requestBody
-    ) {
+    @MutationMapping
+    public Object refreshTokenPasswodUser(
+        // HttpServletRequest req,
+        @Argument("refreshToken") String refreshToken
+    ) throws ExceptionBase {
         try {
-            JwtTokens refreshedTokens = authService.refreshToken(requestBody.get("refreshToken"));
+            JwtTokens refreshedTokens = authService.refreshToken(refreshToken);
 
-            HttpHeaders headers = new HttpHeaders();
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
                 refreshedTokens.accessToken(), 
                 refreshedTokens.refreshToken(),
-                new CookieOptions(refreshedTokens.rememberMe(), req.isSecure())
+                new CookieOptions(refreshedTokens.rememberMe(), false) // req.isSecure()
             );
                 
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(cookieStrings);
+            return cookieStrings;
         } catch (ExceptionBase ex) {
-            return throwError(ex);
+            throw ex;
         }
     }
-    
-    @ControllerAdvice
-    public class GlobalExceptionHandler {
-        @ExceptionHandler(ExceptionBase.class)
-        public ResponseEntity<Object> handleJwtAuthenticationException(ExceptionBase ex) {
-            return throwError(ex);
+
+    @GraphQlExceptionHandler
+    public GraphQLError handle(@NonNull Throwable ex, @NonNull DataFetchingEnvironment environment) {
+        if (ex instanceof ExceptionBase) {
+            return GraphQLError
+                .newError()
+                .errorType(ErrorClassification.errorClassification(((ExceptionBase) ex).getStatus().toString()))
+                .message(ex.getMessage())
+                .path(environment.getExecutionStepInfo().getPath())
+                .location(environment.getField().getSourceLocation())
+                .build();
         }
+        return GraphQLError
+            .newError()
+            .errorType(ErrorType.BAD_REQUEST)
+            .message(ex.getMessage())
+            .path(environment.getExecutionStepInfo().getPath())
+            .location(environment.getField().getSourceLocation())
+            .build();
     }
 }
