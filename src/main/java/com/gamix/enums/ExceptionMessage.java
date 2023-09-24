@@ -19,7 +19,6 @@ public enum ExceptionMessage {
     USERNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "Username is too long (maximum length is 50 characters)"),
     USERNAME_TOO_SHORT(HttpStatus.BAD_REQUEST, "Username is too short (minimum length is 3 characters)"),
     USERNAME_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "Username has an invalid format. It should contain only alphanumeric characters"),
-    USERNAME_CONTAINS_SPECIAL_CHAR(HttpStatus.BAD_REQUEST, "Username contains special characters, which are not allowed"),
     
     EMAIL_NULL(HttpStatus.BAD_REQUEST, "Email cannot be null"),
     EMAIL_EMPTY(HttpStatus.BAD_REQUEST, "Email cannot be empty"),
