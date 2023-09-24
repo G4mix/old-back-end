@@ -32,6 +32,8 @@ type Mutation {
     signInPasswordUser(input: SignInPasswordUserInput!): AuthTokens
     signOutPasswordUser(input: SignOutPasswordUserInput!): Boolean
     refreshTokenPasswodUser(refreshToken: String!): AuthTokens
+    updateUser(id: Int!, userInput: PartialUserInput!): User
+    deleteAccount(id: Int!): Boolean
 }
 
 input SignUpPasswordUserInput {
@@ -50,6 +52,12 @@ input SignInPasswordUserInput {
 input SignOutPasswordUserInput {
     accessToken: String!
     refreshToken: String!
+}
+
+input PartialUserInput {
+    username: String
+    email: String
+    icon: String
 }
 
 type AuthTokens {
