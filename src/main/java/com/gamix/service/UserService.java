@@ -55,8 +55,8 @@ public class UserService implements UserServiceInterface {
     public User updateUser(Integer id, PartialUserInput userInput) {
         return userRepository.findById(id)
         		.map(user -> {
-	                user.setUsername(userInput.username() != null ? userInput.username() : user.getUsername());
-	                user.setIcon(userInput.icon() != null ? userInput.icon() : user.getIcon());
+	                user.setUsername(userInput.getUsername() != null ? userInput.getUsername() : user.getUsername());
+	                user.setIcon(userInput.getIcon() != null ? userInput.getIcon() : user.getIcon());
 	                return userRepository.save(user);
 	            })
 	            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com o ID: " + id));

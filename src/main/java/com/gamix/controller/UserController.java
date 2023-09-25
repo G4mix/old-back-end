@@ -12,7 +12,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.User;
@@ -67,14 +66,14 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    User updateUser(@PathVariable Integer id, PartialUserInput userInput) {
+    User updateUser(@Argument("id") Integer id, @Argument("input") PartialUserInput userInput) {
         User updatedUser = userService.updateUser(id, userInput);
         return updatedUser;
     }
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    void deleteAccount(@PathVariable Integer id) {
+    void deleteAccount(@Argument("id") Integer id) {
         userService.deleteAccount(id);
     }
 
