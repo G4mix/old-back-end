@@ -34,8 +34,8 @@ Para uma demonstração visual desses passos, assista ao [vídeo de instalação
 - Configure as credenciais de acesso ao banco de dados no arquivo .env do projeto.
 
 ## Executando o Projeto no Eclipse
-- Certifique-se de ter o Tomcat configurado no Eclipse.
-- Inicie o servidor Tomcat e execute o projeto.
+- Com tudo configurado você deve clicar com o botão direito na pasta principal do Gamix, clique em Maven > Update Project e pode rodar a opção force update.
+- Clique novamente com o botão direito, encontre a opção start e clique nela, pode rodar como Java Application mesmo.
 
 ---
 
