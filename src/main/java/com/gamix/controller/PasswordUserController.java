@@ -1,6 +1,5 @@
 package com.gamix.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,14 +71,12 @@ public class PasswordUserController {
     }
 
     @MutationMapping
-    public Object signOutPasswordUser(
+    public boolean signOutPasswordUser(
         @Argument("input") SignOutPasswordUserInput signOutPasswordUserInput
     ) throws ExceptionBase {
         try {
             authService.signOutPasswordUser(signOutPasswordUserInput);
-            Map<String, Object> responseBody = new HashMap<String, Object>();
-            responseBody.put("success", true);
-            return responseBody;
+            return true;
         } catch (ExceptionBase ex) {
             throw ex;
         }

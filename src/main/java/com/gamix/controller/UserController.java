@@ -66,15 +66,20 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    User updateUser(@Argument("id") Integer id, @Argument("input") PartialUserInput userInput) {
+    User updateUser(@Argument("id") Integer id, @Argument("userInput") PartialUserInput userInput) {
         User updatedUser = userService.updateUser(id, userInput);
         return updatedUser;
     }
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    void deleteAccount(@Argument("id") Integer id) {
-        userService.deleteAccount(id);
+    boolean deleteAccount(@Argument("id") Integer id) {
+        try {
+            userService.deleteAccount(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @GraphQlExceptionHandler

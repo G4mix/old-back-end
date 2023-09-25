@@ -5,6 +5,7 @@
 - [API Usage Documentation](#api-usage-documentation)
   - [Sumário](#sumário)
   - [1. Introdução](#1-introdução)
+    - [1.1 Atenção!](#11-atenção)
   - [2. Autenticação](#2-autenticação)
     - [2.1 SignUp (Cadastro)](#21-signup-cadastro)
     - [2.2 SignIn (Login)](#22-signin-login)
@@ -23,6 +24,14 @@
 ## 1. Introdução
 
 Este documento descreve os endpoints disponíveis na API do sistema, juntamente com os métodos HTTP permitidos e os detalhes de autenticação e parâmetros necessários para cada um deles.
+
+### 1.1 Atenção!
+
+Existem métodos que precisam do header Authorization: "Bearer accessToken", fique atento!
+![Header demo](images/imnsonia_header_demonstration.png)
+![Header demo 2](images/imnsonia_header_demonstration2.png)
+![Header demo 3](images/imnsonia_header_demonstration3.png)
+![Header demo 4](images/imnsonia_header_demonstration4.png)
 
 ## 2. Autenticação
 
@@ -45,8 +54,8 @@ Este documento descreve os endpoints disponíveis na API do sistema, juntamente 
   "variables": {
     "input": {
       "username": "example_user",
-      "email": "example@example.com",
-      "password": "example_password123"
+      "email": "example@gmail.com",
+      "password": "Example_password123!"
     }
   }
 }
@@ -72,7 +81,7 @@ Este documento descreve os endpoints disponíveis na API do sistema, juntamente 
   "variables": {
     "input": {
       "username": "example_user",
-      "password": "example_password123",
+      "password": "Example_password123!",
       "rememberMe": true
     }
   }
@@ -115,11 +124,12 @@ Este documento descreve os endpoints disponíveis na API do sistema, juntamente 
 
 ```json
 {
-  "query": "mutation RefreshToken($refreshToken: String!) { refreshTokenPasswodUser(refreshToken: $refreshToken) { accessToken, refreshToken } }",
+  "query": "mutation RefreshTokenPasswordUser($refreshToken: String!) { refreshTokenPasswodUser(refreshToken: $refreshToken) { accessToken refreshToken } }",
   "variables": {
     "refreshToken": "your_refresh_token_here"
   }
 }
+
 ```
 
 ## 3. Usuários
@@ -139,7 +149,11 @@ Este documento descreve os endpoints disponíveis na API do sistema, juntamente 
   
 ```json
 {
-  "query": "{ findAllUsers(skip: 0, limit: 10) { id, username, email, icon } }"
+  "query": "query FindAllUsers($skip: Int, $limit: Int) { findAllUsers(skip: $skip, limit: $limit) { id username email icon socialAccounts { id user { id } provider socialAccountId } passwordUser { id verifiedEmail } } }",
+  "variables": {
+    "skip": 0,
+    "limit": 10
+  }
 }
 ```
 
@@ -180,7 +194,7 @@ Este documento descreve os endpoints disponíveis na API do sistema, juntamente 
 {
   "query": "query FindUserByEmail($email: String!) { findUserByEmail(email: $email) { id, username, email, icon } }",
   "variables": {
-    "email": "example@example.com"
+    "email": "example@gmail.com"
   }
 }
 ```
@@ -194,19 +208,18 @@ Este documento descreve os endpoints disponíveis na API do sistema, juntamente 
   - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `id` (Int, obrigatório): ID do usuário a ser atualizado.
-  - `userInput` (Objeto PartialUserInput): Objeto contendo os campos a serem atualizados (opcional).
+  - `userInput` (Objeto PartialUserInput: (username: String), (icon: String)): Objeto contendo os campos a serem atualizados (opcional).
 - **Retorno**:
   - `user` (Objeto User): Usuário atualizado.
 
 ```json
 {
-  "query": "mutation UpdateUser($id: Int!, $userInput: PartialUserInput!) { updateUser(id: $id, userInput: $userInput) { id, username, email, icon } }",
+  "query": "mutation UpdateUser($id: Int!, $input: PartialUserInput!) { updateUser(id: $id, userInput: $input) { id, username, email, icon } }",
   "variables": {
     "id": 1,
-    "userInput": {
+    "input": {
       "username": "new_username",
-      "email": "new_email@example.com",
-      "icon": "new_icon_url"
+      "icon": "new_icon_url.png"
     }
   }
 }

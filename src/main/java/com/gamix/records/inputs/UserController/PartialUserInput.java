@@ -2,14 +2,12 @@ package com.gamix.records.inputs.UserController;
 
 public class PartialUserInput {
     private String username;
-    private String email;
     private String icon;
 
     public PartialUserInput() {}
 
-    public PartialUserInput(String username, String email, String icon) {
+    public PartialUserInput(String username, String icon) {
         this.username = username;
-        this.email = email;
         this.icon = icon;
     }
 
@@ -27,13 +25,5 @@ public class PartialUserInput {
 
     public void setIcon(String icon) {
         this.icon = icon;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 }
