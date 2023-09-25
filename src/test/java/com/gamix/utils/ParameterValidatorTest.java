@@ -4,8 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gamix.exceptions.parameters.email.EmailEmpty;
 import com.gamix.exceptions.parameters.email.EmailInvalidFormat;
@@ -23,8 +22,7 @@ import com.gamix.exceptions.parameters.username.UsernameNull;
 import com.gamix.exceptions.parameters.username.UsernameTooLong;
 import com.gamix.exceptions.parameters.username.UsernameTooShort;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 class ParameterValidatorTest {
     @Test
     void validateUsername() {
