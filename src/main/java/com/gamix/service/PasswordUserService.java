@@ -91,9 +91,9 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         PasswordUser passwordUser = user.getPasswordUser();
         if (passwordUser == null) throw new PasswordUserNotFound();
 
-        boolean attempsLessThanThree = passwordUser.getLoginAttempts() >= 3;
+        boolean attempsGreaterOrEqualsThree = passwordUser.getLoginAttempts() >= 3;
         boolean notBlockedByTime = (passwordUser.getBlockedUntil() != null && passwordUser.getBlockedUntil().isAfter(LocalDateTime.now()));
-        if (attempsLessThanThree && notBlockedByTime) throw new ExcessiveFailedLoginAttempts();
+        if (attempsGreaterOrEqualsThree && !notBlockedByTime) throw new ExcessiveFailedLoginAttempts();
         
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(signInPasswordUserInput.password(), passwordUser.getPassword())) {
