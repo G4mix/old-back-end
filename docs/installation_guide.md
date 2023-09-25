@@ -15,7 +15,7 @@
 Este guia fornece instruções detalhadas sobre como configurar seu ambiente de desenvolvimento no Windows para rodar o projeto Gamix no Eclipse, incluindo a instalação do PostgreSQL.
 
 ## Assistência em Vídeo
-Para uma demonstração visual desses passos, assista ao [vídeo de instalação completo](URL_DO_SEU_VÍDEO) para configurar o ambiente no Windows e executar o projeto Gamix.
+Para uma demonstração visual desses passos, assista ao [vídeo de instalação completo](https://www.youtube.com/watch?v=7hR0zw5XFwQ) para configurar o ambiente no Windows e executar o projeto Gamix.
 
 ## Passo 1: Instalação do Eclipse
 - Baixe e instale o Eclipse IDE para Java EE Developers a partir do [site oficial](https://www.eclipse.org/downloads/packages/release/2023-09/r).
