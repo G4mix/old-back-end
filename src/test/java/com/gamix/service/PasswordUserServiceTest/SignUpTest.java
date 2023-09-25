@@ -1,117 +1,135 @@
 package com.gamix.service.PasswordUserServiceTest;
-// package com.gamix.service.AuthServiceTest;
 
-// import static org.junit.Assert.assertNotEquals;
-// import static org.junit.Assert.assertNull;
-// import static org.junit.jupiter.api.Assertions.assertNotNull;
-// import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.when;
 
-// import org.junit.Before;
-// import org.junit.Test;
-// import org.junit.runner.RunWith;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.boot.test.mock.mockito.MockBean;
-// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-// import org.springframework.test.context.junit4.SpringRunner;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-// import com.gamix.models.PasswordUser;
-// import com.gamix.models.User;
-// import com.gamix.records.UserRecords.UserInput;
-// import com.gamix.repositories.UserRepository;
-// import com.gamix.security.JwtManager;
-// import com.gamix.service.AuthService;
+import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.parameters.email.EmailEmpty;
+import com.gamix.exceptions.parameters.email.EmailInvalidFormat;
+import com.gamix.exceptions.parameters.email.EmailNull;
+import com.gamix.exceptions.parameters.email.EmailTooLong;
+import com.gamix.exceptions.parameters.password.PasswordMissingNumber;
+import com.gamix.exceptions.parameters.password.PasswordMissingSpecialChar;
+import com.gamix.exceptions.parameters.password.PasswordMissingUppercase;
+import com.gamix.exceptions.parameters.password.PasswordNull;
+import com.gamix.exceptions.parameters.password.PasswordTooLong;
+import com.gamix.exceptions.parameters.password.PasswordTooShort;
+import com.gamix.exceptions.parameters.username.UsernameEmpty;
+import com.gamix.exceptions.parameters.username.UsernameInvalidFormat;
+import com.gamix.exceptions.parameters.username.UsernameNull;
+import com.gamix.exceptions.parameters.username.UsernameTooLong;
+import com.gamix.exceptions.parameters.username.UsernameTooShort;
+import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
+import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
+import com.gamix.models.User;
+import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
+import com.gamix.records.returns.security.JwtTokens;
+import com.gamix.repositories.PasswordUserRepository;
+import com.gamix.security.JwtManager;
+import com.gamix.service.PasswordUserService;
+import com.gamix.service.UserService;
 
-// @RunWith(SpringRunner.class)
-// @SpringBootTest
-// public class SignUp {
+@RunWith(MockitoJUnitRunner.class)
+public class SignUpTest {
 
-//     @MockBean
-//     private UserRepository userRepository;
+    @Mock
+    private UserService userService;
 
-//     @MockBean
-//     private JwtManager jwtManager;
+    @Mock
+    private PasswordUserRepository passwordUserRepository;
 
-//     @MockBean
-//     private AuthService authService;
+    @Mock
+    private JwtManager jwtManager;
 
-//     private UserInput userInput;
+    @InjectMocks
+    private PasswordUserService passwordUserService;
 
-//     @Before
-//     public void setUp() {
-//         userInput = new UserInput("user1", "user1@example.com", "password1", "icon1", true);
-//     }
+    @Test
+    public void testSignUpPasswordUser() throws ExceptionBase {
+        // Cenário de sucesso com dados válidos
+        SignUpPasswordUserInput validInput = new SignUpPasswordUserInput("username", "validemail@gmail.com", "Password123!");
+        when(userService.findUserByUsername("username")).thenReturn(null);
+        when(userService.findUserByEmail("validemail@gmail.com")).thenReturn(null);
+        User mockUser = new User();
+        when(userService.createUser("username", "validemail@gmail.com", null)).thenReturn(mockUser);
+        when(jwtManager.generateJwtTokens("username", false)).thenReturn(new JwtTokens("accessToken", "refreshToken", false));
+        JwtTokens tokens = passwordUserService.signUpPasswordUser(validInput);
+        assertEquals("accessToken", tokens.accessToken());
 
-//     @Test
-//     public void signUpPasswordUser_UserDoesNotExist() {
-//         configureUserDoesNotExist();
+        // Teste para verificar se o erro é lançado corretamente quando o username já existe
+        when(userService.findUserByUsername("existingUser")).thenReturn(new User());
+        assertThrows(UserAlreadyExistsWithThisUsername.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("existingUser", "email@gmail.com", "Password123!"));
+        });
 
-//         PasswordUser createdPasswordUser = authService.signUpPasswordUser(userInput);
+        // Teste para verificar se o erro é lançado corretamente quando o email já existe
+        when(userService.findUserByUsername("nonExistingUser")).thenReturn(null);
+        when(userService.findUserByEmail("existingEmail@gmail.com")).thenReturn(new User());
+        assertThrows(UserAlreadyExistsWithThisEmail.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("nonExistingUser", "existingEmail@gmail.com", "Password123!"));
+        });
 
-//         assertNotNull(createdPasswordUser);
-//     }
+        // Testes para validação de parâmetros
+        assertThrows(UsernameNull.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput(null, "password123", "email@gmail.com"));
+        });
+        assertThrows(UsernameEmpty.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("", "password123", "email@gmail.com"));
+        });
+        assertThrows(UsernameTooShort.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("ab", "password123", "email@gmail.com"));
+        });
+        assertThrows(UsernameTooLong.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("a".repeat(80), "password123", "email@gmail.com"));
+        });
+        assertThrows(UsernameInvalidFormat.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("user@name", "password123", "email@gmail.com"));
+        });
 
-//     @Test
-//     public void signUpPasswordUser_UserExistsWithoutPasswordUser() {
-//         configureUserExistsWithoutPasswordUser();
+        assertThrows(EmailNull.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", null, "Password123!"));
+        });
+        assertThrows(EmailEmpty.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "", "Password123!"));
+        });
+        assertThrows(EmailTooLong.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "a".repeat(330), "Password123!"));
+        });
+        assertThrows(EmailInvalidFormat.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "invalidemail", "Password123!"));
+        });
 
-//         PasswordUser createdPasswordUser = authService.signUpPasswordUser(userInput);
-
-//         assertNotEquals(userInput.password(), createdPasswordUser.getPassword());
-//     }
-
-//     @Test
-//     public void signUpPasswordUser_UserExistsWithPasswordUser() {
-//         configureUserExistsWithPasswordUser();
-
-//         PasswordUser createdPasswordUser = authService.signUpPasswordUser(userInput);
-
-//         assertNull(createdPasswordUser);
-//     }
-
-//     private User createNewUser() {
-//         User user = new User();
-//         user.setUsername(userInput.username());
-//         user.setEmail(userInput.email());
-//         user.setIcon(userInput.icon());
-//         return user;
-//     }
-
-//     private PasswordUser createNewPasswordUser() {
-//         PasswordUser passwordUser = new PasswordUser();
-//         passwordUser.setUser(createNewUser());
-//         passwordUser.setPassword(new BCryptPasswordEncoder().encode(userInput.password()));
-//         passwordUser.setVerifiedEmail(false);
-//         return passwordUser;
-//     }
-
-//     private void configureUserDoesNotExist() {
-//         User newUser = createNewUser();
-//         when(userRepository.findByEmail(userInput.email())).thenReturn(null);
-//         when(authService.createUser(userInput)).thenReturn(newUser);
-    
-//         PasswordUser newPasswordUser = createNewPasswordUser();
-//         String token = "token_here";
-//         when(jwtManager.generateAccessToken(newPasswordUser, userInput.rememberMe())).thenReturn(token);
-    
-//         when(authService.signUpPasswordUser(userInput)).thenReturn(newPasswordUser);
-//     }
-    
-    
-//     private void configureUserExistsWithoutPasswordUser() {
-//         User existingUser = createNewUser();
-//         when(userRepository.findByEmail(userInput.email())).thenReturn(existingUser);
+        assertThrows(PasswordMissingNumber.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password"));
+        });
+        assertThrows(PasswordMissingSpecialChar.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password123"));
+        });
         
-//         when(authService.createUser(userInput)).thenReturn(existingUser);
-//         PasswordUser passwordUser = createNewPasswordUser();
-//         existingUser.setPasswordUser(passwordUser);
-//         when(authService.signUpPasswordUser(userInput)).thenReturn(passwordUser);
-//     }
-
-//     private void configureUserExistsWithPasswordUser() {
-//         User existingUser = createNewUser();
-//         PasswordUser existingPasswordUser = createNewPasswordUser();
-//         existingUser.setPasswordUser(existingPasswordUser);
-//         when(userRepository.findByEmail(userInput.email())).thenReturn(existingUser);
-//         when(authService.signUpPasswordUser(userInput)).thenReturn(null);
-//     }
-// }
+        assertThrows(PasswordNull.class, () -> {
+            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", null));
+        });
+        assertThrows(PasswordTooShort.class, () -> {
+        passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "1234567"));
+        });
+        assertThrows(PasswordTooLong.class, () -> {
+        passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "a".repeat(129)));
+        });
+        assertThrows(PasswordMissingSpecialChar.class, () -> {
+        passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password1"));
+        });
+        assertThrows(PasswordMissingNumber.class, () -> {
+        passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "Password"));
+        });
+        assertThrows(PasswordMissingUppercase.class, () -> {
+        passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password1!"));
+        });
+    }
+}
