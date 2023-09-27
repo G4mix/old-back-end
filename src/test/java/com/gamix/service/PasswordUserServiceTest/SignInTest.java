@@ -49,7 +49,6 @@ public class SignInTest {
 
     @Test
     public void testSignInPasswordUserSuccessWithUsername() throws ExceptionBase {
-        // Arrange
         SignInPasswordUserInput validUsernameInput = new SignInPasswordUserInput("validUsername", null, "Password123!", false);
         User mockUserByUsername = new User();
         PasswordUser mockPasswordUser = new PasswordUser();
@@ -62,10 +61,8 @@ public class SignInTest {
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
         when(jwtManager.generateJwtTokens(mockUserByUsername.getUsername(), validUsernameInput.rememberMe())).thenReturn(mockJwtTokens);
     
-        // Act
         JwtTokens tokens = passwordUserService.signInPasswordUser(validUsernameInput);
     
-        // Assert
         assertEquals("accessToken", tokens.accessToken());
         assertEquals("refreshToken", tokens.refreshToken());
     }

@@ -70,10 +70,8 @@ public class SignUpTest {
 
     @Test
     public void testSignUpWithExistingUsername() {
-        // Setup
         when(userService.findUserByUsername("existingUser")).thenReturn(new User());
 
-        // Execução e Verificação
         assertThrows(UserAlreadyExistsWithThisUsername.class, () -> {
             passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("existingUser", "email@gmail.com", "Password123!"));
         });
@@ -81,11 +79,9 @@ public class SignUpTest {
 
     @Test
     public void testSignUpWithExistingEmail() {
-        // Setup
         when(userService.findUserByUsername("nonExistingUser")).thenReturn(null);
         when(userService.findUserByEmail("existingEmail@gmail.com")).thenReturn(new User());
 
-        // Execução e Verificação
         assertThrows(UserAlreadyExistsWithThisEmail.class, () -> {
             passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("nonExistingUser", "existingEmail@gmail.com", "Password123!"));
         });
