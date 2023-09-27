@@ -29,7 +29,6 @@ public class InvalidTokenService {
 
     public boolean isTokenOnBlacklist(String token) {
         InvalidToken invalidToken = invalidTokenRepository.findByToken(token);
-        System.out.println(invalidToken);
         return invalidToken != null;
     }
 }
