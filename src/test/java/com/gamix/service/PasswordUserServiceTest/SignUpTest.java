@@ -69,7 +69,7 @@ public class SignUpTest {
     }
 
     @Test
-    public void testSignUpWithExistingUsername() {
+    public void testSignUpWithExistingUsername() throws ExceptionBase {
         when(userService.findUserByUsername("existingUser")).thenReturn(new User());
 
         assertThrows(UserAlreadyExistsWithThisUsername.class, () -> {
@@ -78,7 +78,7 @@ public class SignUpTest {
     }
 
     @Test
-    public void testSignUpWithExistingEmail() {
+    public void testSignUpWithExistingEmail() throws ExceptionBase {
         when(userService.findUserByUsername("nonExistingUser")).thenReturn(null);
         when(userService.findUserByEmail("existingEmail@gmail.com")).thenReturn(new User());
 
