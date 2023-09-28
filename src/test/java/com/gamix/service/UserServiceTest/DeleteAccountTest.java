@@ -10,8 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.user.UserNotFoundById;
@@ -19,8 +18,7 @@ import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
 import com.gamix.service.UserService;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class DeleteAccountTest {
 
     @InjectMocks
