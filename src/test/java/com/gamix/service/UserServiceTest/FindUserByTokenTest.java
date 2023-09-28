@@ -24,7 +24,7 @@ import com.gamix.service.UserService;
 import io.jsonwebtoken.Claims;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FindUserByToken {
+public class FindUserByTokenTest {
 
     @InjectMocks
     private UserService userService;

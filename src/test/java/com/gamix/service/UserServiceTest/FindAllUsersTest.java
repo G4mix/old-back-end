@@ -23,7 +23,7 @@ import com.gamix.repositories.UserRepository;
 import com.gamix.service.UserService;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FindAllUsersPageable {
+public class FindAllUsersTest {
     @InjectMocks
     private UserService userService;
 

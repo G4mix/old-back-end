@@ -20,7 +20,7 @@ import com.gamix.repositories.UserRepository;
 import com.gamix.service.UserService;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FindUserByUsername {
+public class FindUserByUsernameTest {
 
     @InjectMocks
     private UserService userService;
