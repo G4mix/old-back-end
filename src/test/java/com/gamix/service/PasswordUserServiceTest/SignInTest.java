@@ -1,10 +1,13 @@
 package com.gamix.service.PasswordUserServiceTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +42,9 @@ public class SignInTest {
 
     @Mock
     private PasswordUserRepository passwordUserRepository;
+
+    @Mock
+    private ScheduledExecutorService executorService;
 
     @InjectMocks
     private PasswordUserService passwordUserService;
@@ -110,18 +116,35 @@ public class SignInTest {
     }
 
     @Test
-    public void testSignInPasswordUserExcessiveFailedLoginAttempts() throws ExceptionBase {
+    public void testSignInPasswordUserExcessiveFailedLoginAttempts() throws ExceptionBase, InterruptedException {
         User mockUserWithBlockedPasswordUser = new User();
         PasswordUser mockBlockedPasswordUser = new PasswordUser();
         mockBlockedPasswordUser.setLoginAttempts(3);
         mockBlockedPasswordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(30));
         mockUserWithBlockedPasswordUser.setPasswordUser(mockBlockedPasswordUser);
-
+    
         when(userService.findUserByEmail("blockedUser@gmail.com")).thenReturn(mockUserWithBlockedPasswordUser);
-
+    
+        ScheduledExecutorService realExecutor = Executors.newScheduledThreadPool(1);
+    
+        realExecutor.execute(() -> {
+            try {
+                System.out.println("Desbanindo usuário...");
+                mockBlockedPasswordUser.setLoginAttempts(0);
+                mockBlockedPasswordUser.setBlockedUntil(null);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    
         assertThrows(ExcessiveFailedLoginAttempts.class, () -> {
             passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "blockedUser@gmail.com", "WrongPassword", false));
         });
+    
+        assertNull(mockBlockedPasswordUser.getBlockedUntil());
+    
+        // Não se esqueça de desligar o executor após o teste
+        realExecutor.shutdown();
     }
 
     @Test

@@ -156,6 +156,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             passwordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(30));
 
             executorService.schedule(() -> {
+                System.out.println("Desbanindo usuário...");
                 passwordUser.setLoginAttempts(0);
                 passwordUser.setBlockedUntil(null);
                 passwordUserRepository.save(passwordUser);
