@@ -43,9 +43,9 @@ public class SignInTest {
     @InjectMocks
     private PasswordUserService passwordUserService;
 
-    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    String hashedPassword = passwordEncoder.encode("Password123!");
+    private String hashedPassword = passwordEncoder.encode("Password123!");
 
     @Test
     public void testSignInPasswordUserSuccessWithUsername() throws ExceptionBase {

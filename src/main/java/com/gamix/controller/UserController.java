@@ -19,6 +19,7 @@ import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.security.JwtUserDetails;
 import com.gamix.service.UserService;
 
+import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
 
@@ -52,38 +53,59 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")  
     @QueryMapping
-    User findUserByUsername(@Argument String username) {
-        User user = userService.findUserByUsername(username);
-        return user;
+    User findUserByUsername(@Argument String username) throws ExceptionBase {
+        try {
+            User user = userService.findUserByUsername(username);
+            return user;
+        } catch (ExceptionBase ex) {
+            throw ex;
+        }
     }
 
     @PreAuthorize("hasAuthority('USER')")  
     @QueryMapping
-    User findUserByEmail(@Argument String email) {
-        User user = userService.findUserByEmail(email);
-        return user;
+    User findUserByEmail(@Argument String email) throws ExceptionBase {
+        try {
+            User user = userService.findUserByEmail(email);
+            return user;
+        } catch (ExceptionBase ex) {
+            throw ex;
+        }
     }
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    User updateUser(@Argument("id") Integer id, @Argument("userInput") PartialUserInput userInput) {
-        User updatedUser = userService.updateUser(id, userInput);
-        return updatedUser;
+    User updateUser(@Argument("id") Integer id, @Argument("userInput") PartialUserInput userInput) throws ExceptionBase {
+        try {    
+            User updatedUser = userService.updateUser(id, userInput);
+            return updatedUser;
+        } catch (ExceptionBase ex) {
+            throw ex;
+        }
     }
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    boolean deleteAccount(@Argument("id") Integer id) {
+    boolean deleteAccount(@Argument("id") Integer id) throws ExceptionBase {
         try {
             userService.deleteAccount(id);
             return true;
-        } catch (Exception e) {
-            return false;
+        } catch (ExceptionBase ex) {
+            throw ex;
         }
     }
 
     @GraphQlExceptionHandler
     public GraphQLError handle(@NonNull Throwable ex, @NonNull DataFetchingEnvironment environment) {
+        if (ex instanceof ExceptionBase) {
+            return GraphQLError
+                .newError()
+                .errorType(ErrorClassification.errorClassification(((ExceptionBase) ex).getStatus().toString()))
+                .message(ex.getMessage())
+                .path(environment.getExecutionStepInfo().getPath())
+                .location(environment.getField().getSourceLocation())
+                .build();
+        }
         return GraphQLError
             .newError()
             .errorType(ErrorType.BAD_REQUEST)

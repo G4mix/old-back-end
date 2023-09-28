@@ -44,6 +44,7 @@ public enum ExceptionMessage {
     USER_NOT_FOUND_BY_TOKEN(HttpStatus.NOT_FOUND, "User not found by token"),
     USER_NOT_FOUND_BY_EMAIL(HttpStatus.NOT_FOUND, "User not found by email"),
     USER_NOT_FOUND_BY_USERNAME(HttpStatus.NOT_FOUND, "User not found by username"),
+    USER_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "User not found by ID"),
     
     INVALID_ID(HttpStatus.BAD_REQUEST, "Invalid ID");
 
