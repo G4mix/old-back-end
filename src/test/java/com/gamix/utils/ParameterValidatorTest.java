@@ -2,7 +2,7 @@ package com.gamix.utils;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -23,9 +23,10 @@ import com.gamix.exceptions.parameters.username.UsernameTooLong;
 import com.gamix.exceptions.parameters.username.UsernameTooShort;
 
 @RunWith(MockitoJUnitRunner.class)
-class ParameterValidatorTest {
+public class ParameterValidatorTest {
+    
     @Test
-    void validateUsername() {
+    public void validateUsername() {
         assertThrows(UsernameNull.class, () -> ParameterValidator.validateUsername(null));
         assertThrows(UsernameEmpty.class, () -> ParameterValidator.validateUsername(""));
         assertThrows(UsernameTooShort.class, () -> ParameterValidator.validateUsername("ab"));
@@ -34,7 +35,7 @@ class ParameterValidatorTest {
     }
 
     @Test
-    void validateEmail() {
+    public void validateEmail() {
         assertThrows(EmailNull.class, () -> ParameterValidator.validateEmail(null));
         assertThrows(EmailEmpty.class, () -> ParameterValidator.validateEmail(""));
         assertThrows(EmailTooLong.class, () -> ParameterValidator.validateEmail("a".repeat(330)+"@gmail.com"));
@@ -42,7 +43,7 @@ class ParameterValidatorTest {
     }
 
     @Test
-    void validatePassword() {
+    public void validatePassword() {
         assertThrows(PasswordNull.class, () -> ParameterValidator.validatePassword(null));
         assertThrows(PasswordTooShort.class, () -> ParameterValidator.validatePassword("1234567"));
         assertThrows(PasswordTooLong.class, () -> ParameterValidator.validatePassword("a".repeat(129)));
