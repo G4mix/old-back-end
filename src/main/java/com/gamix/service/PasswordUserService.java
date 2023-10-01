@@ -91,7 +91,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         Optional<User> user = signInPasswordUserInput.email() != null 
             ? userRepository.findByEmail(signInPasswordUserInput.email()) 
             : userRepository.findByUsername(signInPasswordUserInput.username());
-        if (user == null) throw new UserNotFound();
+        if (!user.isPresent()) throw new UserNotFound();
         
         PasswordUser passwordUser = user.get().getPasswordUser();
         if (passwordUser == null) throw new PasswordUserNotFound();
@@ -105,7 +105,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             handleFailedLoginAttempt(passwordUser);
             throw new PasswordWrong();
         }
-
 
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(
             user.get().getId(),

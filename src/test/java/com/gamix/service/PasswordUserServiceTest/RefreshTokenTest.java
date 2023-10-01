@@ -1,5 +1,6 @@
 package com.gamix.service.PasswordUserServiceTest;
 
+import static com.gamix.mock.ClaimsMock.createMockClaims;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
@@ -8,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gamix.exceptions.ExceptionBase;
@@ -54,14 +54,6 @@ public class RefreshTokenTest {
         assertThrows(InvalidRefreshToken.class, () -> {
             passwordUserService.refreshToken(invalidRefreshToken);
         });
-    }
-
-    private Claims createMockClaims(Integer id, boolean rememberMe) {
-        Claims mockClaims = Mockito.mock(Claims.class);
-        Mockito.when(mockClaims.getSubject()).thenReturn(id.toString());
-        Mockito.when(mockClaims.get("rememberMe")).thenReturn(rememberMe);
-
-        return mockClaims;
     }
 
 }

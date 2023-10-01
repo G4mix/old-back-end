@@ -1,8 +1,8 @@
 package com.gamix.service.UserServiceTest;
 
+import static com.gamix.mock.ClaimsMock.createMockClaims;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -13,10 +13,13 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.exceptions.user.UserNotFoundById;
+import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
+import com.gamix.security.JwtManager;
 import com.gamix.service.UserService;
+
+import io.jsonwebtoken.Claims;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeleteAccountTest {
@@ -27,46 +30,36 @@ public class DeleteAccountTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private JwtManager jwtManager;
+
     @Test
     public void testDeleteAccountSuccess() throws ExceptionBase {
         int userId = 1;
         User user = new User();
         user.setId(userId);
+        
+        String validAccessToken = "validAccessToken";
+        when(jwtManager.validate(validAccessToken)).thenReturn(true);
+        Claims mockClaims = createMockClaims(userId, true);
+        when(jwtManager.getTokenClaims(validAccessToken)).thenReturn(mockClaims);
 
         when(userRepository.existsById(userId)).thenReturn(true);
         doNothing().when(userRepository).deleteById(userId);
 
-        userService.deleteAccount(userId);
+        userService.deleteAccount(validAccessToken);
 
         verify(userRepository).existsById(userId);
         verify(userRepository).deleteById(userId);
     }
 
     @Test
-    public void testDeleteAccountUserNotFound() throws ExceptionBase {
-        int nonExistentUserId = 2;
+    public void testDeleteAccountInvalidAccessTokenException() throws ExceptionBase {        
+        String validAccessToken = "validAccessToken";
+        when(jwtManager.validate(validAccessToken)).thenReturn(false);
 
-        when(userRepository.existsById(nonExistentUserId)).thenReturn(false);
-
-        assertThrows(UserNotFoundById.class, () -> {
-            userService.deleteAccount(nonExistentUserId);
+        assertThrows(InvalidAccessToken.class, () -> {
+            userService.deleteAccount(validAccessToken);
         });
-
-        verify(userRepository).existsById(nonExistentUserId);
-    }
-
-    @Test
-    public void testDeleteAccountExceptionThrown() throws ExceptionBase {
-        int userId = 3;
-
-        when(userRepository.existsById(userId)).thenReturn(true);
-        doThrow(new RuntimeException("Something went wrong")).when(userRepository).deleteById(userId);
-
-        assertThrows(RuntimeException.class, () -> {
-            userService.deleteAccount(userId);
-        });
-
-        verify(userRepository).existsById(userId);
-        verify(userRepository).deleteById(userId);
     }
 }

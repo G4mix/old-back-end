@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -32,6 +34,7 @@ import com.gamix.models.User;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
+import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.service.PasswordUserService;
 import com.gamix.service.UserService;
@@ -41,6 +44,9 @@ public class SignUpTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private PasswordUserRepository passwordUserRepository;
@@ -55,8 +61,8 @@ public class SignUpTest {
     public void testSignUpWithValidInput() throws ExceptionBase {
         SignUpPasswordUserInput validInput = new SignUpPasswordUserInput("username", "validemail@gmail.com", "Password123!");
         
-        when(userService.findUserByUsername("username")).thenReturn(null);
-        when(userService.findUserByEmail("validemail@gmail.com")).thenReturn(null);
+        when(userRepository.findByUsername("username")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("validemail@gmail.com")).thenReturn(Optional.empty());
         
         User mockUser = new User().setId(1);
         
@@ -70,7 +76,7 @@ public class SignUpTest {
 
     @Test
     public void testSignUpWithExistingUsername() throws ExceptionBase {
-        when(userService.findUserByUsername("existingUser")).thenReturn(new User());
+        when(userRepository.findByUsername("existingUser")).thenReturn(Optional.of(new User()));
 
         assertThrows(UserAlreadyExistsWithThisUsername.class, () -> {
             passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("existingUser", "email@gmail.com", "Password123!"));
@@ -79,8 +85,8 @@ public class SignUpTest {
 
     @Test
     public void testSignUpWithExistingEmail() throws ExceptionBase {
-        when(userService.findUserByUsername("nonExistingUser")).thenReturn(null);
-        when(userService.findUserByEmail("existingEmail@gmail.com")).thenReturn(new User());
+        when(userRepository.findByUsername("nonExistingUser")).thenReturn(Optional.empty());
+        when(userRepository.findByEmail("existingEmail@gmail.com")).thenReturn(Optional.of(new User()));
 
         assertThrows(UserAlreadyExistsWithThisEmail.class, () -> {
             passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("nonExistingUser", "existingEmail@gmail.com", "Password123!"));

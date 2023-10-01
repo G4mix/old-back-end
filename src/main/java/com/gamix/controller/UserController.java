@@ -41,7 +41,6 @@ public class UserController {
     @PreAuthorize("hasAuthority('USER')")  
     @QueryMapping
     Object findUserByToken(@AuthenticationPrincipal JwtUserDetails userDetails) throws Exception {
-        System.out.println(userDetails);
         try {
             String accessToken = userDetails.getAccessToken();
             User user = userService.findUserByToken(accessToken);
@@ -75,9 +74,10 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    User updateUser(@Argument("id") Integer id, @Argument("userInput") PartialUserInput userInput) throws ExceptionBase {
+    User updateUser(@AuthenticationPrincipal JwtUserDetails userDetails, @Argument("input") PartialUserInput userInput) throws ExceptionBase {
         try {    
-            User updatedUser = userService.updateUser(id, userInput);
+            String accessToken = userDetails.getAccessToken();
+            User updatedUser = userService.updateUser(accessToken, userInput);
             return updatedUser;
         } catch (ExceptionBase ex) {
             throw ex;
@@ -86,10 +86,10 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    boolean deleteAccount(@Argument("id") Integer id) throws ExceptionBase {
+    boolean deleteAccount(@AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase {
         try {
-            userService.deleteAccount(id);
-            return true;
+            String accessToken = userDetails.getAccessToken();
+            return userService.deleteAccount(accessToken);
         } catch (ExceptionBase ex) {
             throw ex;
         }

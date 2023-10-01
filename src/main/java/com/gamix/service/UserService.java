@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.user.UserNotFoundByEmail;
 import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.exceptions.user.UserNotFoundByToken;
@@ -41,7 +42,7 @@ public class UserService implements UserServiceInterface {
     @Override
     public User findUserByToken(String accessToken) throws ExceptionBase {
         Claims claims = jwtManager.getTokenClaims(accessToken);
-        Optional<User> optionalUser = userRepository.findByUsername(claims.getSubject());
+        Optional<User> optionalUser = userRepository.findById(Integer.parseInt(claims.getSubject()));
         return optionalUser.orElseThrow(() -> new UserNotFoundByToken());
     }
 
@@ -65,20 +66,33 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public User updateUser(Integer id, PartialUserInput userInput) throws ExceptionBase {
-        return userRepository.findById(id)
-            .map(user -> {
-                user.setUsername(userInput.getUsername() != null ? userInput.getUsername() : user.getUsername());
-                user.setIcon(userInput.getIcon() != null ? userInput.getIcon() : user.getIcon());
-                return userRepository.save(user);
-            })
-            .orElseThrow(() -> new UserNotFoundById());
+    public User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase {
+        User userToUpdate = findUserByToken(accessToken);
+
+        userToUpdate.setUsername(
+            userInput.getUsername() != null 
+            ? userInput.getUsername() 
+            : userToUpdate.getUsername()
+        );
+        userToUpdate.setIcon(
+            userInput.getIcon() != null 
+            ? userInput.getIcon() 
+            : userToUpdate.getIcon()
+        );
+
+        return userRepository.save(userToUpdate);
     }
     
     @Override
-    public void deleteAccount(Integer id) throws ExceptionBase {
-        if(!userRepository.existsById(id)) throw new UserNotFoundById();
-        userRepository.deleteById(id);
+    public boolean deleteAccount(String accessToken) throws ExceptionBase {
+        if (!jwtManager.validate(accessToken)) throw new InvalidAccessToken();
+
+        Claims claims = jwtManager.getTokenClaims(accessToken);
+        Integer id = Integer.parseInt(claims.getSubject());
+        
+        if(userRepository.existsById(id)) userRepository.deleteById(id);
+        
+        return true;
     }
 
     @Override

@@ -1,9 +1,8 @@
 package com.gamix.service.UserServiceTest;
 
+import static com.gamix.mock.ClaimsMock.createMockClaims;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -35,24 +34,18 @@ public class FindUserByTokenTest {
     @Mock
     private JwtManager jwtManager;
 
-    private Claims createMockClaims(String subject) {
-        Claims claims = mock(Claims.class);
-        when(claims.getSubject()).thenReturn(subject);
-        return claims;
-    }
-
     @Test
-    public void testFindUserByToken() throws ExceptionBase {
+     public void testFindUserByToken() throws ExceptionBase {
         String accessToken = "mockedAccessToken";
         String username = "testuser";
-        Claims mockClaims = createMockClaims(username);
+        Claims mockClaims = createMockClaims(1, false);
 
         when(jwtManager.getTokenClaims(accessToken)).thenReturn(mockClaims);
 
         User user = new User();
         user.setUsername(username);
 
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
 
         User foundUser = userService.findUserByToken(accessToken);
 
@@ -62,11 +55,9 @@ public class FindUserByTokenTest {
     @Test
     public void testFindUserByTokenNotFound() throws ExceptionBase {
         String accessToken = "mockedAccessToken";
-        String username = "testuser";
-        Claims mockClaims = createMockClaims(username);
+        Claims mockClaims = createMockClaims(1, false);
 
         when(jwtManager.getTokenClaims(accessToken)).thenReturn(mockClaims);
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundByToken.class, () -> {
             userService.findUserByToken(accessToken);
