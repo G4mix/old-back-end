@@ -36,15 +36,17 @@ public class JwtManagerTest {
     public void getTokenClaims_ValidToken_ReturnsClaims() throws TokenClaimsException {
         when(dotenv.get("JWT_SIGNING_KEY_SECRET")).thenReturn("test-secret");
 
+        Integer id = 1;
+
         // Arrange
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens("test-user", false);
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(id, false);
 
         // Act
         Claims claims = jwtManager.getTokenClaims(jwtTokens.accessToken());
 
         // Assert
         assertNotNull(claims);
-        assertEquals("test-user", claims.getSubject());
+        assertEquals(id, Integer.parseInt(claims.getSubject()));
     }
 
     @Test
@@ -64,7 +66,7 @@ public class JwtManagerTest {
         when(dotenv.get("JWT_SIGNING_KEY_SECRET")).thenReturn("your_signing_key_secret");
 
         // Execução do método
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens("username", true);
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(1, true);
 
         // Verificação
         assertNotNull(jwtTokens);

@@ -1,13 +1,22 @@
 package com.gamix.service.PasswordUserServiceTest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -24,6 +33,7 @@ import com.gamix.models.User;
 import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
+import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.service.PasswordUserService;
 import com.gamix.service.UserService;
@@ -40,6 +50,12 @@ public class SignInTest {
     @Mock
     private PasswordUserRepository passwordUserRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ScheduledExecutorService executorService;
+
     @InjectMocks
     private PasswordUserService passwordUserService;
 
@@ -50,7 +66,7 @@ public class SignInTest {
     @Test
     public void testSignInPasswordUserSuccessWithUsername() throws ExceptionBase {
         SignInPasswordUserInput validUsernameInput = new SignInPasswordUserInput("validUsername", null, "Password123!", false);
-        User mockUserByUsername = new User();
+        User mockUserByUsername = new User().setId(1);
         PasswordUser mockPasswordUser = new PasswordUser();
     
         mockPasswordUser.setPassword(hashedPassword);
@@ -59,7 +75,7 @@ public class SignInTest {
         when(userService.findUserByUsername("validUsername")).thenReturn(mockUserByUsername);
     
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(mockUserByUsername.getUsername(), validUsernameInput.rememberMe())).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(1, validUsernameInput.rememberMe())).thenReturn(mockJwtTokens);
     
         JwtTokens tokens = passwordUserService.signInPasswordUser(validUsernameInput);
     
@@ -70,7 +86,7 @@ public class SignInTest {
     @Test
     public void testSignInPasswordUserSuccessWithEmail() throws ExceptionBase {
         SignInPasswordUserInput validEmailInput = new SignInPasswordUserInput(null, "validemail@gmail.com", "Password123!", false);
-        User mockUserByEmail = new User();
+        User mockUserByEmail = new User().setId(1);
         PasswordUser mockPasswordUser = new PasswordUser();
 
         mockPasswordUser.setPassword(hashedPassword);
@@ -79,7 +95,7 @@ public class SignInTest {
         when(userService.findUserByEmail("validemail@gmail.com")).thenReturn(mockUserByEmail);
 
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(mockUserByEmail.getUsername(), validEmailInput.rememberMe())).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(1, validEmailInput.rememberMe())).thenReturn(mockJwtTokens);
 
         JwtTokens tokens = passwordUserService.signInPasswordUser(validEmailInput);
         assertEquals("accessToken", tokens.accessToken());
@@ -110,18 +126,32 @@ public class SignInTest {
     }
 
     @Test
-    public void testSignInPasswordUserExcessiveFailedLoginAttempts() throws ExceptionBase {
+    public void testSignInPasswordUserExcessiveFailedLoginAttempts() throws ExceptionBase, InterruptedException {
         User mockUserWithBlockedPasswordUser = new User();
         PasswordUser mockBlockedPasswordUser = new PasswordUser();
         mockBlockedPasswordUser.setLoginAttempts(3);
         mockBlockedPasswordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(30));
         mockUserWithBlockedPasswordUser.setPasswordUser(mockBlockedPasswordUser);
-
-        when(userService.findUserByEmail("blockedUser@gmail.com")).thenReturn(mockUserWithBlockedPasswordUser);
-
+    
+        when(userRepository.findByEmail("blockedUser@gmail.com")).thenReturn(Optional.of(mockUserWithBlockedPasswordUser));
+    
         assertThrows(ExcessiveFailedLoginAttempts.class, () -> {
             passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "blockedUser@gmail.com", "WrongPassword", false));
         });
+
+        ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
+
+        ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+    
+        doAnswer(invocation -> {
+            Runnable runnable = captor.getValue();
+            runnable.run();
+            return null;
+        }).when(executorService).schedule(captor.capture(), anyLong(), any(TimeUnit.class));
+    
+        Thread.sleep(100);
+    
+        assertNull(mockBlockedPasswordUser.getBlockedUntil());
     }
 
     @Test
@@ -147,7 +177,7 @@ public class SignInTest {
         mockUserWithNullJwt.setPasswordUser(mockPasswordUserNullJwt);
 
         when(userService.findUserByEmail("nullJwt@gmail.com")).thenReturn(mockUserWithNullJwt);
-        when(jwtManager.generateJwtTokens("nullJwt", false)).thenReturn(null);
+        when(jwtManager.generateJwtTokens(1, false)).thenReturn(null);
 
         assertThrows(NullJwtTokens.class, () -> {
             passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "nullJwt@gmail.com", "Password123!", false));

@@ -9,5 +9,5 @@ public interface JwtManagerInterface {
     public Claims getTokenClaims(String token) throws TokenClaimsException;
     public boolean validate(String token) throws TokenClaimsException;
     public void invalidate(String token) throws TokenClaimsException;
-    public JwtTokens generateJwtTokens(String username, boolean rememberMe);
+    public JwtTokens generateJwtTokens(Integer id, boolean rememberMe);
 }

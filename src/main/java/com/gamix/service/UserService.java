@@ -46,10 +46,17 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
+    public User findUserById(Integer id) throws ExceptionBase {
+        Optional<User> optionalUser = userRepository.findById(id);
+        return optionalUser.orElseThrow(() -> new UserNotFoundById());
+    }
+    
+    @Override
     public User findUserByEmail(String email) throws ExceptionBase {
         Optional<User> optionalUser = userRepository.findByEmail(email);
         return optionalUser.orElseThrow(() -> new UserNotFoundByEmail());
     }
+
 
     @Override
     public User findUserByUsername(String username) throws ExceptionBase {

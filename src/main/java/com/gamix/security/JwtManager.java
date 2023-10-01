@@ -60,20 +60,20 @@ public class JwtManager implements JwtManagerInterface {
     }
 
     @Override
-    public JwtTokens generateJwtTokens(String username, boolean rememberMe) {
+    public JwtTokens generateJwtTokens(Integer id, boolean rememberMe) {
         String accessToken = generateToken(
-            username, rememberMe, ExpirationTime.ACCESS_TOKEN
+            id, rememberMe, ExpirationTime.ACCESS_TOKEN
         );
         String refreshToken = generateToken(
-            username, rememberMe,
+            id, rememberMe,
             rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN
         );
 
         return new JwtTokens(accessToken, refreshToken, rememberMe);
     }
 
-    private String generateToken(String username, boolean rememberMe, ExpirationTime expirationTime) {
-        Claims claims = Jwts.claims().setSubject(username);
+    private String generateToken(Integer id, boolean rememberMe, ExpirationTime expirationTime) {
+        Claims claims = Jwts.claims().setSubject(id.toString());
         claims.put("rememberMe", rememberMe);
         claims.put("role", Role.USER.toString());
 

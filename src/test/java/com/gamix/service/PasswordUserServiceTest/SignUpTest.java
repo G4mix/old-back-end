@@ -58,10 +58,10 @@ public class SignUpTest {
         when(userService.findUserByUsername("username")).thenReturn(null);
         when(userService.findUserByEmail("validemail@gmail.com")).thenReturn(null);
         
-        User mockUser = new User();
+        User mockUser = new User().setId(1);
         
         when(userService.createUser("username", "validemail@gmail.com", null)).thenReturn(mockUser);
-        when(jwtManager.generateJwtTokens("username", false)).thenReturn(new JwtTokens("accessToken", "refreshToken", false));
+        when(jwtManager.generateJwtTokens(1, false)).thenReturn(new JwtTokens("accessToken", "refreshToken", false));
         
         JwtTokens tokens = passwordUserService.signUpPasswordUser(validInput);
         

@@ -34,10 +34,10 @@ public class RefreshTokenTest {
 
         when(jwtManager.validate(validRefreshToken)).thenReturn(true);
 
-        Claims mockClaims = createMockClaims("username", true);
+        Claims mockClaims = createMockClaims(1, true);
         when(jwtManager.getTokenClaims(validRefreshToken)).thenReturn(mockClaims);
 
-        when(jwtManager.generateJwtTokens("username", true)).thenReturn(new JwtTokens("newAccessToken", "newRefreshToken", true));
+        when(jwtManager.generateJwtTokens(1, true)).thenReturn(new JwtTokens("newAccessToken", "newRefreshToken", true));
 
         JwtTokens tokens = passwordUserService.refreshToken(validRefreshToken);
 
@@ -56,9 +56,9 @@ public class RefreshTokenTest {
         });
     }
 
-    private Claims createMockClaims(String username, boolean rememberMe) {
+    private Claims createMockClaims(Integer id, boolean rememberMe) {
         Claims mockClaims = Mockito.mock(Claims.class);
-        Mockito.when(mockClaims.getSubject()).thenReturn(username);
+        Mockito.when(mockClaims.getSubject()).thenReturn(id.toString());
         Mockito.when(mockClaims.get("rememberMe")).thenReturn(rememberMe);
 
         return mockClaims;

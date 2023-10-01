@@ -1,6 +1,7 @@
 package com.gamix.service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,7 @@ import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
+import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
 
@@ -42,6 +44,9 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     private JwtManager jwtManager;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private UserService userService;
 
     private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
@@ -54,12 +59,12 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         ParameterValidator.validatePassword(signUpPasswordUserInput.password());
         ParameterValidator.validateEmail(signUpPasswordUserInput.email());
         
-        User userWithSameUsername = userService.findUserByUsername(signUpPasswordUserInput.username());
-        User userWithSameEmail = userService.findUserByEmail(signUpPasswordUserInput.email());
-        
-        if (userWithSameUsername != null) {
+        Optional<User> userWithSameUsername = userRepository.findByUsername(signUpPasswordUserInput.username());
+        Optional<User> userWithSameEmail = userRepository.findByEmail(signUpPasswordUserInput.email());
+
+        if (userWithSameUsername.isPresent()) {
             throw new UserAlreadyExistsWithThisUsername();
-        } else if (userWithSameEmail != null) {
+        } else if (userWithSameEmail.isPresent()) {
             throw new UserAlreadyExistsWithThisEmail();
         }
 
@@ -71,7 +76,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         createPasswordUser(user, signUpPasswordUserInput.password());
         
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(
-            signUpPasswordUserInput.username(), false
+            user.getId(), false
         );
 
         if (jwtTokens == null) throw new NullJwtTokens();
@@ -83,12 +88,12 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     public JwtTokens signInPasswordUser(
         SignInPasswordUserInput signInPasswordUserInput
     ) throws ExceptionBase {
-        User user = signInPasswordUserInput.email() != null 
-            ? userService.findUserByEmail(signInPasswordUserInput.email()) 
-            : userService.findUserByUsername(signInPasswordUserInput.username());
+        Optional<User> user = signInPasswordUserInput.email() != null 
+            ? userRepository.findByEmail(signInPasswordUserInput.email()) 
+            : userRepository.findByUsername(signInPasswordUserInput.username());
         if (user == null) throw new UserNotFound();
         
-        PasswordUser passwordUser = user.getPasswordUser();
+        PasswordUser passwordUser = user.get().getPasswordUser();
         if (passwordUser == null) throw new PasswordUserNotFound();
 
         boolean attempsGreaterOrEqualsThree = passwordUser.getLoginAttempts() >= 3;
@@ -103,7 +108,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
 
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(
-            user.getUsername(),
+            user.get().getId(),
             signInPasswordUserInput.rememberMe()
         );
 
@@ -133,10 +138,10 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         if (!jwtManager.validate(refreshToken)) throw new InvalidRefreshToken();
         
         Claims body = jwtManager.getTokenClaims(refreshToken);
-        String username = body.getSubject();
+        Integer id = Integer.parseInt(body.getSubject());
         boolean rememberMe = (boolean) body.get("rememberMe");
 
-        return jwtManager.generateJwtTokens(username, rememberMe);
+        return jwtManager.generateJwtTokens(id, rememberMe);
     }
 
     @Override
@@ -156,6 +161,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             passwordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(30));
 
             executorService.schedule(() -> {
+                System.out.println("Desbanindo usuário...");
                 passwordUser.setLoginAttempts(0);
                 passwordUser.setBlockedUntil(null);
                 passwordUserRepository.save(passwordUser);
