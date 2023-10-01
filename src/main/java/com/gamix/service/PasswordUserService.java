@@ -113,7 +113,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
         if (jwtTokens == null) throw new NullJwtTokens();
 
-        passwordUser.setLoginAttempts(0);
+        passwordUser.setLoginAttempts(0).setBlockedUntil(null);
         passwordUserRepository.save(passwordUser);
         
         return jwtTokens;
@@ -160,7 +160,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             passwordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(30));
 
             executorService.schedule(() -> {
-                System.out.println("Desbanindo usuário...");
                 passwordUser.setLoginAttempts(0);
                 passwordUser.setBlockedUntil(null);
                 passwordUserRepository.save(passwordUser);
