@@ -30,7 +30,7 @@ public class ParameterValidatorTest {
         assertThrows(UsernameNull.class, () -> ParameterValidator.validateUsername(null));
         assertThrows(UsernameEmpty.class, () -> ParameterValidator.validateUsername(""));
         assertThrows(UsernameTooShort.class, () -> ParameterValidator.validateUsername("ab"));
-        assertThrows(UsernameTooLong.class, () -> ParameterValidator.validateUsername("123456789012345678901234567890123456789012345678901"));
+        assertThrows(UsernameTooLong.class, () -> ParameterValidator.validateUsername("a".repeat(100)));
         assertThrows(UsernameInvalidFormat.class, () -> ParameterValidator.validateUsername("user@name"));
     }
 
@@ -47,8 +47,8 @@ public class ParameterValidatorTest {
         assertThrows(PasswordNull.class, () -> ParameterValidator.validatePassword(null));
         assertThrows(PasswordTooShort.class, () -> ParameterValidator.validatePassword("1234567"));
         assertThrows(PasswordTooLong.class, () -> ParameterValidator.validatePassword("a".repeat(129)));
-        assertThrows(PasswordMissingSpecialChar.class, () -> ParameterValidator.validatePassword("password1"));
         assertThrows(PasswordMissingNumber.class, () -> ParameterValidator.validatePassword("Password"));
+        assertThrows(PasswordMissingSpecialChar.class, () -> ParameterValidator.validatePassword("password1"));
         assertThrows(PasswordMissingUppercase.class, () -> ParameterValidator.validatePassword("password1!"));
     }
 }

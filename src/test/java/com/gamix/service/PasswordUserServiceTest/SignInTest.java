@@ -59,7 +59,9 @@ public class SignInTest {
 
     @Test
     public void testSignInPasswordUserSuccessWithUsername() throws ExceptionBase {
-        SignInPasswordUserInput validUsernameInput = new SignInPasswordUserInput("validUsername", null, "Password123!", false);
+        SignInPasswordUserInput validUsernameInput = new SignInPasswordUserInput(
+            "validUsername", null, "Password123!", false
+        );
         User mockUserByUsername = new User().setId(1);
         PasswordUser mockPasswordUser = new PasswordUser();
     
@@ -79,7 +81,9 @@ public class SignInTest {
     
     @Test
     public void testSignInPasswordUserSuccessWithEmail() throws ExceptionBase {
-        SignInPasswordUserInput validEmailInput = new SignInPasswordUserInput(null, "validemail@gmail.com", "Password123!", false);
+        SignInPasswordUserInput validEmailInput = new SignInPasswordUserInput(
+            null, "validemail@gmail.com", "Password123!", false
+        );
         User mockUserByEmail = new User().setId(1);
         PasswordUser mockPasswordUser = new PasswordUser();
 
@@ -98,7 +102,9 @@ public class SignInTest {
 
     @Test
     public void testSignInPasswordUserNotFound() throws ExceptionBase {
-        SignInPasswordUserInput invalidUserInput = new SignInPasswordUserInput(null, "invalidemail@gmail.com", "Password123!", false);
+        SignInPasswordUserInput invalidUserInput = new SignInPasswordUserInput(
+            null, "invalidemail@gmail.com", "Password123!", false
+        );
         
         when(userRepository.findByEmail("invalidemail@gmail.com")).thenReturn(Optional.empty());
 
@@ -114,9 +120,24 @@ public class SignInTest {
         when(userRepository.findByEmail("noPasswordUser@gmail.com")).thenReturn(Optional.of(mockUserByEmailWithoutPasswordUser));
 
         assertThrows(PasswordUserNotFound.class, () -> {
-            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "noPasswordUser@gmail.com", "Password123!", false));
+            passwordUserService.signInPasswordUser(
+                new SignInPasswordUserInput(null, "noPasswordUser@gmail.com", "Password123!", false)
+            );
         });
+    }
 
+    @Test
+    public void testSignInPasswordUserPasswordWrong() throws ExceptionBase {
+        PasswordUser mockPasswordUserWrongPassword = new PasswordUser();
+        mockPasswordUserWrongPassword.setPassword(hashedPassword);
+        User mockUserWrongPassword = new User();
+        mockUserWrongPassword.setPasswordUser(mockPasswordUserWrongPassword);
+
+        when(userRepository.findByEmail("wrongPassword@gmail.com")).thenReturn(Optional.of(mockUserWrongPassword));
+
+        assertThrows(PasswordWrong.class, () -> {
+            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "wrongPassword@gmail.com", "WrongPassword", false));
+        });
     }
 
     @Test
@@ -149,20 +170,6 @@ public class SignInTest {
     
         assertEquals(Integer.valueOf(0), mockBlockedPasswordUser.getLoginAttempts());
         assertNull(mockBlockedPasswordUser.getBlockedUntil());
-    }
-    
-    @Test
-    public void testSignInPasswordUserPasswordWrong() throws ExceptionBase {
-        PasswordUser mockPasswordUserWrongPassword = new PasswordUser();
-        mockPasswordUserWrongPassword.setPassword(hashedPassword);
-        User mockUserWrongPassword = new User();
-        mockUserWrongPassword.setPasswordUser(mockPasswordUserWrongPassword);
-
-        when(userRepository.findByEmail("wrongPassword@gmail.com")).thenReturn(Optional.of(mockUserWrongPassword));
-
-        assertThrows(PasswordWrong.class, () -> {
-            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "wrongPassword@gmail.com", "WrongPassword", false));
-        });
     }
 
     @Test

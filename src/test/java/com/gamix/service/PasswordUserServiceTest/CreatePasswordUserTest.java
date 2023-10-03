@@ -27,7 +27,7 @@ public class CreatePasswordUserTest {
     private PasswordUserRepository passwordUserRepository;
 
     @Test
-    public void testCreatePasswordUser() throws ExceptionBase {
+    public void createPasswordUser() throws ExceptionBase {
         String username = "testuser";
         String email = "test@example.com";
         String icon = "default.png";

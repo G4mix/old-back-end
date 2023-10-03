@@ -92,7 +92,6 @@ public class SystemStartupService {
             long timeUntilUnban = bannedToken.getExpirationTimeInSeconds() - currentTimestampInSeconds;
 
             if (timeUntilUnban > 0) {
-                System.out.println("Agendando...");
                 scheduler.schedule(() -> {
                     invalidTokenRepository.deleteByToken(bannedToken.getToken());
                 }, timeUntilUnban, TimeUnit.SECONDS);

@@ -29,7 +29,7 @@ public class RefreshTokenTest {
     private PasswordUserService passwordUserService;
 
     @Test
-    public void testRefreshTokenWithValidToken() throws ExceptionBase {
+    public void refreshTokenWithValidToken() throws ExceptionBase {
         String validRefreshToken = "validRefreshToken";
 
         when(jwtManager.validate(validRefreshToken)).thenReturn(true);
@@ -46,7 +46,7 @@ public class RefreshTokenTest {
     }
 
     @Test
-    public void testRefreshTokenWithInvalidToken() throws ExceptionBase {
+    public void refreshTokenWithInvalidToken() throws ExceptionBase {
         String invalidRefreshToken = "invalidRefreshToken";
 
         when(jwtManager.validate(invalidRefreshToken)).thenReturn(false);

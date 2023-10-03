@@ -11,6 +11,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.authentication.InvalidAccessToken;
+import com.gamix.exceptions.authentication.InvalidRefreshToken;
+import com.gamix.exceptions.authentication.TokensDoNotMatchException;
 import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.security.JwtManager;
 import com.gamix.service.PasswordUserService;
@@ -49,16 +52,17 @@ public class SignOutTest {
     public void testSignOutWithInvalidAccessToken() throws ExceptionBase {
         SignOutPasswordUserInput invalidAccessTokenInput = new SignOutPasswordUserInput("invalidAccessToken", "validRefreshToken");
         
-        assertThrows(ExceptionBase.class, () -> {
+        assertThrows(InvalidAccessToken.class, () -> {
             passwordUserService.signOutPasswordUser(invalidAccessTokenInput);
         });
     }
 
     @Test
     public void testSignOutWithInvalidRefreshToken() throws ExceptionBase {
+        when(jwtManager.validate("validAccessToken")).thenReturn(true);
         SignOutPasswordUserInput invalidRefreshTokenInput = new SignOutPasswordUserInput("validAccessToken", "invalidRefreshToken");
 
-        assertThrows(ExceptionBase.class, () -> {
+        assertThrows(InvalidRefreshToken.class, () -> {
             passwordUserService.signOutPasswordUser(invalidRefreshTokenInput);
         });
     }
@@ -76,7 +80,7 @@ public class SignOutTest {
         when(jwtManager.getTokenClaims("accessToken")).thenReturn(claims1);
         when(jwtManager.getTokenClaims("refreshToken")).thenReturn(claims2);
 
-        assertThrows(ExceptionBase.class, () -> {
+        assertThrows(TokensDoNotMatchException.class, () -> {
             passwordUserService.signOutPasswordUser(mismatchedTokensInput);
         });
     }
