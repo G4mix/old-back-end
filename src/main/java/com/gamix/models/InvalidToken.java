@@ -22,16 +22,18 @@ public class InvalidToken {
         return id;
     }
 
-    public void setId(Long id) {
+    public InvalidToken setId(Long id) {
         this.id = id;
+        return this;
     }
 
     public String getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public InvalidToken setToken(String token) {
         this.token = token;
+        return this;
     }
     
     public Long getExpirationTimeInSeconds() {
