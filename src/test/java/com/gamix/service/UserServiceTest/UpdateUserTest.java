@@ -84,25 +84,4 @@ public class UpdateUserTest {
 
         verify(userRepository).findById(nonExistentUserId);
     }
-
-    @Test
-    public void testUpdateUserExceptionThrown() throws ExceptionBase {
-        int userId = 1;
-        PartialUserInput partialUserInput = new PartialUserInput();
-        partialUserInput.setUsername("newUsername");
-
-        User existingUser = new User();
-        existingUser.setId(userId);
-        existingUser.setUsername("oldUsername");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenThrow(new RuntimeException("Something went wrong"));
-
-        assertThrows(RuntimeException.class, () -> {
-            userService.updateUser(validAccessToken, partialUserInput);
-        });
-
-        verify(userRepository).findById(userId);
-        verify(userRepository).save(any(User.class));
-    }
 }

@@ -33,42 +33,34 @@ public class JwtManagerTest {
     private JwtManager jwtManager;
 
     @Test
-    public void getTokenClaims_ValidToken_ReturnsClaims() throws TokenClaimsException {
+    public void getTokenClaimsValidTokenInput() throws TokenClaimsException {
         when(dotenv.get("JWT_SIGNING_KEY_SECRET")).thenReturn("test-secret");
 
         Integer id = 1;
 
-        // Arrange
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(id, false);
 
-        // Act
         Claims claims = jwtManager.getTokenClaims(jwtTokens.accessToken());
 
-        // Assert
         assertNotNull(claims);
         assertEquals(id, Integer.parseInt(claims.getSubject()));
     }
 
     @Test
-    public void getTokenClaims_MalformedToken_ThrowsTokenClaimsException() {
+    public void getTokenClaimsMalformedTokenInput() {
         when(dotenv.get("JWT_SIGNING_KEY_SECRET")).thenReturn("test-secret");
 
-        // Arrange
         String malformedToken = "malformed-token";
 
-        // Act & Assert
         assertThrows(TokenClaimsException.class, () -> jwtManager.getTokenClaims(malformedToken));
     }
 
     @Test
     public void testGenerateJwtTokens() {
-        // Configuração dos mocks
         when(dotenv.get("JWT_SIGNING_KEY_SECRET")).thenReturn("your_signing_key_secret");
 
-        // Execução do método
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(1, true);
 
-        // Verificação
         assertNotNull(jwtTokens);
         assertNotNull(jwtTokens.accessToken());
         assertNotNull(jwtTokens.refreshToken());
