@@ -4,37 +4,62 @@ Este arquivo registra uma visão geral dos testes realizados em diferentes class
 
 
 - [Documentação de Testes](#documentação-de-testes)
-  - [Classe ParameterValidator](#classe-parametervalidator)
-  - [Classe PasswordUserService](#classe-passworduserservice)
-  - [Classe UserService](#classe-userservice)
-  - [Classe SystemStartupService](#classe-systemstartupservice)
-  - [Classe JwtManagerTest](#classe-jwtmanagertest)
+  - [initialization](#initialization)
+    - [Classe SystemStartupService](#classe-systemstartupservice)
+  - [security](#security)
+    - [Classe JwtManagerTest](#classe-jwtmanagertest)
+  - [service](#service)
+    - [Classe InvalidTokenService](#classe-invalidtokenservice)
+    - [Classe PasswordUserService](#classe-passworduserservice)
+    - [Classe UserService](#classe-userservice)
+  - [utils](#utils)
+    - [Classe ParameterValidator](#classe-parametervalidator)
 
-## Classe ParameterValidator
+## initialization
+### Classe SystemStartupService
 - **Implementados**
-  1. **Função: validateUsername**
-    - Verifica se uma exceção é lançada quando o nome de usuário é nulo;
-    - Verifica se uma exceção é lançada quando o nome de usuário está vazio;
-    - Verifica se uma exceção é lançada quando o nome de usuário é muito curto;
-    - Verifica se uma exceção é lançada quando o nome de usuário é muito longo;
-    - Verifica se uma exceção é lançada quando o nome de usuário tem formato inválido.
+  1. **Função: processUnbannedUsers**
+  - Verifica se o método `processUnbannedUsers` funciona corretamente.
+  
+  2. **Função: processUnbannedTokens**
+  - Verifica se o método `processUnbannedTokens` funciona corretamente.
+  
+  3. **Função: scheduleUnbanTasksForRemainingBannedUsers**
+  - Verifica se o método `scheduleUnbanTasksForRemainingBannedUsers` funciona corretamente.
+  
+  4. **Função: scheduleUnbanTasksForRemainingBannedTokens**
+  - Verifica se o método `scheduleUnbanTasksForRemainingBannedTokens` funciona corretamente.
 
-  2. **Função: validateEmail**
-    - Verifica se uma exceção é lançada quando o endereço de e-mail é nulo;
-    - Verifica se uma exceção é lançada quando o endereço de e-mail está vazio;
-    - Verifica se uma exceção é lançada quando o endereço de e-mail é muito longo;
-    - Verifica se uma exceção é lançada quando o endereço de e-mail tem formato inválido.
-
-  3. **Função: validatePassword**
-    - Verifica se uma exceção é lançada quando a senha é nula;
-    - Verifica se uma exceção é lançada quando a senha é muito curta;
-    - Verifica se uma exceção é lançada quando a senha é muito longa;
-    - Verifica se uma exceção é lançada quando a senha não contém números;
-    - Verifica se uma exceção é lançada quando a senha não contém caracteres especiais;
-    - Verifica se uma exceção é lançada quando a senha não contém letras maiúsculas.
 - **Não implementados**
 
-## Classe PasswordUserService
+## security
+### Classe JwtManagerTest
+- **Implementados**
+  1. **Função: getTokenClaims**
+  - Verifica se a função `getTokenClaims` ao receber um token válido retorna as reivindicações do token corretamente.
+  - Verifica se a função `getTokenClaims` lança uma exceção `TokenClaimsException` ao receber um token malformado.
+
+  2. **Função: generateJwtTokens**
+  - Verifica se a função `generateJwtTokens` ao receber os dados corretos, retorna corretamente os `JwtTokens`.
+
+- **Não implementados**
+  
+## service
+### Classe InvalidTokenService
+- **Implementados**
+- **Não implementados**
+  1. **Função: addInvalidToken**
+    - Verifica se a função `addInvalidToken` adiciona na blacklist o token, com o tempo correto, e agenda o momento em que vai ser deletado;
+  2. **Função: isTokenOnBlacklist**
+    - ...
+  3. **Função: deleteInvalidToken**
+    - ...
+  4. **Função: findByExpirationTimeInSecondsLessThanEqual**
+    - ...
+  5. **Função: findAll**
+    - ...
+
+### Classe PasswordUserService
 - **Implementados**
   1. **Função: createPasswordUser**
     - Verifica se a função `createPasswordUser` cria um novo usuário com senha e retorna o objeto `PasswordUser` criado.
@@ -68,7 +93,7 @@ Este arquivo registra uma visão geral dos testes realizados em diferentes class
   
 - **Não implementados**
 
-## Classe UserService
+### Classe UserService
 - **Implementados**
   1. **Função: createUser**
     - Verifica se a função `createUser` cria um novo usuário com sucesso e retorna o objeto `User` criado.
@@ -97,30 +122,28 @@ Este arquivo registra uma visão geral dos testes realizados em diferentes class
     - Verifica se a função `updateUser` lança uma exceção `UserNotFoundByToken` quando o usuário não é encontrado com o token de acesso.
     
 - **Não implementados**
-
-## Classe SystemStartupService
+- 
+## utils
+### Classe ParameterValidator
 - **Implementados**
-  1. **Função: processUnbannedUsers**
-  - Verifica se o método `processUnbannedUsers` funciona corretamente.
-  
-  2. **Função: processUnbannedTokens**
-  - Verifica se o método `processUnbannedTokens` funciona corretamente.
-  
-  3. **Função: scheduleUnbanTasksForRemainingBannedUsers**
-  - Verifica se o método `scheduleUnbanTasksForRemainingBannedUsers` funciona corretamente.
-  
-  4. **Função: scheduleUnbanTasksForRemainingBannedTokens**
-  - Verifica se o método `scheduleUnbanTasksForRemainingBannedTokens` funciona corretamente.
+  1. **Função: validateUsername**
+    - Verifica se uma exceção é lançada quando o nome de usuário é nulo;
+    - Verifica se uma exceção é lançada quando o nome de usuário está vazio;
+    - Verifica se uma exceção é lançada quando o nome de usuário é muito curto;
+    - Verifica se uma exceção é lançada quando o nome de usuário é muito longo;
+    - Verifica se uma exceção é lançada quando o nome de usuário tem formato inválido.
 
-- **Não implementados**
+  2. **Função: validateEmail**
+    - Verifica se uma exceção é lançada quando o endereço de e-mail é nulo;
+    - Verifica se uma exceção é lançada quando o endereço de e-mail está vazio;
+    - Verifica se uma exceção é lançada quando o endereço de e-mail é muito longo;
+    - Verifica se uma exceção é lançada quando o endereço de e-mail tem formato inválido.
 
-## Classe JwtManagerTest
-- **Implementados**
-  1. **Função: getTokenClaims**
-  - Verifica se a função `getTokenClaims` ao receber um token válido retorna as reivindicações do token corretamente.
-  - Verifica se a função `getTokenClaims` lança uma exceção `TokenClaimsException` ao receber um token malformado.
-
-  2. **Função: generateJwtTokens**
-  - Verifica se a função `generateJwtTokens` ao receber os dados corretos, retorna corretamente os `JwtTokens`.
-
+  3. **Função: validatePassword**
+    - Verifica se uma exceção é lançada quando a senha é nula;
+    - Verifica se uma exceção é lançada quando a senha é muito curta;
+    - Verifica se uma exceção é lançada quando a senha é muito longa;
+    - Verifica se uma exceção é lançada quando a senha não contém números;
+    - Verifica se uma exceção é lançada quando a senha não contém caracteres especiais;
+    - Verifica se uma exceção é lançada quando a senha não contém letras maiúsculas.
 - **Não implementados**

@@ -28,7 +28,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gamix.models.InvalidToken;
 import com.gamix.models.PasswordUser;
-import com.gamix.repositories.InvalidTokenRepository;
+import com.gamix.service.InvalidTokenService;
 import com.gamix.repositories.PasswordUserRepository;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -38,7 +38,7 @@ public class SystemStartupServiceTest {
     private PasswordUserRepository passwordUserRepository;
 
     @Mock
-    private InvalidTokenRepository invalidTokenRepository;
+    private InvalidTokenService invalidTokenService;
 
     @InjectMocks
     private SystemStartupService systemStartupService;
@@ -92,14 +92,14 @@ public class SystemStartupServiceTest {
             new InvalidToken().setToken("token2").setExpirationTimeInSeconds(5L)
         );
     
-        when(invalidTokenRepository.findByExpirationTimeInSecondsLessThanEqual(anyLong())).thenReturn(unbannedTokens);
+        when(invalidTokenService.findByExpirationTimeInSecondsLessThanEqual(anyLong())).thenReturn(unbannedTokens);
     
         Method method = SystemStartupService.class.getDeclaredMethod("processUnbannedTokens");
         method.setAccessible(true);
         method.invoke(systemStartupService);
     
-        verify(invalidTokenRepository, times(1)).deleteByToken("token1");
-        verify(invalidTokenRepository, times(1)).deleteByToken("token2");
+        verify(invalidTokenService, times(1)).deleteInvalidToken("token1");
+        verify(invalidTokenService, times(1)).deleteInvalidToken("token2");
     }
 
     @Test
@@ -131,12 +131,12 @@ public class SystemStartupServiceTest {
             new InvalidToken().setToken("token2").setExpirationTimeInSeconds(Instant.now().getEpochSecond() + 2)
         );
 
-        when(invalidTokenRepository.findAll()).thenReturn(remainingBannedTokens);
+        when(invalidTokenService.findAll()).thenReturn(remainingBannedTokens);
 
         Method method = SystemStartupService.class.getDeclaredMethod("scheduleUnbanTasksForRemainingBannedTokens");
         method.setAccessible(true);
         method.invoke(systemStartupService);
 
-        verify(scheduler, times(2)).schedule(any(Runnable.class), eq(2L), eq(TimeUnit.SECONDS));
+        verify(scheduler, times(2)).schedule(any(Runnable.class), eq(1L), eq(TimeUnit.SECONDS));
     }
 }

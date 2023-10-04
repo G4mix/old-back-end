@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,11 +26,23 @@ public class InvalidTokenService {
         invalidToken.setExpirationTimeInSeconds(expirationTimeInSeconds);
         invalidTokenRepository.save(invalidToken);
 
-        executorService.schedule(() -> invalidTokenRepository.deleteByToken(token), expirationTimeInSeconds, TimeUnit.SECONDS);
+        executorService.schedule(() -> deleteInvalidToken(token), expirationTimeInSeconds, TimeUnit.SECONDS);
     }
 
     public boolean isTokenOnBlacklist(String token) {
         Optional<InvalidToken> invalidToken = invalidTokenRepository.findByToken(token);
         return invalidToken.isPresent();
+    }
+
+    public void deleteInvalidToken(String token) {
+        if (invalidTokenRepository.findByToken(token).isPresent()) invalidTokenRepository.deleteByToken(token);
+    }
+
+    public List<InvalidToken> findByExpirationTimeInSecondsLessThanEqual(Long currentTimestampInSeconds) {
+        return invalidTokenRepository.findByExpirationTimeInSecondsLessThanEqual(currentTimestampInSeconds);
+    }
+
+    public List<InvalidToken> findAll() {
+        return invalidTokenRepository.findAll();
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.gamix.models.InvalidToken;
 import com.gamix.models.PasswordUser;
-import com.gamix.repositories.InvalidTokenRepository;
+import com.gamix.service.InvalidTokenService;
 import com.gamix.repositories.PasswordUserRepository;
 
 import jakarta.annotation.PostConstruct;
@@ -24,7 +24,7 @@ public class SystemStartupService {
     private PasswordUserRepository passwordUserRepository;
 
     @Autowired
-    private InvalidTokenRepository invalidTokenRepository;
+    private InvalidTokenService invalidTokenService;
 
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -54,13 +54,13 @@ public class SystemStartupService {
         List<InvalidToken> unbannedTokens = consultUnbannedTokens();
 
         for (InvalidToken token : unbannedTokens) {
-            invalidTokenRepository.deleteByToken(token.getToken());
+            invalidTokenService.deleteInvalidToken(token.getToken());
         }
     }
 
     private List<InvalidToken> consultUnbannedTokens() {
         Long currentTimestampInSeconds = System.currentTimeMillis() / 1000;
-        return invalidTokenRepository.findByExpirationTimeInSecondsLessThanEqual(currentTimestampInSeconds);
+        return invalidTokenService.findByExpirationTimeInSecondsLessThanEqual(currentTimestampInSeconds);
     }
 
     private void scheduleUnbanTasksForRemainingBannedUsers() {
@@ -93,13 +93,13 @@ public class SystemStartupService {
 
             if (timeUntilUnban > 0) {
                 scheduler.schedule(() -> {
-                    invalidTokenRepository.deleteByToken(bannedToken.getToken());
+                    invalidTokenService.deleteInvalidToken(bannedToken.getToken());
                 }, timeUntilUnban, TimeUnit.SECONDS);
             }
         }
     }
     
     private List<InvalidToken> consultBannedTokens() {
-        return invalidTokenRepository.findAll();
+        return invalidTokenService.findAll();
     }
 }
