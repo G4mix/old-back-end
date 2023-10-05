@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -23,7 +24,7 @@ public class InvalidTokenService {
     public void addInvalidToken(String token, Long expirationTimeInSeconds) {
         InvalidToken invalidToken = new InvalidToken();
         invalidToken.setToken(token);
-        invalidToken.setExpirationTimeInSeconds(expirationTimeInSeconds);
+        invalidToken.setBannedUntil(LocalDateTime.now().plusSeconds(expirationTimeInSeconds));
         invalidTokenRepository.save(invalidToken);
 
         executorService.schedule(() -> deleteInvalidToken(token), expirationTimeInSeconds, TimeUnit.SECONDS);
@@ -38,8 +39,12 @@ public class InvalidTokenService {
         if (invalidTokenRepository.findByToken(token).isPresent()) invalidTokenRepository.deleteByToken(token);
     }
 
-    public List<InvalidToken> findByExpirationTimeInSecondsLessThanEqual(Long currentTimestampInSeconds) {
-        return invalidTokenRepository.findByExpirationTimeInSecondsLessThanEqual(currentTimestampInSeconds);
+    public List<InvalidToken> findTokensToUnbanNow() {
+        return invalidTokenRepository.findTokensToUnbanNow();
+    }
+
+    public List<InvalidToken> findTokensToUnbanSoon() {
+        return invalidTokenRepository.findTokensToUnbanSoon();
     }
 
     public List<InvalidToken> findAll() {

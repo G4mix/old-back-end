@@ -1,6 +1,7 @@
 package com.gamix.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -153,19 +154,32 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         return passwordUserRepository.save(passwordUser);
     }
 
+    public void unbanUser(PasswordUser userToUnban) {
+        userToUnban.setBlockedUntil(null);
+        userToUnban.setLoginAttempts(0);
+        passwordUserRepository.save(userToUnban);
+    }
+
+    public List<PasswordUser> findUsersToUnbanNow() {
+        return passwordUserRepository.findUsersToUnbanNow();
+    }
+
+    public List<PasswordUser> findUsersToUnbanSoon() {
+        return passwordUserRepository.findUsersToUnbanSoon();
+    }
+
     private void handleFailedLoginAttempt(PasswordUser passwordUser) {
         passwordUser.setLoginAttempts(passwordUser.getLoginAttempts() + 1);
 
         if (passwordUser.getLoginAttempts() >= 3) {
-            passwordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(30));
+            int banTime = 30;
+            passwordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(banTime));
 
             executorService.schedule(() -> {
-                passwordUser.setLoginAttempts(0);
-                passwordUser.setBlockedUntil(null);
-                passwordUserRepository.save(passwordUser);
-            }, 30, TimeUnit.MINUTES);
+                unbanUser(passwordUser);
+            }, banTime, TimeUnit.MINUTES);
         }
-
+        
         passwordUserRepository.save(passwordUser);
     }
 }

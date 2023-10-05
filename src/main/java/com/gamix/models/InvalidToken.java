@@ -1,5 +1,7 @@
 package com.gamix.models;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +18,7 @@ public class InvalidToken {
     private String token;
     
     @Column(nullable = false)
-    private Long expirationTimeInSeconds;
+    private LocalDateTime bannedUntil;
 
     public Long getId() {
         return id;
@@ -36,12 +38,12 @@ public class InvalidToken {
         return this;
     }
     
-    public Long getExpirationTimeInSeconds() {
-        return expirationTimeInSeconds;
+    public LocalDateTime getBannedUntil() {
+        return bannedUntil;
     }
 
-    public InvalidToken setExpirationTimeInSeconds(Long expirationTimeInSeconds) {
-        this.expirationTimeInSeconds = expirationTimeInSeconds;
+    public InvalidToken setBannedUntil(LocalDateTime bannedUntil) {
+        this.bannedUntil = bannedUntil;
         return this;
     }
 }

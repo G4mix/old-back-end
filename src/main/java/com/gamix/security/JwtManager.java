@@ -55,7 +55,7 @@ public class JwtManager implements JwtManagerInterface {
     @Override
     public void invalidate(String token) throws TokenClaimsException {
         Claims claims = getTokenClaims(token);
-        long expirationTimeInSeconds = claims.getExpiration().getTime() / 1000;
+        long expirationTimeInSeconds = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
         invalidTokenService.addInvalidToken(token, expirationTimeInSeconds);
     }
 
@@ -76,7 +76,7 @@ public class JwtManager implements JwtManagerInterface {
         Claims claims = Jwts.claims().setSubject(id.toString());
         claims.put("rememberMe", rememberMe);
         claims.put("role", Role.USER.toString());
-
+        
         Date expirationDate = new Date(System.currentTimeMillis() + expirationTime.getValue());
 
         return Jwts.builder()
