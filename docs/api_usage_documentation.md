@@ -37,7 +37,7 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 
 ### 2.1 SignUp (Cadastro)
 
-- **Endpoint**: `/graphql`
+- **Endpoint**: `/auth/signup`
 - **Método**: `POST`
 - **Descrição**: Cria um novo usuário com as credenciais fornecidas.
 - **Parâmetros**:
@@ -50,20 +50,15 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 
 ```json
 {
-  "query": "mutation SignUp($input: SignUpPasswordUserInput!) { signUpPasswordUser(input: $input) { accessToken, refreshToken } }",
-  "variables": {
-    "input": {
-      "username": "example_user",
-      "email": "example@gmail.com",
-      "password": "Example_password123!"
-    }
-  }
+  "username": "example_user",
+  "email": "example@gmail.com",
+  "password": "Example_password123!"
 }
 ```
 
 ### 2.2 SignIn (Login)
 
-- **Endpoint**: `/graphql`
+- **Endpoint**: `/auth/signin`
 - **Método**: `POST`
 - **Descrição**: Autentica um usuário com as credenciais fornecidas, e-mail e senha ou username e senha.
 - **Parâmetros**:
@@ -77,20 +72,15 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 
 ```json
 {
-  "query": "mutation SignIn($input: SignInPasswordUserInput!) { signInPasswordUser(input: $input) { accessToken, refreshToken } }",
-  "variables": {
-    "input": {
-      "username": "example_user",
-      "password": "Example_password123!",
-      "rememberMe": true
-    }
-  }
+  "username": "example_user",
+  "password": "Example_password123!",
+  "rememberMe": true
 }
 ```
 
 ### 2.3 SignOut (Logout)
 
-- **Endpoint**: `/graphql`
+- **Endpoint**: `/auth/signout`
 - **Método**: `POST`
 - **Descrição**: Invalida os tokens de acesso e atualização do usuário.
 - **Parâmetros**:
@@ -101,19 +91,14 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 
 ```json
 {
-  "query": "mutation SignOut($input: SignOutPasswordUserInput!) { signOutPasswordUser(input: $input) }",
-  "variables": {
-    "input": {
-      "accessToken": "your_access_token_here",
-      "refreshToken": "your_refresh_token_here"
-    }
-  }
+  "accessToken": "your_access_token_here",
+  "refreshToken": "your_refresh_token_here"
 }
 ```
 
 ### 2.4 RefreshToken
 
-- **Endpoint**: `/graphql`
+- **Endpoint**: `/auth/refreshtoken`
 - **Método**: `POST`
 - **Descrição**: Atualiza o token de acesso expirado do usuário.
 - **Parâmetros**:
@@ -124,12 +109,8 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 
 ```json
 {
-  "query": "mutation RefreshTokenPasswordUser($refreshToken: String!) { refreshTokenPasswodUser(refreshToken: $refreshToken) { accessToken refreshToken } }",
-  "variables": {
-    "refreshToken": "your_refresh_token_here"
-  }
+  "refreshToken": "your_refresh_token_here"
 }
-
 ```
 
 ## 3. Usuários

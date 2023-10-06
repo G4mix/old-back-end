@@ -46,9 +46,7 @@ public class SystemStartupService {
 
     private void processUnbannedTokens() {
         List<InvalidToken> unbannedTokens = invalidTokenService.findTokensToUnbanNow();
-        System.out.println("--- Tokens desbanidos ---");
-        System.out.println(unbannedTokens);
-        System.out.println("--- Tokens desbanidos ---");
+
         for (InvalidToken token : unbannedTokens) {
             invalidTokenService.deleteInvalidToken(token.getToken());
         }
@@ -72,9 +70,6 @@ public class SystemStartupService {
     
     private void scheduleUnbanTasksForRemainingBannedTokens() {
         List<InvalidToken> remainingBannedTokens = invalidTokenService.findTokensToUnbanSoon();
-        System.out.println("--- Tokens para desbanir ---");
-        System.out.println(remainingBannedTokens);
-        System.out.println("--- Tokens para desbanir ---");
 
         for (InvalidToken bannedToken : remainingBannedTokens) {
             LocalDateTime currentDateTime = LocalDateTime.now();
