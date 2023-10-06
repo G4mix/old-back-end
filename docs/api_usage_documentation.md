@@ -188,16 +188,14 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 - **Requisitos do Header**:
   - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
-  - `id` (Int, obrigatório): ID do usuário a ser atualizado.
-  - `userInput` (Objeto PartialUserInput: (username: String), (icon: String)): Objeto contendo os campos a serem atualizados (opcional).
+  - `input` (Objeto PartialUserInput: (username: String), (icon: String)): Objeto contendo os campos a serem atualizados (opcional).
 - **Retorno**:
   - `user` (Objeto User): Usuário atualizado.
 
 ```json
 {
-  "query": "mutation UpdateUser($id: Int!, $input: PartialUserInput!) { updateUser(id: $id, userInput: $input) { id, username, email, icon } }",
+  "query": "mutation UpdateUser($input: PartialUserInput!) { updateUser(input: $input) { id, username, email, icon } }",
   "variables": {
-    "id": 1,
     "input": {
       "username": "new_username",
       "icon": "new_icon_url.png"
@@ -213,17 +211,12 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 - **Descrição**: Exclui a conta de um usuário.
 - **Requisitos do Header**:
   - `Authorization` (String, obrigatório): Token de acesso JWT.
-- **Parâmetros**:
-  - `id` (Int, obrigatório): ID do usuário a ser excluído.
 - **Retorno**:
   - `success` (Boolean): Indica se a conta foi excluída com sucesso.
 
 ```json
 {
-  "query": "mutation DeleteAccount($id: Int!) { deleteAccount(id: $id) }",
-  "variables": {
-    "id": 1
-  }
+  "query": "mutation DeleteAccount { deleteAccount }"
 }
 ```
 

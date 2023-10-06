@@ -28,39 +28,11 @@ type Query {
 }
 
 type Mutation {
-    signUpPasswordUser(input: SignUpPasswordUserInput!): AuthTokens
-    signInPasswordUser(input: SignInPasswordUserInput!): AuthTokens
-    signOutPasswordUser(input: SignOutPasswordUserInput!): Boolean
-    refreshTokenPasswodUser(refreshToken: String!): AuthTokens
     updateUser(input: PartialUserInput!): User
     deleteAccount: Boolean
 }
 
-input SignUpPasswordUserInput {
-    username: String!
-    email: String!
-    password: String!
-}
-
-input SignInPasswordUserInput {
-    username: String
-    email: String
-    password: String!
-    rememberMe: Boolean!
-}
-
-input SignOutPasswordUserInput {
-    accessToken: String!
-    refreshToken: String!
-}
-
 input PartialUserInput {
     username: String
-    email: String
     icon: String
-}
-
-type AuthTokens {
-    accessToken: String!
-    refreshToken: String!
 }

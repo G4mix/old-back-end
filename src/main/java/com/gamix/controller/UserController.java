@@ -74,7 +74,10 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('USER')")  
     @MutationMapping
-    User updateUser(@AuthenticationPrincipal JwtUserDetails userDetails, @Argument("input") PartialUserInput userInput) throws ExceptionBase {
+    User updateUser(
+        @AuthenticationPrincipal JwtUserDetails userDetails,
+        @Argument("input") PartialUserInput userInput
+    ) throws ExceptionBase {
         try {    
             String accessToken = userDetails.getAccessToken();
             User updatedUser = userService.updateUser(accessToken, userInput);
