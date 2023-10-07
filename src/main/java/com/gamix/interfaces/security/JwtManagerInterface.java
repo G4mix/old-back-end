@@ -1,6 +1,5 @@
 package com.gamix.interfaces.security;
 
-import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.TokenClaimsException;
 import com.gamix.records.returns.security.JwtTokens;
 

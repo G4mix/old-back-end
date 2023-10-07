@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.gamix.enums.ExpirationTime;
@@ -52,13 +51,12 @@ public class JwtManager implements JwtManagerInterface {
         Date currentDate = new Date();
 
         Optional<User> user = userRepository.findById(Integer.parseInt(body.getSubject()));
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
         boolean isTokenOnBlacklist = invalidTokenService.isTokenOnBlacklist(token);
         boolean invalidUser = !user.isPresent();
         boolean invalidPasswordUser = user.get().getPasswordUser() != null 
-            && !passwordEncoder.matches(body.get("password").toString(), user.get().getPasswordUser().getPassword());
+            && !(body.get("password").toString().equals(user.get().getPasswordUser().getPassword()));
         
         if (isExpired || isTokenOnBlacklist || invalidUser || invalidPasswordUser) return false;
 

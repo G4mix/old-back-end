@@ -37,7 +37,7 @@ public class RefreshTokenTest {
         Claims mockClaims = createMockClaims(1, true);
         when(jwtManager.getTokenClaims(validRefreshToken)).thenReturn(mockClaims);
 
-        when(jwtManager.generateJwtTokens(1, true)).thenReturn(new JwtTokens("newAccessToken", "newRefreshToken", true));
+        when(jwtManager.generateJwtTokens(1, "Password123!", true)).thenReturn(new JwtTokens("newAccessToken", "newRefreshToken", true));
 
         JwtTokens tokens = passwordUserService.refreshToken(validRefreshToken);
 

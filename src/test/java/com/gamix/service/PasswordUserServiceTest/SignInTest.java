@@ -71,7 +71,7 @@ public class SignInTest {
         when(userRepository.findByUsername("validUsername")).thenReturn(Optional.of(mockUserByUsername));
     
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(1, validUsernameInput.rememberMe())).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(1, "Password123!", validUsernameInput.rememberMe())).thenReturn(mockJwtTokens);
     
         JwtTokens tokens = passwordUserService.signInPasswordUser(validUsernameInput);
     
@@ -93,7 +93,7 @@ public class SignInTest {
         when(userRepository.findByEmail("validemail@gmail.com")).thenReturn(Optional.of(mockUserByEmail));
 
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(1, validEmailInput.rememberMe())).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(1, "Password123!", validEmailInput.rememberMe())).thenReturn(mockJwtTokens);
 
         JwtTokens tokens = passwordUserService.signInPasswordUser(validEmailInput);
         assertEquals("accessToken", tokens.accessToken());
@@ -164,7 +164,7 @@ public class SignInTest {
         mockBlockedPasswordUser.setBlockedUntil(newBlockedUntil);
     
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(1, false)).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(1, "Password123!", false)).thenReturn(mockJwtTokens);
 
         passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "blockedUser@gmail.com", "Password123!", false));
     
@@ -181,7 +181,7 @@ public class SignInTest {
         mockUserWithNullJwt.setPasswordUser(mockPasswordUserNullJwt);
 
         when(userRepository.findByEmail("nullJwt@gmail.com")).thenReturn(Optional.of(mockUserWithNullJwt));
-        when(jwtManager.generateJwtTokens(1, false)).thenReturn(null);
+        when(jwtManager.generateJwtTokens(1, "Password123!", false)).thenReturn(null);
 
         assertThrows(NullJwtTokens.class, () -> {
             passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "nullJwt@gmail.com", "Password123!", false));

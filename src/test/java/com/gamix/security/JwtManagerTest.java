@@ -38,7 +38,7 @@ public class JwtManagerTest {
 
         Integer id = 1;
 
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(id, false);
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(id, "Password123!", false);
 
         Claims claims = jwtManager.getTokenClaims(jwtTokens.accessToken());
 
@@ -59,7 +59,7 @@ public class JwtManagerTest {
     public void testGenerateJwtTokens() {
         when(dotenv.get("JWT_SIGNING_KEY_SECRET")).thenReturn("your_signing_key_secret");
 
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(1, true);
+        JwtTokens jwtTokens = jwtManager.generateJwtTokens(1, "Password123!", true);
 
         assertNotNull(jwtTokens);
         assertNotNull(jwtTokens.accessToken());
