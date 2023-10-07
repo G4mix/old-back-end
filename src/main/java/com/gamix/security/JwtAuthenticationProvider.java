@@ -14,9 +14,6 @@ import org.springframework.stereotype.Component;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
-import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
-import com.gamix.exceptions.user.UserNotFound;
-import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.service.UserService;
 
@@ -50,17 +47,10 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             User user = userService.findUserById(id);
             String role = (String) body.get("role");
     
-            if (user == null) throw new UserNotFound();
-            
-            PasswordUser passwordUser = user.getPasswordUser();
-    
-            if (passwordUser == null) throw new PasswordUserNotFound();
-    
             List<GrantedAuthority> grantedAuthorities = AuthorityUtils.commaSeparatedStringToAuthorityList(role);
     
             return new JwtUserDetails(
                 user.getUsername(), 
-                user.getPasswordUser().getPassword(),
                 accessToken,
                 grantedAuthorities
             );

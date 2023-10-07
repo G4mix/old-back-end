@@ -11,10 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.authentication.InvalidRefreshToken;
-import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.NullJwtTokens;
 import com.gamix.exceptions.authentication.TokensDoNotMatchException;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
@@ -74,10 +74,11 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             signUpPasswordUserInput.email(),
             null
         );
-        createPasswordUser(user, signUpPasswordUserInput.password());
+        String encodedPassword = new BCryptPasswordEncoder().encode(signUpPasswordUserInput.password());
+        createPasswordUser(user, encodedPassword);
         
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(
-            user.getId(), false
+            user.getId(), encodedPassword, false
         );
 
         if (jwtTokens == null) throw new NullJwtTokens();
@@ -109,6 +110,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
         JwtTokens jwtTokens = jwtManager.generateJwtTokens(
             user.get().getId(),
+            passwordUser.getPassword(),
             signInPasswordUserInput.rememberMe()
         );
 
@@ -140,15 +142,18 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         Claims body = jwtManager.getTokenClaims(refreshToken);
         Integer id = Integer.parseInt(body.getSubject());
         boolean rememberMe = (boolean) body.get("rememberMe");
+        User user = userService.findUserById(id);
 
-        return jwtManager.generateJwtTokens(id, rememberMe);
+        jwtManager.invalidate(refreshToken);
+        
+        return jwtManager.generateJwtTokens(id, user.getPasswordUser().getPassword(), rememberMe);
     }
 
     @Override
     public PasswordUser createPasswordUser(User user, String password) {
         PasswordUser passwordUser = new PasswordUser()
             .setUser(user)
-            .setPassword(new BCryptPasswordEncoder().encode(password))
+            .setPassword(password)
             .setVerifiedEmail(false);
 
         return passwordUserRepository.save(passwordUser);

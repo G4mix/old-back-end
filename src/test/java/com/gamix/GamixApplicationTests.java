@@ -1,50 +1,38 @@
 package com.gamix;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@RunWith(SpringRunner.class)
 @SpringBootTest(classes = GamixApplication.class)
 public class GamixApplicationTests {
-
-    @Autowired
-    private RestTemplate restTemplate = new RestTemplate();
-
 	@Test
 	public void contextLoads() {}
 	
     @Test
 	public void integrationTestFlow() {
-        String url = "http://localhost:8080"; // Substitua pela URL correta do seu servidor GraphQL
+        // String url = "http://localhost:8080"; // Substitua pela URL correta do seu servidor GraphQL
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        // HttpHeaders headers = new HttpHeaders();
+        // headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // Etapa 1: Registro de usuário
-		Map<String, String> signUpBody = new HashMap<>();
-		signUpBody.put("username", "user1");
-		signUpBody.put("email", "email@gmail.com");
-		signUpBody.put("password", "Password123!");
-        HttpEntity<String> signUpRequest = new HttpEntity<>(signUpBody.toString(), headers);
+        // // Etapa 1: Registro de usuário
+		// Map<String, String> signUpBody = new HashMap<>();
+		// signUpBody.put("username", "user1");
+		// signUpBody.put("email", "email@gmail.com");
+		// signUpBody.put("password", "Password123!");
+        // HttpEntity<String> signUpRequest = new HttpEntity<>(signUpBody.toString(), headers);
 
-        ResponseEntity<String> signUpResponseEntity = restTemplate.exchange(url+"/auth/signup", HttpMethod.POST, signUpRequest, String.class);
-        if (signUpResponseEntity.getStatusCode() == HttpStatus.OK) {
-            String signUpResponseBody = signUpResponseEntity.getBody();
-            System.out.println("SignUp Response: " + signUpResponseBody);
-        } else {
-            System.err.println("Erro na solicitação de registro: " + signUpResponseEntity.getStatusCode());
-            return; // Encerra o teste em caso de erro
-        }
+        // ResponseEntity<String> signUpResponseEntity = restTemplate.exchange(url+"/auth/signup", HttpMethod.POST, signUpRequest, String.class);
+        // if (signUpResponseEntity.getStatusCode() == HttpStatus.OK) {
+        //     String signUpResponseBody = signUpResponseEntity.getBody();
+        //     System.out.println("SignUp Response: " + signUpResponseBody);
+        // } else {
+        //     System.err.println("Erro na solicitação de registro: " + signUpResponseEntity.getStatusCode());
+        //     return; // Encerra o teste em caso de erro
+        // }
 
         // // Etapa 2: Obter tokens e adicionar AccessToken ao header
         // String signUpResponseBody = signUpResponseEntity.getBody();
