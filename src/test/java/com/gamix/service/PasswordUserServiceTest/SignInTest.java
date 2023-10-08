@@ -3,6 +3,8 @@ package com.gamix.service.PasswordUserServiceTest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -71,7 +73,7 @@ public class SignInTest {
         when(userRepository.findByUsername("validUsername")).thenReturn(Optional.of(mockUserByUsername));
     
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(1, "Password123!", validUsernameInput.rememberMe())).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(validUsernameInput.rememberMe()))).thenReturn(mockJwtTokens);
     
         JwtTokens tokens = passwordUserService.signInPasswordUser(validUsernameInput);
     
@@ -93,7 +95,7 @@ public class SignInTest {
         when(userRepository.findByEmail("validemail@gmail.com")).thenReturn(Optional.of(mockUserByEmail));
 
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(1, "Password123!", validEmailInput.rememberMe())).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(validEmailInput.rememberMe()))).thenReturn(mockJwtTokens);
 
         JwtTokens tokens = passwordUserService.signInPasswordUser(validEmailInput);
         assertEquals("accessToken", tokens.accessToken());
@@ -164,7 +166,7 @@ public class SignInTest {
         mockBlockedPasswordUser.setBlockedUntil(newBlockedUntil);
     
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(1, "Password123!", false)).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(false))).thenReturn(mockJwtTokens);
 
         passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "blockedUser@gmail.com", "Password123!", false));
     

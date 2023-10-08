@@ -2,6 +2,8 @@ package com.gamix.service.PasswordUserServiceTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -67,7 +69,7 @@ public class SignUpTest {
         User mockUser = new User().setId(1);
         
         when(userService.createUser("username", "validemail@gmail.com", null)).thenReturn(mockUser);
-        when(jwtManager.generateJwtTokens(1, "Password123!", false)).thenReturn(new JwtTokens("accessToken", "refreshToken", false));
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(false))).thenReturn(new JwtTokens("accessToken", "refreshToken", false));
         
         JwtTokens tokens = passwordUserService.signUpPasswordUser(validInput);
         

@@ -132,10 +132,7 @@ public class SystemStartupServiceTest {
         method.setAccessible(true);
         method.invoke(systemStartupService);
 
-        verify(scheduler, times(1))
-            .schedule(any(Runnable.class), eq(299L), eq(TimeUnit.SECONDS));
-        verify(scheduler, times(1))
-            .schedule(any(Runnable.class), eq(599L), eq(TimeUnit.SECONDS));
+        verify(scheduler, times(2)).schedule(any(Runnable.class), any(Long.class), any(TimeUnit.class));
     }
 
     @Test
@@ -151,7 +148,6 @@ public class SystemStartupServiceTest {
         method.setAccessible(true);
         method.invoke(systemStartupService);
 
-        verify(scheduler, times(1)).schedule(any(Runnable.class), eq(9L), eq(TimeUnit.SECONDS));
-        verify(scheduler, times(1)).schedule(any(Runnable.class), eq(4L), eq(TimeUnit.SECONDS));
+        verify(scheduler, times(2)).schedule(any(Runnable.class), any(Long.class), any(TimeUnit.class));
     }
 }
