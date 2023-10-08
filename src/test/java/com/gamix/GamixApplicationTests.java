@@ -1,123 +1,160 @@
 package com.gamix;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.http.HttpHeaders;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
-@RunWith(SpringRunner.class)
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
+import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
+
 @SpringBootTest(classes = GamixApplication.class)
-public class GamixApplicationTests {
+@AutoConfigureMockMvc
+class GamixApplicationTests {
+	@Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
 	@Test
-	public void contextLoads() {}
-	
+	void contextLoads() {}
+
     @Test
-	public void integrationTestFlow() {
-        // String url = "http://localhost:8080"; // Substitua pela URL correta do seu servidor GraphQL
+	void integrationTestFlow() throws JsonProcessingException, Exception {
+        // Registrando o usuário
 
-        // HttpHeaders headers = new HttpHeaders();
-        // headers.setContentType(MediaType.APPLICATION_JSON);
+        SignUpPasswordUserInput signUpPasswordUserInput = new SignUpPasswordUserInput("example_user", "example@gmail.com", "Password123!");
+        MvcResult signUpResult = mockMvc.perform(post("/auth/signup")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(signUpPasswordUserInput)))
+			.andExpect(status().isOk())
+			.andReturn();
 
-        // // Etapa 1: Registro de usuário
-		// Map<String, String> signUpBody = new HashMap<>();
-		// signUpBody.put("username", "user1");
-		// signUpBody.put("email", "email@gmail.com");
-		// signUpBody.put("password", "Password123!");
-        // HttpEntity<String> signUpRequest = new HttpEntity<>(signUpBody.toString(), headers);
+		String signUpResponseBody = signUpResult.getResponse().getContentAsString();
 
-        // ResponseEntity<String> signUpResponseEntity = restTemplate.exchange(url+"/auth/signup", HttpMethod.POST, signUpRequest, String.class);
-        // if (signUpResponseEntity.getStatusCode() == HttpStatus.OK) {
-        //     String signUpResponseBody = signUpResponseEntity.getBody();
-        //     System.out.println("SignUp Response: " + signUpResponseBody);
-        // } else {
-        //     System.err.println("Erro na solicitação de registro: " + signUpResponseEntity.getStatusCode());
-        //     return; // Encerra o teste em caso de erro
-        // }
+		JsonNode jsonNode = objectMapper.readTree(signUpResponseBody);
+	
+		String accessTokenCookie = jsonNode.get("accessToken").asText();
+		String refreshTokenCookie = jsonNode.get("refreshToken").asText();
+		String accessToken = extractTokenValue(accessTokenCookie, "accessToken");
+		String refreshToken = extractTokenValue(refreshTokenCookie, "refreshToken");
 
-        // // Etapa 2: Obter tokens e adicionar AccessToken ao header
-        // String signUpResponseBody = signUpResponseEntity.getBody();
-        // String accessToken = extractAccessToken(signUpResponseBody);
-        // assertNotNull(accessToken);
+        // Executar o findAll com o AccessToken no header
 
-        // headers.set("Authorization", "Bearer " + accessToken);
+		// Criando o corpo da requisição
+		Map<String, Object> findAllRequestBody = new HashMap<>();
+		findAllRequestBody.put("query", "query FindAllUsers($skip: Int, $limit: Int) { findAllUsers(skip: $skip, limit: $limit) { id username email icon passwordUser { id verifiedEmail } } }");
+		Map<String, Integer> variables = new HashMap<>();
+		variables.put("skip", 0);
+		variables.put("limit", 10);
+		findAllRequestBody.put("variables", variables);
 
-        // // Etapa 3: Executar o findAll com o AccessToken no header
-        // String findAllQuery = "{ findAllUsers { username } }";
-        // HttpEntity<String> findAllRequest = new HttpEntity<>(findAllQuery, headers);
+		mockMvc.perform(post("/graphql")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(findAllRequestBody))
+			.header(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken))
+			.andExpect(status().isOk());
 
-        // ResponseEntity<String> findAllResponseEntity = restTemplate.exchange(url, HttpMethod.POST, findAllRequest, String.class);
-        // if (findAllResponseEntity.getStatusCode() == HttpStatus.OK) {
-        //     String findAllResponseBody = findAllResponseEntity.getBody();
-        //     System.out.println("FindAll Response: " + findAllResponseBody);
-        // } else {
-        //     System.err.println("Erro na solicitação do findAll: " + findAllResponseEntity.getStatusCode());
-        //     return; // Encerra o teste em caso de erro
-        // }
+		// Fazendo o signOut
+        SignOutPasswordUserInput signOutPasswordUserInput = new SignOutPasswordUserInput(accessToken, refreshToken);
+        MvcResult signOutResult = mockMvc.perform(post("/auth/signout")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(signOutPasswordUserInput)))
+			.andExpect(status().isOk())
+			.andReturn();
 
-        // // Etapa 4: Obter novos tokens após o findAll
-        // String refreshToken = extractRefreshToken(signUpResponseBody);
-        // assertNotNull(refreshToken);
+		String signOutResponseBody = signOutResult.getResponse().getContentAsString();
+		jsonNode = objectMapper.readTree(signOutResponseBody);
+		assertTrue(jsonNode.get("success").asBoolean());
 
-        // String refreshMutation = "mutation { refreshTokenPasswodUser(refreshToken: \"" + refreshToken + "\") { accessToken refreshToken } }";
-        // HttpEntity<String> refreshRequest = new HttpEntity<>(refreshMutation, headers);
+		// Executar o findAll com o AccessToken no header
+		mockMvc.perform(post("/graphql")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(findAllRequestBody))
+			.header(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken))
+			.andExpect(status().isUnauthorized());
+		
+		// Fazendo o signIn
+        SignInPasswordUserInput signInPasswordUserInput = new SignInPasswordUserInput(
+			signUpPasswordUserInput.username(), null, signUpPasswordUserInput.password(), false
+		);
+        MvcResult signInResult = mockMvc.perform(post("/auth/signin")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(signInPasswordUserInput)))
+			.andExpect(status().isOk())
+			.andReturn();
 
-        // ResponseEntity<String> refreshResponseEntity = restTemplate.exchange(url, HttpMethod.POST, refreshRequest, String.class);
-        // if (refreshResponseEntity.getStatusCode() == HttpStatus.OK) {
-        //     String refreshResponseBody = refreshResponseEntity.getBody();
-        //     System.out.println("Refresh Response: " + refreshResponseBody);
-        // } else {
-        //     System.err.println("Erro na solicitação de refresh: " + refreshResponseEntity.getStatusCode());
-        //     return; // Encerra o teste em caso de erro
-        // }
+		String signInResponseBody = signInResult.getResponse().getContentAsString();
 
-        // // Etapa 5: Adicionar os tokens no header para o signOut
-        // String newAccessToken = extractAccessToken(refreshResponseEntity.getBody());
-        // assertNotNull(newAccessToken);
+		jsonNode = objectMapper.readTree(signInResponseBody);
+	
+		accessTokenCookie = jsonNode.get("accessToken").asText();
+		refreshTokenCookie = jsonNode.get("refreshToken").asText();
+		accessToken = extractTokenValue(accessTokenCookie, "accessToken");
+		refreshToken = extractTokenValue(refreshTokenCookie, "refreshToken");
 
-        // headers.set("Authorization", "Bearer " + newAccessToken);
+		// Executar o findAll com o novo AccessToken no header
+		mockMvc.perform(post("/graphql")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(findAllRequestBody))
+			.header(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken))
+			.andExpect(status().isOk());
+		
+		// Usar o refreshToken
+		// Criando o corpo da requisição
+		Map<String, Object> refreshTokenRequestBody = new HashMap<>();
+		refreshTokenRequestBody.put("refreshToken", refreshToken);
 
-        // String newRefreshToken = extractRefreshToken(refreshResponseEntity.getBody());
-        // assertNotNull(newRefreshToken);
+        MvcResult refreshTokenResult = mockMvc.perform(post("/auth/refreshtoken")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(refreshTokenRequestBody)))
+			.andExpect(status().isOk())
+			.andReturn();
 
-        // // Etapa 6: Fazer o signOut
-        // String signOutMutation = "mutation { signOutPasswordUser(input: { accessToken: \"" + newAccessToken + "\", refreshToken: \"" + newRefreshToken + "\" }) }";
-        // HttpEntity<String> signOutRequest = new HttpEntity<>(signOutMutation, headers);
+		String refreshTokenResponseBody = refreshTokenResult.getResponse().getContentAsString();
 
-        // ResponseEntity<String> signOutResponseEntity = restTemplate.exchange(url, HttpMethod.POST, signOutRequest, String.class);
-        // if (signOutResponseEntity.getStatusCode() == HttpStatus.OK) {
-        //     String signOutResponseBody = signOutResponseEntity.getBody();
-        //     System.out.println("SignOut Response: " + signOutResponseBody);
-        // } else {
-        //     System.err.println("Erro na solicitação de signOut: " + signOutResponseEntity.getStatusCode());
-        //     return; // Encerra o teste em caso de erro
-        // }
+		jsonNode = objectMapper.readTree(refreshTokenResponseBody);
+	
+		accessTokenCookie = jsonNode.get("accessToken").asText();
+		refreshTokenCookie = jsonNode.get("refreshToken").asText();
+		accessToken = extractTokenValue(accessTokenCookie, "accessToken");
+		refreshToken = extractTokenValue(refreshTokenCookie, "refreshToken");
 
-        // // Etapa 7: Executar o findAll novamente após o signOut
-        // ResponseEntity<String> findAllAfterSignOutResponseEntity = restTemplate.exchange(url, HttpMethod.POST, findAllRequest, String.class);
-        // if (findAllAfterSignOutResponseEntity.getStatusCode() == HttpStatus.OK) {
-        //     String findAllAfterSignOutResponseBody = findAllAfterSignOutResponseEntity.getBody();
-        //     System.out.println("FindAll After SignOut Response: " + findAllAfterSignOutResponseBody);
-        // } else {
-        //     System.err.println("Erro na solicitação do findAll após o signOut: " + findAllAfterSignOutResponseEntity.getStatusCode());
-        //     return; // Encerra o teste em caso de erro
-        // }
-
-        // // Etapa 8: Verificar se o usuário está desconectado
-        // // Implemente a verificação aqui...
-
-        // // Se o teste chegou até aqui sem erros, ele foi bem-sucedido
-        // System.out.println("Teste de integração concluído com sucesso!");
+		// Executar o findAll com o novo AccessToken no header
+		mockMvc.perform(post("/graphql")
+			.contentType("application/json")
+			.content(objectMapper.writeValueAsString(findAllRequestBody))
+			.header(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken))
+			.andExpect(status().isOk());
     }
 
-    // private String extractAccessToken(String response) {
-    //     // Implemente o código para extrair o AccessToken do corpo da resposta GraphQL
-    //     // (pode ser usando uma biblioteca de parsing JSON ou outro método)
-    //     return null; // Substitua null pelo código de extração real
-    // }
+	private String extractTokenValue(String cookieValue, String field) {
+		String regex = field + "=(.*?);";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(cookieValue);
 
-    // private String extractRefreshToken(String response) {
-    //     // Implemente o código para extrair o RefreshToken do corpo da resposta GraphQL
-    //     // (pode ser usando uma biblioteca de parsing JSON ou outro método)
-    //     return null; // Substitua null pelo código de extração real
-	// }
+		if (matcher.find()) {
+			return matcher.group(1);
+		}
+
+		return "";
+	}
+
 }

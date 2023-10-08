@@ -143,7 +143,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         Integer id = Integer.parseInt(body.getSubject());
         boolean rememberMe = (boolean) body.get("rememberMe");
         User user = userService.findUserById(id);
-
         jwtManager.invalidate(refreshToken);
         
         return jwtManager.generateJwtTokens(id, user.getPasswordUser().getPassword(), rememberMe);
