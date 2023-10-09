@@ -68,7 +68,7 @@ public class PasswordUserController {
                 requestBody.get("password"),
                 Boolean.parseBoolean(requestBody.get("rememberMe"))
             );
-            System.out.println(signInPasswordUserInput);
+
             JwtTokens jwtTokens = authService.signInPasswordUser(
                 signInPasswordUserInput
             );
