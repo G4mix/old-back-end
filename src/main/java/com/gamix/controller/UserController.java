@@ -42,7 +42,7 @@ public class UserController {
     @QueryMapping
     Object findUserByToken(@AuthenticationPrincipal JwtUserDetails userDetails) throws Exception {
         try {
-            System.out.println("Fui chamado.");
+            System.out.println(">>>>>>>>>>>>>>>>>> Fui chamado. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             String accessToken = userDetails.getAccessToken();
             User user = userService.findUserByToken(accessToken);
             return user;

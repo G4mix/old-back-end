@@ -22,11 +22,16 @@ import com.gamix.security.JwtAuthenticationProvider;
 import com.gamix.security.JwtAuthenticationTokenFilter;
 import com.gamix.security.JwtSuccessHandler;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 @EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 public class JwtSecurityConfig  {
     @Autowired
     private JwtAuthenticationProvider authenticationProvider;
+
+    @Autowired
+    private Dotenv dotenv;
 
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -61,7 +66,7 @@ public class JwtSecurityConfig  {
     public CorsConfigurationSource corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         
-        //config.addAllowedOrigin(dotenv.get("FRONT_END_BASE_URL"));
+        config.addAllowedOrigin(dotenv.get("FRONT_END_BASE_URL"));
         config.addAllowedOrigin("*");
         config.addAllowedMethod("POST");
         config.addAllowedHeader(HttpHeaders.AUTHORIZATION);
