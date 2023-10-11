@@ -13,7 +13,6 @@ import com.gamix.interfaces.security.JwtManagerInterface;
 import com.gamix.models.User;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.UserRepository;
-import com.gamix.service.InvalidTokenService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
@@ -24,9 +23,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtManager implements JwtManagerInterface {
     @Autowired
     private Dotenv dotenv;
-
-    @Autowired
-    private InvalidTokenService invalidTokenService;
 
     @Autowired
     private UserRepository userRepository;
@@ -53,21 +49,13 @@ public class JwtManager implements JwtManagerInterface {
         Optional<User> user = userRepository.findById(Integer.parseInt(body.getSubject()));
 
         boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-        boolean isTokenOnBlacklist = invalidTokenService.isTokenOnBlacklist(token);
         boolean invalidUser = !user.isPresent();
         boolean invalidPasswordUser = user.get().getPasswordUser() != null 
             && !(body.get("password").toString().equals(user.get().getPasswordUser().getPassword()));
         
-        if (isExpired || isTokenOnBlacklist || invalidUser || invalidPasswordUser) return false;
+        if (isExpired || invalidUser || invalidPasswordUser) return false;
 
         return true;
-    }
-
-    @Override
-    public void invalidate(String token) throws TokenClaimsException {
-        Claims claims = getTokenClaims(token);
-        long expirationTimeInSeconds = (claims.getExpiration().getTime() - System.currentTimeMillis()) / 1000;
-        invalidTokenService.addInvalidToken(token, expirationTimeInSeconds);
     }
 
     @Override

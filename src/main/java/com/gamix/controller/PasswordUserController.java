@@ -2,7 +2,6 @@ package com.gamix.controller;
 
 import static com.gamix.utils.ControllerUtils.throwError;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.options.CookieOptions;
 import com.gamix.records.returns.security.JwtTokens;
@@ -80,25 +78,6 @@ public class PasswordUserController {
             );
 
             return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
-        } catch (ExceptionBase ex) {
-            return throwError(ex);
-        }
-    }
-
-    @PostMapping("/auth/signout")
-    public ResponseEntity<Object> signOutPasswordUser(
-        @RequestBody Map<String, String> requestBody
-    ) throws ExceptionBase {
-        try {
-            SignOutPasswordUserInput signOutPasswordUserInput = new SignOutPasswordUserInput (
-                requestBody.get("accessToken"),
-                requestBody.get("refreshToken")
-            );
-
-            authService.signOutPasswordUser(signOutPasswordUserInput);
-            Map<String, Object> body = new HashMap<>();
-            body.put("success", true);
-            return ResponseEntity.status(HttpStatus.OK).body(body);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }

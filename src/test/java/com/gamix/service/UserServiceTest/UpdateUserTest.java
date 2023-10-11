@@ -51,8 +51,7 @@ public class UpdateUserTest {
     @Test
     public void testUpdateUserSuccess() throws ExceptionBase {
         int userId = 1;
-        PartialUserInput partialUserInput = new PartialUserInput();
-        partialUserInput.setUsername("newUsername");
+        PartialUserInput partialUserInput = new PartialUserInput("newUsername", null);
 
         User existingUser = new User();
         existingUser.setId(userId);
@@ -73,8 +72,7 @@ public class UpdateUserTest {
     @Test
     public void testUpdateUserUserNotFound() throws ExceptionBase {
         int nonExistentUserId = 1;
-        PartialUserInput partialUserInput = new PartialUserInput();
-        partialUserInput.setUsername("newUsername");
+        PartialUserInput partialUserInput = new PartialUserInput("newUsername", null);
 
         when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
 

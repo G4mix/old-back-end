@@ -25,10 +25,8 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.gamix.models.InvalidToken;
 import com.gamix.models.PasswordUser;
 import com.gamix.repositories.PasswordUserRepository;
-import com.gamix.service.InvalidTokenService;
 import com.gamix.service.PasswordUserService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -39,9 +37,6 @@ public class SystemStartupServiceTest {
 
     @Mock
     private PasswordUserRepository passwordUserRepository;
-
-    @Mock
-    private InvalidTokenService invalidTokenService;
 
     @InjectMocks
     private SystemStartupService systemStartupService;
@@ -100,24 +95,6 @@ public class SystemStartupServiceTest {
         assertEquals(0, loginAttemptsAfter);
     }    
 
-
-    @Test
-    public void testProcessUnbannedTokens() throws Exception {
-        List<InvalidToken> unbannedTokens = Arrays.asList(
-            new InvalidToken().setToken("token1").setBannedUntil(LocalDateTime.now().plusSeconds(10L)),
-            new InvalidToken().setToken("token2").setBannedUntil(LocalDateTime.now().plusSeconds(5L))
-        );
-    
-        when(invalidTokenService.findTokensToUnbanNow()).thenReturn(unbannedTokens);
-    
-        Method method = SystemStartupService.class.getDeclaredMethod("processUnbannedTokens");
-        method.setAccessible(true);
-        method.invoke(systemStartupService);
-    
-        verify(invalidTokenService, times(1)).deleteInvalidToken("token1");
-        verify(invalidTokenService, times(1)).deleteInvalidToken("token2");
-    }
-
     @Test
     public void testScheduleUnbanTasksForRemainingBannedUsers() throws Exception {
         List<PasswordUser> remainingBannedUsers = Arrays.asList(
@@ -128,22 +105,6 @@ public class SystemStartupServiceTest {
         when(passwordUserService.findUsersToUnbanSoon()).thenReturn(remainingBannedUsers);
 
         Method method = SystemStartupService.class.getDeclaredMethod("scheduleUnbanTasksForRemainingBannedUsers");
-        method.setAccessible(true);
-        method.invoke(systemStartupService);
-
-        verify(scheduler, times(2)).schedule(any(Runnable.class), any(Long.class), any(TimeUnit.class));
-    }
-
-    @Test
-    public void testScheduleUnbanTasksForRemainingBannedTokens() throws Exception {
-        List<InvalidToken> remainingBannedTokens = Arrays.asList(
-            new InvalidToken().setToken("token1").setBannedUntil(LocalDateTime.now().plusSeconds(10)),
-            new InvalidToken().setToken("token2").setBannedUntil(LocalDateTime.now().plusSeconds(5))
-        );
-
-        when(invalidTokenService.findTokensToUnbanSoon()).thenReturn(remainingBannedTokens);
-
-        Method method = SystemStartupService.class.getDeclaredMethod("scheduleUnbanTasksForRemainingBannedTokens");
         method.setAccessible(true);
         method.invoke(systemStartupService);
 

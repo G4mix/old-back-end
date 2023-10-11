@@ -1,6 +1,5 @@
 package com.gamix;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 
 @SpringBootTest(classes = GamixApplication.class)
@@ -71,25 +69,6 @@ class GamixApplicationTests {
 			.content(objectMapper.writeValueAsString(findAllRequestBody))
 			.header(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken))
 			.andExpect(status().isOk());
-
-		// Fazendo o signOut
-        SignOutPasswordUserInput signOutPasswordUserInput = new SignOutPasswordUserInput(accessToken, refreshToken);
-        MvcResult signOutResult = mockMvc.perform(post("/auth/signout")
-			.contentType("application/json")
-			.content(objectMapper.writeValueAsString(signOutPasswordUserInput)))
-			.andExpect(status().isOk())
-			.andReturn();
-
-		String signOutResponseBody = signOutResult.getResponse().getContentAsString();
-		jsonNode = objectMapper.readTree(signOutResponseBody);
-		assertTrue(jsonNode.get("success").asBoolean());
-
-		// Executar o findAll com o AccessToken no header
-		mockMvc.perform(post("/graphql")
-			.contentType("application/json")
-			.content(objectMapper.writeValueAsString(findAllRequestBody))
-			.header(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken))
-			.andExpect(status().isUnauthorized());
 		
 		// Fazendo o signIn
         SignInPasswordUserInput signInPasswordUserInput = new SignInPasswordUserInput(

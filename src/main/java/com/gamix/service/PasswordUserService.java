@@ -13,10 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
-import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.authentication.InvalidRefreshToken;
 import com.gamix.exceptions.authentication.NullJwtTokens;
-import com.gamix.exceptions.authentication.TokensDoNotMatchException;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
 import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
@@ -26,7 +24,6 @@ import com.gamix.interfaces.services.PasswordUserServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.PasswordUserController.SignOutPasswordUserInput;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
@@ -123,19 +120,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     }
 
     @Override
-    public void signOutPasswordUser(SignOutPasswordUserInput signOutPasswordUserInput) throws ExceptionBase {
-        Claims accessToken = jwtManager.getTokenClaims(signOutPasswordUserInput.accessToken());
-        Claims refreshToken = jwtManager.getTokenClaims(signOutPasswordUserInput.refreshToken());
-
-        if (!jwtManager.validate(signOutPasswordUserInput.accessToken())) throw new InvalidAccessToken();
-        if (!jwtManager.validate(signOutPasswordUserInput.refreshToken())) throw new InvalidRefreshToken();
-        if (!accessToken.getSubject().equals(refreshToken.getSubject())) throw new TokensDoNotMatchException();
-
-        jwtManager.invalidate(signOutPasswordUserInput.accessToken());
-        jwtManager.invalidate(signOutPasswordUserInput.refreshToken());
-    }
-
-    @Override
     public JwtTokens refreshToken(String refreshToken) throws ExceptionBase {
         if (!jwtManager.validate(refreshToken)) throw new InvalidRefreshToken();
         
@@ -143,9 +127,25 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         Integer id = Integer.parseInt(body.getSubject());
         boolean rememberMe = (boolean) body.get("rememberMe");
         User user = userService.findUserById(id);
-        jwtManager.invalidate(refreshToken);
         
         return jwtManager.generateJwtTokens(id, user.getPasswordUser().getPassword(), rememberMe);
+    }
+
+    @Override
+    public List<PasswordUser> findUsersToUnbanNow() {
+        return passwordUserRepository.findUsersToUnbanNow();
+    }
+    
+    @Override
+    public List<PasswordUser> findUsersToUnbanSoon() {
+        return passwordUserRepository.findUsersToUnbanSoon();
+    }
+
+    @Override
+    public void unbanUser(PasswordUser userToUnban) {
+        userToUnban.setBlockedUntil(null);
+        userToUnban.setLoginAttempts(0);
+        passwordUserRepository.save(userToUnban);
     }
 
     @Override
@@ -156,20 +156,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             .setVerifiedEmail(false);
 
         return passwordUserRepository.save(passwordUser);
-    }
-
-    public void unbanUser(PasswordUser userToUnban) {
-        userToUnban.setBlockedUntil(null);
-        userToUnban.setLoginAttempts(0);
-        passwordUserRepository.save(userToUnban);
-    }
-
-    public List<PasswordUser> findUsersToUnbanNow() {
-        return passwordUserRepository.findUsersToUnbanNow();
-    }
-
-    public List<PasswordUser> findUsersToUnbanSoon() {
-        return passwordUserRepository.findUsersToUnbanSoon();
     }
 
     private void handleFailedLoginAttempt(PasswordUser passwordUser) {

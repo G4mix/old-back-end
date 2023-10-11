@@ -10,9 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.gamix.models.InvalidToken;
 import com.gamix.models.PasswordUser;
-import com.gamix.service.InvalidTokenService;
 import com.gamix.service.PasswordUserService;
 
 import jakarta.annotation.PostConstruct;
@@ -22,17 +20,12 @@ public class SystemStartupService {
     @Autowired
     private PasswordUserService passwordUserService;
 
-    @Autowired
-    private InvalidTokenService invalidTokenService;
-
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @PostConstruct
     public void initialize() {
         processUnbannedUsers();
-        processUnbannedTokens();
         scheduleUnbanTasksForRemainingBannedUsers();
-        scheduleUnbanTasksForRemainingBannedTokens();
     }
 
     private void processUnbannedUsers() {
@@ -40,15 +33,6 @@ public class SystemStartupService {
 
         for (PasswordUser unbannedUser : unbannedUsers) {
             passwordUserService.unbanUser(unbannedUser);
-        }
-    }
-
-
-    private void processUnbannedTokens() {
-        List<InvalidToken> unbannedTokens = invalidTokenService.findTokensToUnbanNow();
-
-        for (InvalidToken token : unbannedTokens) {
-            invalidTokenService.deleteInvalidToken(token.getToken());
         }
     }
 
@@ -63,22 +47,6 @@ public class SystemStartupService {
             if (timeUntilUnban > 0) {
                 scheduler.schedule(() -> {
                     passwordUserService.unbanUser(passwordUser);
-                }, timeUntilUnban, TimeUnit.SECONDS);
-            }
-        }
-    }
-    
-    private void scheduleUnbanTasksForRemainingBannedTokens() {
-        List<InvalidToken> remainingBannedTokens = invalidTokenService.findTokensToUnbanSoon();
-
-        for (InvalidToken bannedToken : remainingBannedTokens) {
-            LocalDateTime currentDateTime = LocalDateTime.now();
-            Duration duration = Duration.between(currentDateTime, bannedToken.getBannedUntil());
-            long timeUntilUnban = duration.getSeconds();
-            System.out.println(timeUntilUnban);
-            if (timeUntilUnban > 0) {
-                scheduler.schedule(() -> {
-                    invalidTokenService.deleteInvalidToken(bannedToken.getToken());
                 }, timeUntilUnban, TimeUnit.SECONDS);
             }
         }

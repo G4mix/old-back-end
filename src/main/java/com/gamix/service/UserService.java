@@ -70,13 +70,13 @@ public class UserService implements UserServiceInterface {
         User userToUpdate = findUserByToken(accessToken);
 
         userToUpdate.setUsername(
-            userInput.getUsername() != null 
-            ? userInput.getUsername() 
+            userInput.username() != null 
+            ? userInput.username() 
             : userToUpdate.getUsername()
         );
         userToUpdate.setIcon(
-            userInput.getIcon() != null 
-            ? userInput.getIcon() 
+            userInput.icon() != null 
+            ? userInput.icon() 
             : userToUpdate.getIcon()
         );
 

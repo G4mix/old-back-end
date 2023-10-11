@@ -13,6 +13,6 @@ public interface UserServiceInterface {
     public User findUserByEmail(String email) throws ExceptionBase;
     public User findUserByUsername(String username) throws ExceptionBase;
     public User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase;
-    public User createUser(String username, String email, String icon);
     public boolean deleteAccount(String accessToken) throws ExceptionBase;
+    public User createUser(String username, String email, String icon);
 }

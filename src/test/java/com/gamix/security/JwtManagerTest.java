@@ -9,25 +9,19 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.gamix.exceptions.authentication.TokenClaimsException;
 import com.gamix.records.returns.security.JwtTokens;
-import com.gamix.service.InvalidTokenService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@RunWith(MockitoJUnitRunner.class)
 public class JwtManagerTest {
 
     @Mock
     private Dotenv dotenv;
-
-    @Mock
-    private InvalidTokenService invalidTokenService;
 
     @InjectMocks
     private JwtManager jwtManager;
