@@ -68,18 +68,20 @@ public class UserService implements UserServiceInterface {
     @Override
     public User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase {
         User userToUpdate = findUserByToken(accessToken);
-
-        userToUpdate.setUsername(
-            userInput.username() != null 
-            ? userInput.username() 
-            : userToUpdate.getUsername()
-        );
-        userToUpdate.setIcon(
-            userInput.icon() != null 
-            ? userInput.icon() 
-            : userToUpdate.getIcon()
-        );
-
+        boolean fieldsModified = false;
+    
+        if (userInput.username() != null) {
+            userToUpdate.setUsername(userInput.username());
+            fieldsModified = true;
+        }
+    
+        if (userInput.icon() != null) {
+            userToUpdate.setIcon(userInput.icon());
+            fieldsModified = true;
+        }
+    
+        if (fieldsModified) userToUpdate.incrementVersion();
+        
         return userRepository.save(userToUpdate);
     }
     
