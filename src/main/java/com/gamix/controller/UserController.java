@@ -57,13 +57,10 @@ public class UserController {
             User user = userService.findUserByToken(accessToken);
 
             String ifNoneMatch = request.getHeader(HttpHeaders.IF_NONE_MATCH);
+            String etag = calculateETag(user.getVersion());
+            response.setHeader(HttpHeaders.ETAG, etag);
+            if(etag.equals(ifNoneMatch)) return null;
             
-            if (ifNoneMatch != null && !ifNoneMatch.isEmpty()) {
-                String etag = calculateETag(user.getVersion());
-                response.setHeader(HttpHeaders.ETAG, etag);
-                if(etag.equals(ifNoneMatch)) return null;
-            }
-
             return user;
         } catch (ExceptionBase ex) {
             throw ex;

@@ -21,7 +21,7 @@ public class CookieUtils {
         Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(3600);
-        //accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setHttpOnly(options.isSecure());
 
         Map<String, String> cookieStrings = new HashMap<>();
         cookieStrings.put("refreshToken", buildSetCookieString(refreshTokenCookie, options.isSecure()));
