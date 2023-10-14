@@ -14,13 +14,6 @@ public class ParameterValidator {
         else if (!username.matches("^[a-zA-Z0-9_]*$")) throw new UsernameInvalidFormat();
     }
 
-    public static void validateEmail(String email) throws ExceptionBase {
-        if (email == null) throw new EmailNull();
-        else if (email.isEmpty()) throw new EmailEmpty();
-        else if (email.length() > 320) throw new EmailTooLong();
-        else if (!email.matches("^\\w+@gmail\\.com$")) throw new EmailInvalidFormat();
-    }
-    
     public static void validatePassword(String password) throws ExceptionBase {
         if (password == null) throw new PasswordNull();
         else if (password.length() < 8) throw new PasswordTooShort();
@@ -28,5 +21,12 @@ public class ParameterValidator {
         else if (!password.matches(".*\\d.*")) throw new PasswordMissingNumber();
         else if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) throw new PasswordMissingSpecialChar();
         else if (!password.matches(".*[A-Z].*")) throw new PasswordMissingUppercase();
+    }
+
+    public static void validateEmail(String email) throws ExceptionBase {
+        if (email == null) throw new EmailNull();
+        else if (email.isEmpty()) throw new EmailEmpty();
+        else if (email.length() > 320) throw new EmailTooLong();
+        else if (!email.matches("^\\w+@gmail\\.com$")) throw new EmailInvalidFormat();
     }
 }

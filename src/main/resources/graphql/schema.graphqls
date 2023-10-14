@@ -3,7 +3,6 @@ type User {
     username: String!
     email: String!
     icon: String
-    socialAccounts: [SocialAccount]
     passwordUser: PasswordUser
 }
 
@@ -11,13 +10,6 @@ type PasswordUser {
     id: Int!
     user: User!
     verifiedEmail: Boolean
-}
-
-type SocialAccount {
-    id: Int!
-    user: User!
-    provider: String!
-    socialAccountId: String!
 }
 
 type Query {

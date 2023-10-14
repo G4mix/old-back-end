@@ -130,7 +130,7 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
   
 ```json
 {
-  "query": "query FindAllUsers($skip: Int, $limit: Int) { findAllUsers(skip: $skip, limit: $limit) { id username email icon socialAccounts { id user { id } provider socialAccountId } passwordUser { id verifiedEmail } } }",
+  "query": "query FindAllUsers($skip: Int, $limit: Int) { findAllUsers(skip: $skip, limit: $limit) { id username email icon passwordUser { id verifiedEmail } } }",
   "variables": {
     "skip": 0,
     "limit": 10

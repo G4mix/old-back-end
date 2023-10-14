@@ -3,22 +3,24 @@ package com.gamix.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gamix.enums.ExpirationTime;
 import com.gamix.records.options.CookieOptions;
+import com.gamix.records.returns.security.JwtTokens;
 
 import jakarta.servlet.http.Cookie;
 
 public class CookieUtils {
-    public static Map<String, String> generateCookies(String accessToken, String refreshToken, CookieOptions options) {
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+    public static Map<String, String> generateCookies(JwtTokens jwtTokens, CookieOptions options) {
+        Cookie refreshTokenCookie = new Cookie("refreshToken", jwtTokens.refreshToken());
         refreshTokenCookie.setPath("/");
-        if (options.rememberMe()) {
-            refreshTokenCookie.setMaxAge(30 * 24 * 60 * 60);
-        } else {
-            refreshTokenCookie.setMaxAge(24 * 60 * 60);
-        }
+        refreshTokenCookie.setMaxAge(
+            options.rememberMe()
+            ? ((int)(ExpirationTime.REMEMBER_ME.getValue()/1000))
+            : ((int)(ExpirationTime.REFRESH_TOKEN.getValue()/1000))
+        );
         refreshTokenCookie.setSecure(options.isSecure());
 
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+        Cookie accessTokenCookie = new Cookie("accessToken", jwtTokens.accessToken());
         accessTokenCookie.setPath("/");
         accessTokenCookie.setMaxAge(3600);
         accessTokenCookie.setSecure(options.isSecure());

@@ -1,14 +1,11 @@
 package com.gamix.models;
 
-import java.util.List;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
@@ -31,9 +28,6 @@ public class User {
 
     @Version
     private long version = 0;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<SocialAccount> socialAccounts;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private PasswordUser passwordUser;
@@ -80,15 +74,6 @@ public class User {
 
     public void incrementVersion() {
         version++;
-    }
-
-    public List<SocialAccount> getSocialAccounts() {
-        return socialAccounts;
-    }
-
-    public User setSocialAccounts(List<SocialAccount> socialAccounts) {
-        this.socialAccounts = socialAccounts;
-        return this;
     }
 
     public PasswordUser getPasswordUser() {

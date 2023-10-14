@@ -43,9 +43,7 @@ public class PasswordUserController {
             JwtTokens jwtTokens = authService.signUpPasswordUser(signUpPasswordUserInput);
 
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                jwtTokens.accessToken(), 
-                jwtTokens.refreshToken(), 
-                new CookieOptions(false, req.isSecure())
+                jwtTokens, new CookieOptions(false, req.isSecure())
             );
     
             return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
@@ -72,9 +70,7 @@ public class PasswordUserController {
             );
             
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                jwtTokens.accessToken(), 
-                jwtTokens.refreshToken(),
-                new CookieOptions(signInPasswordUserInput.rememberMe(), req.isSecure())
+                jwtTokens, new CookieOptions(signInPasswordUserInput.rememberMe(), req.isSecure())
             );
 
             return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
@@ -92,9 +88,7 @@ public class PasswordUserController {
             JwtTokens refreshedTokens = authService.refreshToken(requestBody.get("refreshToken"));
 
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                refreshedTokens.accessToken(), 
-                refreshedTokens.refreshToken(),
-                new CookieOptions(refreshedTokens.rememberMe(), req.isSecure())
+                refreshedTokens, new CookieOptions(refreshedTokens.rememberMe(), req.isSecure())
             );
             
             return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
