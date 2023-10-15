@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 public class PasswordUserController {
     @Autowired
-    private PasswordUserService authService;
+    private PasswordUserService passwordUserService;
 
     @PostMapping("/auth/signup")
     public ResponseEntity<Object> signUpPasswordUser(
@@ -40,7 +40,7 @@ public class PasswordUserController {
                 requestBody.get("password")
             );
 
-            JwtTokens jwtTokens = authService.signUpPasswordUser(signUpPasswordUserInput);
+            JwtTokens jwtTokens = passwordUserService.signUpPasswordUser(signUpPasswordUserInput);
 
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
                 jwtTokens, new CookieOptions(false, req.isSecure())
@@ -65,7 +65,7 @@ public class PasswordUserController {
                 Boolean.parseBoolean(requestBody.get("rememberMe"))
             );
 
-            JwtTokens jwtTokens = authService.signInPasswordUser(
+            JwtTokens jwtTokens = passwordUserService.signInPasswordUser(
                 signInPasswordUserInput
             );
             
@@ -85,7 +85,7 @@ public class PasswordUserController {
         HttpServletRequest req
     ) throws ExceptionBase {
         try {
-            JwtTokens refreshedTokens = authService.refreshToken(requestBody.get("refreshToken"));
+            JwtTokens refreshedTokens = passwordUserService.refreshToken(requestBody.get("refreshToken"));
 
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
                 refreshedTokens, new CookieOptions(refreshedTokens.rememberMe(), req.isSecure())
