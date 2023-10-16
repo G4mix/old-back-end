@@ -1,7 +1,5 @@
 package com.gamix.controller;
 
-import static com.gamix.utils.ControllerUtils.calculateETag;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +8,6 @@ import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandle
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
-import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,19 +22,11 @@ import com.gamix.service.UserService;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class UserController {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private HttpServletRequest request;
-
-    @Autowired
-    private HttpServletResponse response;
 
     @PreAuthorize("hasAuthority('USER')")  
     @QueryMapping
@@ -54,13 +43,7 @@ public class UserController {
     Object findUserByToken(@AuthenticationPrincipal JwtUserDetails userDetails) throws Exception {
         try {
             String accessToken = userDetails.getAccessToken();
-            User user = userService.findUserByToken(accessToken);
-
-            String ifNoneMatch = request.getHeader(HttpHeaders.IF_NONE_MATCH);
-            String etag = calculateETag(user.getVersion());
-            response.setHeader(HttpHeaders.ETAG, etag);
-            if(etag.equals(ifNoneMatch)) return null;
-            
+            User user = userService.findUserByToken(accessToken);            
             return user;
         } catch (ExceptionBase ex) {
             throw ex;

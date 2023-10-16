@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 
 @Entity
 @Table(name="users")
@@ -25,9 +24,6 @@ public class User {
     
     @Column(nullable = true, length = 120)
     private String icon;
-
-    @Version
-    private long version = 0;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private PasswordUser passwordUser;
@@ -66,14 +62,6 @@ public class User {
     public User setIcon(String icon) {
         this.icon = icon;
         return this;
-    }
-
-    public long getVersion() {
-        return version;
-    }
-
-    public void incrementVersion() {
-        version++;
     }
 
     public PasswordUser getPasswordUser() {
