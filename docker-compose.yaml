@@ -1,0 +1,26 @@
+version: "3.1"
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    command: >
+      -c config_file=/mnt/sda1/var/lib/postgresql/data/postgresql.conf
+    volumes:
+      - pg_data:/var/lib/postgres/data
+      - ${PWD}/postgres_config/postgresql.conf:/mnt/sda1/var/lib/postgresql/data/postgresql.conf
+    ports:
+      - "5432:5432"
+    networks:
+      - backend_network
+
+volumes:
+  pg_data:
+
+networks:
+  backend_network:
+    driver: bridge
