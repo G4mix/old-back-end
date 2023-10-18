@@ -1,9 +1,17 @@
 #!/bin/bash
 
-set -e
+# Script para aguardar a disponibilidade de um serviço TCP
+# Exemplo de uso:
+#   ./wait-for-db.sh host porta -t tempo_de_espera
 
-echo "Esperando pelo banco de dados..."
+host=$1
+port=$2
+timeout=${3:-15}
 
-dockerize -wait tcp://database:5432 -timeout 60 mvn package
+# Utilizando um loop while para esperar até que a conexão seja estabelecida
+while ! nc -v $host $port </dev/null; do
+    echo "Esperando por $host:$port ..."
+    sleep 1
+done
 
-echo "Banco de dados está pronto!"
+echo "$host:$port está disponível!"

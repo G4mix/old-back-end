@@ -21,10 +21,11 @@ services:
     build: .
     container_name: backend
     command: >
-      /bin/sh -c "chmod +x run.sh && ./run.sh"
+      /bin/sh -c "chmod +x wait-for-db.sh && ./wait-for-db.sh database 5432 && chmod +x run.sh && ./run.sh"
     volumes:
       - ./src:/app/src
       - ./run.sh:/app/run.sh
+      - ./wait-for-db.sh:/app/wait-for-db.sh
     env_file:
       - .env
     restart: always
@@ -34,6 +35,8 @@ services:
       - database
     networks:
       - backend_network
+    links:
+      - database
 
 volumes:
   pg_data:

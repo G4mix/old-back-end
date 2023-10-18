@@ -7,4 +7,5 @@ FROM openjdk:17.0.2-jdk
 WORKDIR /app
 COPY --from=dependencies /app/dependencies /app/.m2/repository
 COPY src /app/src
+RUN microdnf install -y nc
 CMD ["bash"]
