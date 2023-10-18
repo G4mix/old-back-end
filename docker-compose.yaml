@@ -20,14 +20,14 @@ services:
   backend:
     build: .
     container_name: backend
+    command: >
+      /bin/sh -c "chmod +x run.sh && ./run.sh"
+    volumes:
+      - ./src:/app/src
+      - ./run.sh:/app/run.sh
+    env_file:
+      - .env
     restart: always
-    environment:
-      - "SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver"
-      - "SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/postgres"
-      - "SPRING_DATASOURCE_USERNAME=postgres"
-      - "SPRING_DATASOURCE_PASSWORD=root"
-      - "JWT_SIGNING_KEY_SECRET=Graphql"
-      - "FRONT_END_BASE_URL=http://localhost:3000"
     ports:
       - 8080:8080
     depends_on:
@@ -40,3 +40,4 @@ volumes:
 
 networks:
   backend_network:
+    driver: bridge

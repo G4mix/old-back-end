@@ -18,7 +18,7 @@ public class DotenvConfig {
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         Dotenv dotenv = dotenv();
-        dataSource.setDriverClassName(dotenv.get("SPRING_DATASOURCE_DRIVER-CLASS-NAME"));
+        dataSource.setDriverClassName(dotenv.get("SPRING_DATASOURCE_DRIVER_CLASS_NAME"));
         dataSource.setUrl(dotenv.get("SPRING_DATASOURCE_URL"));
         dataSource.setUsername(dotenv.get("SPRING_DATASOURCE_USERNAME"));
         dataSource.setPassword(dotenv.get("SPRING_DATASOURCE_PASSWORD"));
