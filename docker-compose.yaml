@@ -21,12 +21,11 @@ services:
     image: maven:3.9-eclipse-temurin-17-alpine
     container_name: backend
     command: >
-      /bin/sh -c "cd /app && chmod +x wait_for_database.sh && ./wait_for_database.sh database 5432 && mvn spring-boot:run"
+      /bin/sh -c "cd /app && echo -e '#!/bin/bash\n\nhost=\$1\nport=\$2\ntimeout=\${3:-15}\n\nwhile ! nc -v \$host \$port </dev/null; do\necho \"Esperando por \$host:\$port ...\"\nsleep 1\ndone\necho \"\$host:\$port está disponível!\"' > wait_for_database.sh && chmod +x wait_for_database.sh && ./wait_for_database.sh database 5432 && mvn spring-boot:run"
     volumes:
       - ./src:/app/src
       - ./pom.xml:/app/pom.xml
       - ./.env:/app/.env
-      - ./wait_for_database.sh:/app/wait_for_database.sh
       - maven_cache:/root/.m2
     env_file:
       - .env
