@@ -21,7 +21,7 @@ services:
     image: maven:3.9-eclipse-temurin-17-alpine
     container_name: backend
     command: >
-      /bin/sh -c "cd /app && chmod +x wait_for_database.sh && ls && ./wait_for_database.sh database 5432 && mvn spring-boot:run"
+      /bin/sh -c "cd /app && chmod +x wait_for_database.sh && ./wait_for_database.sh database 5432 && mvn spring-boot:run"
     volumes:
       - ./src:/app/src
       - ./pom.xml:/app/pom.xml
