@@ -21,12 +21,12 @@ services:
     image: maven:3.9-eclipse-temurin-17-alpine
     container_name: backend
     command: >
-      /bin/sh -c "apk add entr && cd /app && chmod +x wait-for-db.sh && ./wait-for-db.sh database 5432 && mvn spring-boot:run"
+      /bin/sh -c "cd /app && chmod +x wait_for_database.sh && ls && ./wait_for_database.sh database 5432 && mvn spring-boot:run"
     volumes:
       - ./src:/app/src
       - ./pom.xml:/app/pom.xml
       - ./.env:/app/.env
-      - ./wait-for-db.sh:/app/wait-for-db.sh
+      - ./wait_for_database.sh:/app/wait_for_database.sh
       - maven_cache:/root/.m2
     env_file:
       - .env

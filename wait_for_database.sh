@@ -2,7 +2,7 @@
 
 # Script para aguardar a disponibilidade de um serviço TCP
 # Exemplo de uso:
-#   ./wait-for-db.sh host porta -t tempo_de_espera
+#   ./wait_database.sh host porta -t tempo_de_espera
 
 host=$1
 port=$2
