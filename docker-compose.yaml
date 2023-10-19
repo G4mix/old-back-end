@@ -2,7 +2,7 @@ version: "3.1"
 services:
   database:
     image: postgres:16-alpine
-    container_name: postgres
+    container_name: database
     restart: always
     environment:
       - POSTGRES_DB=postgres
@@ -18,14 +18,16 @@ services:
     networks:
       - backend_network
   backend:
-    build: .
+    image: maven:3.9-eclipse-temurin-17-alpine
     container_name: backend
     command: >
-      /bin/sh -c "chmod +x wait-for-db.sh && ./wait-for-db.sh database 5432 && chmod +x run.sh && ./run.sh"
+      /bin/sh -c "apk add entr && cd /app && chmod +x wait-for-db.sh && ./wait-for-db.sh database 5432 && mvn spring-boot:run"
     volumes:
       - ./src:/app/src
-      - ./run.sh:/app/run.sh
+      - ./pom.xml:/app/pom.xml
+      - ./.env:/app/.env
       - ./wait-for-db.sh:/app/wait-for-db.sh
+      - maven_cache:/root/.m2
     env_file:
       - .env
     restart: always
@@ -40,6 +42,7 @@ services:
 
 volumes:
   pg_data:
+  maven_cache:
 
 networks:
   backend_network:
