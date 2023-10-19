@@ -45,7 +45,6 @@ public class PasswordUserController {
             Map<String, String> cookieStrings = CookieUtils.generateCookies(
                 jwtTokens, new CookieOptions(false, req.isSecure())
             );
-            cookieStrings.put("teste", "som");
     
             return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
         } catch(ExceptionBase ex) {
