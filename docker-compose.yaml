@@ -23,10 +23,7 @@ services:
     volumes:
       - ${PWD}/src:/app/src
       - ${PWD}/pom.xml:/app/pom.xml
-      - ${PWD}/.env:/app/.env
       - maven_cache:/root/.m2
-    env_file:
-      - .env
     restart: always
     ports:
       - 8080:8080
