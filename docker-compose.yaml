@@ -24,7 +24,6 @@ services:
       - ${PWD}/src:/app/src
       - ${PWD}/pom.xml:/app/pom.xml
       - ${PWD}/.env:/app/.env
-      - maven_cache:/root/.m2
     env_file:
       - .env
     restart: always
@@ -39,7 +38,6 @@ services:
 
 volumes:
   pg_data:
-  maven_cache:
 
 networks:
   backend_network:
