@@ -20,17 +20,31 @@ services:
   backend:
     build: .
     container_name: backend
-    volumes:
-      - ${PWD}/src:/app/src
-      - ${PWD}/pom.xml:/app/pom.xml
-      - maven_cache:/root/.m2
     restart: always
+    environment:
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - JWT_SIGNING_KEY_SECRET=Graphql
+      - FRONT_END_BASE_URL=http://localhost:3000
+    volumes:
+      - ./src:/app/src
+      - ./.env:/app/.env
+      - ./graphql.config.yml:/app/graphql.config.yml
+      - ./pom.xml:/app/pom.xml
+      - ./target:/app/target
+      - maven_cache:/root/.m2
+    command: >
+      /bin/sh -c 'chmod +x docker-entrypoint.sh && ./docker-entrypoint.sh'
     ports:
       - 8080:8080
-    depends_on:
-      - database
+      - 35729:35729
+      - 5005:5005
     networks:
       - backend_network
+    depends_on:
+      - database
     links:
       - database
 
