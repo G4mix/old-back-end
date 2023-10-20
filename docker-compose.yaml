@@ -18,18 +18,12 @@ services:
     networks:
       - backend_network
   backend:
-    image: maven:3.9-eclipse-temurin-17-alpine
+    build: .
     container_name: backend
-    command: >
-      /bin/sh -c "cd /app && chmod +x wait_for_database.sh && ./wait_for_database.sh database 5432 && mvn spring-boot:run"
     volumes:
-      - ./src:/app/src
-      - ./pom.xml:/app/pom.xml
-      - ./.env:/app/.env
-      - ./wait_for_database.sh:/app/wait_for_database.sh
+      - ${PWD}/src:/app/src
+      - ${PWD}/pom.xml:/app/pom.xml
       - maven_cache:/root/.m2
-    env_file:
-      - .env
     restart: always
     ports:
       - 8080:8080
