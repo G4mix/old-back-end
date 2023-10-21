@@ -18,7 +18,9 @@ services:
     networks:
       - backend_network
   backend:
-    build: .
+    build:
+      context: ./
+      dockerfile: dev.Dockerfile
     container_name: backend
     restart: always
     environment:
@@ -30,13 +32,12 @@ services:
       - FRONT_END_BASE_URL=http://localhost:3000
     volumes:
       - ./src:/app/src
-      - ./.env:/app/.env
       - ./graphql.config.yml:/app/graphql.config.yml
       - ./pom.xml:/app/pom.xml
       - ./target:/app/target
       - maven_cache:/root/.m2
     command: >
-      /bin/sh -c 'chmod +x docker-entrypoint.sh && ./docker-entrypoint.sh'
+      /bin/sh -c './scripts/config_dev_env.sh && ./scripts/dev.sh'
     ports:
       - 8080:8080
       - 35729:35729
