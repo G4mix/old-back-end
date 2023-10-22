@@ -1,4 +1,4 @@
-version: "3.1"
+version: "3.3"
 services:
   database:
     image: postgres:16-alpine
@@ -34,13 +34,15 @@ services:
       - ./pom.xml:/app/pom.xml
       - ./target:/app/target
       - ./docker/development:/app/scripts
+      - dockerize_cache:/bin/dockerize
       - maven_cache:/root/.m2
     command: >
       /bin/sh -c '\
         apk update --no-cache && \
-        apk add --no-cache findutils wget openssl inotify-tools dos2unix && \
-        wget -O - https://github.com/jwilder/dockerize/releases/download/v0.7.0/dockerize-linux-amd64-v0.7.0.tar.gz | tar xzf - -C /usr/local/bin && \
-        apk del wget && \
+        apk add --no-cache findutils wget openssl inotify-tools dos2unix
+        if [ ! -e /bin/dockerize ]; then \
+          wget -O - https://github.com/jwilder/dockerize/releases/download/v0.7.0/dockerize-linux-amd64-v0.7.0.tar.gz | tar xzf - -C /bin; \
+        fi && \
         find /app/scripts -type f -name "*.sh" -exec dos2unix {} \; && \
         chmod +x /app/scripts/*.sh && \
         /app/scripts/config_dev_env.sh && \
@@ -59,6 +61,7 @@ services:
 volumes:
   pg_data:
   maven_cache:
+  dockerize_cache:
 
 networks:
   backend_network:
