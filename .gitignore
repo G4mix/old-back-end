@@ -16,7 +16,7 @@ target/
 build/
 
 ### VS Code ###
-.vscode/
+# .vscode/
 
 # Compiled class file
 *.class

@@ -1,7 +1,5 @@
 #!/bin/sh
 
-cd /app
-
 # Verifica se o arquivo .env já existe no diretório /app
 if [ -e /app/.env ]; then
     echo "O arquivo .env já existe em /app. Nada será feito."
