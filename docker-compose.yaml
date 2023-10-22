@@ -34,7 +34,6 @@ services:
       - ./pom.xml:/app/pom.xml
       - ./target:/app/target
       - ./docker/development:/app/scripts
-      - dockerize_cache:/bin/dockerize
       - maven_cache:/root/.m2
     command: >
       /bin/sh -c '\
@@ -61,7 +60,6 @@ services:
 volumes:
   pg_data:
   maven_cache:
-  dockerize_cache:
 
 networks:
   backend_network:
