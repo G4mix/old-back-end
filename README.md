@@ -16,7 +16,7 @@ A plataforma Gamix é uma comunidade que une amantes de jogos, desenvolvedores e
 
 ## Como rodar e utilizar a API
 
-Se você deseja rodar o projeto localmente na sua máquina, siga o tutorial existente no [installation_guide.md](docs/installation_guide.md).
+Se você deseja rodar o projeto localmente na sua máquina, siga o tutorial existente no [how_to_run_guide.md](docs/how_to_run_guide.md).
 
 Para saber como utilizar a API e fazer requisições, consulte [api_usage_documentation.md](docs/api_usage_documentation.md).
 
