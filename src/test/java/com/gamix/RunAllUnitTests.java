@@ -1,3 +1,5 @@
+package com.gamix;
+
 import org.junit.runner.RunWith;
 
 import com.googlecode.junittoolbox.SuiteClasses;

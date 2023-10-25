@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
@@ -135,7 +136,7 @@ public class SignInTest {
         User mockUserWrongPassword = new User();
         mockUserWrongPassword.setPasswordUser(mockPasswordUserWrongPassword);
 
-        when(userRepository.findByEmail("wrongPassword@gmail.com")).thenReturn(Optional.of(mockUserWrongPassword));
+        lenient().when(userRepository.findByEmail("wrongPassword@gmail.com")).thenReturn(Optional.of(mockUserWrongPassword));
 
         assertThrows(PasswordWrong.class, () -> {
             passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "wrongPassword@gmail.com", "WrongPassword", false));
@@ -182,8 +183,8 @@ public class SignInTest {
         mockPasswordUserNullJwt.setPassword(hashedPassword);
         mockUserWithNullJwt.setPasswordUser(mockPasswordUserNullJwt);
 
-        when(userRepository.findByEmail("nullJwt@gmail.com")).thenReturn(Optional.of(mockUserWithNullJwt));
-        when(jwtManager.generateJwtTokens(1, "Password123!", false)).thenReturn(null);
+        lenient().when(userRepository.findByEmail("nullJwt@gmail.com")).thenReturn(Optional.of(mockUserWithNullJwt));
+        lenient().when(jwtManager.generateJwtTokens(1, "Password123!", false)).thenReturn(null);
 
         assertThrows(NullJwtTokens.class, () -> {
             passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "nullJwt@gmail.com", "Password123!", false));
