@@ -7,18 +7,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
-
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.authentication.NullJwtTokens;
@@ -62,41 +59,43 @@ public class SignInTest {
 
     @Test
     public void testSignInPasswordUserSuccessWithUsername() throws ExceptionBase {
-        SignInPasswordUserInput validUsernameInput = new SignInPasswordUserInput(
-            "validUsername", null, "Password123!", false
-        );
+        SignInPasswordUserInput validUsernameInput =
+                new SignInPasswordUserInput("validUsername", null, "Password123!", false);
         User mockUserByUsername = new User().setId(1);
         PasswordUser mockPasswordUser = new PasswordUser();
-    
+
         mockPasswordUser.setPassword(hashedPassword);
         mockUserByUsername.setPasswordUser(mockPasswordUser);
-    
-        when(userRepository.findByUsername("validUsername")).thenReturn(Optional.of(mockUserByUsername));
-    
+
+        when(userRepository.findByUsername("validUsername"))
+                .thenReturn(Optional.of(mockUserByUsername));
+
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(validUsernameInput.rememberMe()))).thenReturn(mockJwtTokens);
-    
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class),
+                eq(validUsernameInput.rememberMe()))).thenReturn(mockJwtTokens);
+
         JwtTokens tokens = passwordUserService.signInPasswordUser(validUsernameInput);
-    
+
         assertEquals("accessToken", tokens.accessToken());
         assertEquals("refreshToken", tokens.refreshToken());
     }
-    
+
     @Test
     public void testSignInPasswordUserSuccessWithEmail() throws ExceptionBase {
-        SignInPasswordUserInput validEmailInput = new SignInPasswordUserInput(
-            null, "validemail@gmail.com", "Password123!", false
-        );
+        SignInPasswordUserInput validEmailInput =
+                new SignInPasswordUserInput(null, "validemail@gmail.com", "Password123!", false);
         User mockUserByEmail = new User().setId(1);
         PasswordUser mockPasswordUser = new PasswordUser();
 
         mockPasswordUser.setPassword(hashedPassword);
         mockUserByEmail.setPasswordUser(mockPasswordUser);
 
-        when(userRepository.findByEmail("validemail@gmail.com")).thenReturn(Optional.of(mockUserByEmail));
+        when(userRepository.findByEmail("validemail@gmail.com"))
+                .thenReturn(Optional.of(mockUserByEmail));
 
         JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(validEmailInput.rememberMe()))).thenReturn(mockJwtTokens);
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class),
+                eq(validEmailInput.rememberMe()))).thenReturn(mockJwtTokens);
 
         JwtTokens tokens = passwordUserService.signInPasswordUser(validEmailInput);
         assertEquals("accessToken", tokens.accessToken());
@@ -105,10 +104,9 @@ public class SignInTest {
 
     @Test
     public void testSignInPasswordUserNotFound() throws ExceptionBase {
-        SignInPasswordUserInput invalidUserInput = new SignInPasswordUserInput(
-            null, "invalidemail@gmail.com", "Password123!", false
-        );
-        
+        SignInPasswordUserInput invalidUserInput =
+                new SignInPasswordUserInput(null, "invalidemail@gmail.com", "Password123!", false);
+
         when(userRepository.findByEmail("invalidemail@gmail.com")).thenReturn(Optional.empty());
 
         assertThrows(UserNotFound.class, () -> {
@@ -120,12 +118,12 @@ public class SignInTest {
     public void testSignInPasswordUserPasswordUserNotFound() throws ExceptionBase {
         User mockUserByEmailWithoutPasswordUser = new User();
 
-        when(userRepository.findByEmail("noPasswordUser@gmail.com")).thenReturn(Optional.of(mockUserByEmailWithoutPasswordUser));
+        when(userRepository.findByEmail("noPasswordUser@gmail.com"))
+                .thenReturn(Optional.of(mockUserByEmailWithoutPasswordUser));
 
         assertThrows(PasswordUserNotFound.class, () -> {
-            passwordUserService.signInPasswordUser(
-                new SignInPasswordUserInput(null, "noPasswordUser@gmail.com", "Password123!", false)
-            );
+            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null,
+                    "noPasswordUser@gmail.com", "Password123!", false));
         });
     }
 
@@ -136,41 +134,47 @@ public class SignInTest {
         User mockUserWrongPassword = new User();
         mockUserWrongPassword.setPasswordUser(mockPasswordUserWrongPassword);
 
-        lenient().when(userRepository.findByEmail("wrongPassword@gmail.com")).thenReturn(Optional.of(mockUserWrongPassword));
+        lenient().when(userRepository.findByEmail("wrongPassword@gmail.com"))
+                .thenReturn(Optional.of(mockUserWrongPassword));
 
         assertThrows(PasswordWrong.class, () -> {
-            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "wrongPassword@gmail.com", "WrongPassword", false));
+            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null,
+                    "wrongPassword@gmail.com", "WrongPassword", false));
         });
     }
 
     @Test
-    public void testSignInPasswordUserExcessiveFailedLoginAttempts() throws ExceptionBase, InterruptedException {
+    public void testSignInPasswordUserExcessiveFailedLoginAttempts()
+            throws ExceptionBase, InterruptedException {
         User mockUserWithBlockedPasswordUser = new User().setId(1);
         PasswordUser mockBlockedPasswordUser = new PasswordUser();
-        mockBlockedPasswordUser
-            .setPassword(hashedPassword)
-            .setLoginAttempts(2)
-            .setBlockedUntil(null);
+        mockBlockedPasswordUser.setPassword(hashedPassword).setLoginAttempts(2)
+                .setBlockedUntil(null);
         mockUserWithBlockedPasswordUser.setPasswordUser(mockBlockedPasswordUser);
-    
-        when(userRepository.findByEmail("blockedUser@gmail.com")).thenReturn(Optional.of(mockUserWithBlockedPasswordUser));
-    
+
+        when(userRepository.findByEmail("blockedUser@gmail.com"))
+                .thenReturn(Optional.of(mockUserWithBlockedPasswordUser));
+
         assertThrows(PasswordWrong.class, () -> {
-            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "blockedUser@gmail.com", "WrongPassword", false));
+            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null,
+                    "blockedUser@gmail.com", "WrongPassword", false));
         });
-    
+
         assertThrows(ExcessiveFailedLoginAttempts.class, () -> {
-            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "blockedUser@gmail.com", "Password123!", false));
+            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null,
+                    "blockedUser@gmail.com", "Password123!", false));
         });
 
         LocalDateTime newBlockedUntil = LocalDateTime.now().minusMinutes(31);
         mockBlockedPasswordUser.setBlockedUntil(newBlockedUntil);
-    
-        JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
-        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(false))).thenReturn(mockJwtTokens);
 
-        passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "blockedUser@gmail.com", "Password123!", false));
-    
+        JwtTokens mockJwtTokens = new JwtTokens("accessToken", "refreshToken", false);
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(false)))
+                .thenReturn(mockJwtTokens);
+
+        passwordUserService.signInPasswordUser(
+                new SignInPasswordUserInput(null, "blockedUser@gmail.com", "Password123!", false));
+
         assertEquals(Integer.valueOf(0), mockBlockedPasswordUser.getLoginAttempts());
         assertNull(mockBlockedPasswordUser.getBlockedUntil());
     }
@@ -183,11 +187,13 @@ public class SignInTest {
         mockPasswordUserNullJwt.setPassword(hashedPassword);
         mockUserWithNullJwt.setPasswordUser(mockPasswordUserNullJwt);
 
-        lenient().when(userRepository.findByEmail("nullJwt@gmail.com")).thenReturn(Optional.of(mockUserWithNullJwt));
+        lenient().when(userRepository.findByEmail("nullJwt@gmail.com"))
+                .thenReturn(Optional.of(mockUserWithNullJwt));
         lenient().when(jwtManager.generateJwtTokens(1, "Password123!", false)).thenReturn(null);
 
         assertThrows(NullJwtTokens.class, () -> {
-            passwordUserService.signInPasswordUser(new SignInPasswordUserInput(null, "nullJwt@gmail.com", "Password123!", false));
+            passwordUserService.signInPasswordUser(
+                    new SignInPasswordUserInput(null, "nullJwt@gmail.com", "Password123!", false));
         });
     }
 }

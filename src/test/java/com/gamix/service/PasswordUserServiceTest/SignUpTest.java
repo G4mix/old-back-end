@@ -5,15 +5,12 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-
 import java.util.Optional;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.parameters.email.EmailEmpty;
 import com.gamix.exceptions.parameters.email.EmailInvalidFormat;
@@ -61,18 +58,20 @@ public class SignUpTest {
 
     @Test
     public void testSignUpWithValidInput() throws ExceptionBase {
-        SignUpPasswordUserInput validInput = new SignUpPasswordUserInput("username", "validemail@gmail.com", "Password123!");
-        
+        SignUpPasswordUserInput validInput =
+                new SignUpPasswordUserInput("username", "validemail@gmail.com", "Password123!");
+
         when(userRepository.findByUsername("username")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("validemail@gmail.com")).thenReturn(Optional.empty());
 
         User mockUser = new User().setId(1);
-        
+
         when(userService.createUser("username", "validemail@gmail.com", null)).thenReturn(mockUser);
-        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(false))).thenReturn(new JwtTokens("accessToken", "refreshToken", false));
-        
+        when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(false)))
+                .thenReturn(new JwtTokens("accessToken", "refreshToken", false));
+
         JwtTokens tokens = passwordUserService.signUpPasswordUser(validInput);
-        
+
         assertEquals("accessToken", tokens.accessToken());
     }
 
@@ -98,77 +97,94 @@ public class SignUpTest {
     @Test
     public void testSignUpWithInvalidUsername() {
         assertThrows(UsernameNull.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput(null, "password123", "email@gmail.com"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput(null, "password123", "email@gmail.com"));
         });
 
         assertThrows(UsernameEmpty.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("", "password123", "email@gmail.com"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("", "password123", "email@gmail.com"));
         });
 
         assertThrows(UsernameTooShort.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("ab", "password123", "email@gmail.com"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("ab", "password123", "email@gmail.com"));
         });
 
         assertThrows(UsernameTooLong.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("a".repeat(80), "password123", "email@gmail.com"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("a".repeat(80), "password123", "email@gmail.com"));
         });
 
         assertThrows(UsernameInvalidFormat.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("user@name", "password123", "email@gmail.com"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("user@name", "password123", "email@gmail.com"));
         });
     }
 
     @Test
     public void testSignUpWithInvalidEmail() {
         assertThrows(EmailNull.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", null, "Password123!"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", null, "Password123!"));
         });
 
         assertThrows(EmailEmpty.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "", "Password123!"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "", "Password123!"));
         });
 
         assertThrows(EmailTooLong.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "a".repeat(330), "Password123!"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "a".repeat(330), "Password123!"));
         });
 
         assertThrows(EmailInvalidFormat.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "invalidemail", "Password123!"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "invalidemail", "Password123!"));
         });
     }
 
     @Test
     public void testSignUpWithInvalidPassword() {
         assertThrows(PasswordMissingNumber.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", "password"));
         });
 
         assertThrows(PasswordMissingSpecialChar.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password123"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", "password123"));
         });
 
         assertThrows(PasswordNull.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", null));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", null));
         });
 
         assertThrows(PasswordTooShort.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "1234567"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", "1234567"));
         });
 
         assertThrows(PasswordTooLong.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "a".repeat(129)));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", "a".repeat(129)));
         });
 
         assertThrows(PasswordMissingSpecialChar.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password1"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", "password1"));
         });
 
         assertThrows(PasswordMissingNumber.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "Password"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", "Password"));
         });
 
         assertThrows(PasswordMissingUppercase.class, () -> {
-            passwordUserService.signUpPasswordUser(new SignUpPasswordUserInput("username", "email@gmail.com", "password1!"));
+            passwordUserService.signUpPasswordUser(
+                    new SignUpPasswordUserInput("username", "email@gmail.com", "password1!"));
         });
     }
 }

@@ -1,16 +1,14 @@
 package com.gamix.service.PasswordUserServiceTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
-
+import static org.mockito.Mockito.when;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
@@ -36,10 +34,8 @@ public class CreatePasswordUserTest {
         String password = "testpassword";
         String encodedPassword = new BCryptPasswordEncoder().encode(password);
 
-        PasswordUser passwordUser = new PasswordUser()
-            .setUser(user)
-            .setPassword(encodedPassword)
-            .setVerifiedEmail(false);
+        PasswordUser passwordUser = new PasswordUser().setUser(user).setPassword(encodedPassword)
+                .setVerifiedEmail(false);
 
         when(passwordUserRepository.save(any(PasswordUser.class))).thenReturn(passwordUser);
 

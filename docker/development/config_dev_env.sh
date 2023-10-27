@@ -17,7 +17,3 @@ FRONT_END_BASE_URL=$FRONT_END_BASE_URL
 EOL
 
 echo "Arquivo .env criado em /app com sucesso."
-
-cd /app
-mvn wrapper:wrapper
-dos2unix mvnw

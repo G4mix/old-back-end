@@ -3,13 +3,11 @@ package com.gamix.service.UserServiceTest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;

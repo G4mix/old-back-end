@@ -1,7 +1,6 @@
 package com.gamix.mock;
 
 import org.mockito.Mockito;
-
 import io.jsonwebtoken.Claims;
 
 public class ClaimsMock {

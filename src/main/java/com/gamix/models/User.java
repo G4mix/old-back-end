@@ -10,7 +10,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +21,7 @@ public class User {
 
     @Column(unique = true, nullable = false, length = 320)
     private String email;
-    
+
     @Column(nullable = true, length = 120)
     private String icon;
 

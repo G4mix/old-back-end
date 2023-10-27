@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.TokenClaimsException;
 import com.gamix.exceptions.user.UserNotFoundByToken;
@@ -25,7 +22,6 @@ import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.service.UserService;
-
 import io.jsonwebtoken.Claims;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,8 +54,9 @@ public class UpdateUserTest {
         existingUser.setUsername("oldUsername");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
-        
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         User updatedUser = userService.updateUser(validAccessToken, partialUserInput);
 

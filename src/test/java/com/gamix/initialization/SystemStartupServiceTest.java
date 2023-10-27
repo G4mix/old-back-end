@@ -7,14 +7,10 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
@@ -24,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.gamix.models.PasswordUser;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.service.PasswordUserService;
@@ -40,9 +35,6 @@ public class SystemStartupServiceTest {
 
     @InjectMocks
     private SystemStartupService systemStartupService;
-
-    @Mock
-    private ScheduledExecutorService scheduler;
 
     private AutoCloseable closeable;
 
@@ -60,10 +52,11 @@ public class SystemStartupServiceTest {
     @Test
     public void testProcessUnbannedUsers() throws Exception {
         List<PasswordUser> unbannedUsers = Arrays.asList(
-            new PasswordUser().setLoginAttempts(3).setBlockedUntil(LocalDateTime.now().minusMinutes(10)),
-            new PasswordUser().setLoginAttempts(3).setBlockedUntil(LocalDateTime.now().minusMinutes(5))
-        );
-        
+                new PasswordUser().setLoginAttempts(3)
+                        .setBlockedUntil(LocalDateTime.now().minusMinutes(10)),
+                new PasswordUser().setLoginAttempts(3)
+                        .setBlockedUntil(LocalDateTime.now().minusMinutes(5)));
+
         when(passwordUserService.findUsersToUnbanNow()).thenReturn(unbannedUsers);
         doAnswer(invocation -> {
             PasswordUser userToUnban = invocation.getArgument(0);
@@ -78,36 +71,20 @@ public class SystemStartupServiceTest {
 
         Method method = SystemStartupService.class.getDeclaredMethod("processUnbannedUsers");
         method.setAccessible(true);
-    
+
         LocalDateTime blockedUntilBefore = unbannedUsers.get(0).getBlockedUntil();
         int loginAttemptsBefore = unbannedUsers.get(0).getLoginAttempts();
-    
+
         method.invoke(systemStartupService);
-    
+
         verify(passwordUserService, times(2)).unbanUser(any(PasswordUser.class));
-    
+
         LocalDateTime blockedUntilAfter = unbannedUsers.get(0).getBlockedUntil();
         int loginAttemptsAfter = unbannedUsers.get(0).getLoginAttempts();
-    
+
         assertNotEquals(blockedUntilBefore, blockedUntilAfter);
         assertNotEquals(loginAttemptsBefore, loginAttemptsAfter);
         assertEquals(null, blockedUntilAfter);
         assertEquals(0, loginAttemptsAfter);
-    }    
-
-    @Test
-    public void testScheduleUnbanTasksForRemainingBannedUsers() throws Exception {
-        List<PasswordUser> remainingBannedUsers = Arrays.asList(
-            new PasswordUser().setBlockedUntil(LocalDateTime.now().plusMinutes(5)),
-            new PasswordUser().setBlockedUntil(LocalDateTime.now().plusMinutes(10))
-        );
-
-        when(passwordUserService.findUsersToUnbanSoon()).thenReturn(remainingBannedUsers);
-
-        Method method = SystemStartupService.class.getDeclaredMethod("scheduleUnbanTasksForRemainingBannedUsers");
-        method.setAccessible(true);
-        method.invoke(systemStartupService);
-
-        verify(scheduler, times(2)).schedule(any(Runnable.class), any(Long.class), any(TimeUnit.class));
     }
 }

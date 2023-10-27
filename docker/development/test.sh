@@ -2,4 +2,6 @@
 
 cd /app
 
-dockerize -wait tcp://database:5432 -timeout 60s && ./mvnw test
+mvn install -DskipTests
+
+dockerize -wait tcp://database:5432 -timeout 60s && mvn test

@@ -1,11 +1,9 @@
 package com.gamix.config;
 
 import javax.sql.DataSource;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-
 import io.github.cdimascio.dotenv.Dotenv;
 
 @Configuration
@@ -14,6 +12,7 @@ public class DotenvConfig {
     public Dotenv dotenv() {
         return Dotenv.load();
     }
+
     @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();

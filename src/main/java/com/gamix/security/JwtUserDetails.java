@@ -1,19 +1,19 @@
 package com.gamix.security;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.List;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public class JwtUserDetails implements UserDetails {
     private String username, accessToken, password = null;
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public JwtUserDetails(String username, String accessToken, List<GrantedAuthority> grantedAuthorities) {
+    public JwtUserDetails(String username, String accessToken,
+            List<GrantedAuthority> grantedAuthorities) {
         this.username = username;
-        this.accessToken= accessToken;
+        this.accessToken = accessToken;
         this.authorities = grantedAuthorities;
     }
 
@@ -31,7 +31,7 @@ public class JwtUserDetails implements UserDetails {
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;
-    } 
+    }
 
     @Override
     public boolean isAccountNonExpired() {

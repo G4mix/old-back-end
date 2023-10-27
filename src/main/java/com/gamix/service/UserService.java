@@ -2,13 +2,11 @@ package com.gamix.service;
 
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.user.UserNotFoundByEmail;
@@ -20,7 +18,6 @@ import com.gamix.models.User;
 import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
-
 import io.jsonwebtoken.Claims;
 
 @Service
@@ -30,7 +27,7 @@ public class UserService implements UserServiceInterface {
 
     @Autowired
     private JwtManager jwtManager;
-    
+
     @Override
     public List<User> findAllUsers(int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit);
@@ -42,7 +39,8 @@ public class UserService implements UserServiceInterface {
     @Override
     public User findUserByToken(String accessToken) throws ExceptionBase {
         Claims claims = jwtManager.getTokenClaims(accessToken);
-        Optional<User> optionalUser = userRepository.findById(Integer.parseInt(claims.getSubject()));
+        Optional<User> optionalUser =
+                userRepository.findById(Integer.parseInt(claims.getSubject()));
         return optionalUser.orElseThrow(() -> new UserNotFoundByToken());
     }
 
@@ -51,7 +49,7 @@ public class UserService implements UserServiceInterface {
         Optional<User> optionalUser = userRepository.findById(id);
         return optionalUser.orElseThrow(() -> new UserNotFoundById());
     }
-    
+
     @Override
     public User findUserByEmail(String email) throws ExceptionBase {
         Optional<User> optionalUser = userRepository.findByEmail(email);
@@ -68,32 +66,33 @@ public class UserService implements UserServiceInterface {
     @Override
     public User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase {
         User userToUpdate = findUserByToken(accessToken);
-    
-        if (userInput.username() != null) userToUpdate.setUsername(userInput.username());
-        if (userInput.icon() != null) userToUpdate.setIcon(userInput.icon());
-            
+
+        if (userInput.username() != null)
+            userToUpdate.setUsername(userInput.username());
+        if (userInput.icon() != null)
+            userToUpdate.setIcon(userInput.icon());
+
         return userRepository.save(userToUpdate);
     }
-    
+
     @Override
     public boolean deleteAccount(String accessToken) throws ExceptionBase {
-        if (!jwtManager.validate(accessToken)) throw new InvalidAccessToken();
+        if (!jwtManager.validate(accessToken))
+            throw new InvalidAccessToken();
 
         Claims claims = jwtManager.getTokenClaims(accessToken);
         Integer id = Integer.parseInt(claims.getSubject());
-        
-        if(userRepository.existsById(id)) userRepository.deleteById(id);
-        
+
+        if (userRepository.existsById(id))
+            userRepository.deleteById(id);
+
         return true;
     }
 
     @Override
     public User createUser(String username, String email, String icon) {
-        User user = new User()
-            .setUsername(username)
-            .setEmail(email)
-            .setIcon(icon);
-    
+        User user = new User().setUsername(username).setEmail(email).setIcon(icon);
+
         return userRepository.save(user);
     }
 }

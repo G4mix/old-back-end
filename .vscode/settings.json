@@ -2,5 +2,7 @@
     "java.compile.nullAnalysis.mode": "automatic",
     "java.debug.settings.onBuildFailureProceed": true,
     "java.configuration.updateBuildConfiguration": "automatic",
-    "editor.tabSize": 4
+    "editor.tabSize": 4,
+    "java.format.settings.url": ".vscode/gamix_style.xml",
+    "java.format.settings.profile": "GamixStyle"
 }

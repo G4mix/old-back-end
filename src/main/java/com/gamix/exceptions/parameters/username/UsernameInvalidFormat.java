@@ -5,6 +5,6 @@ import com.gamix.exceptions.ExceptionBase;
 
 public class UsernameInvalidFormat extends ExceptionBase {
     public UsernameInvalidFormat() {
-        super(ExceptionMessage.USERNAME_INVALID_FORMAT);    
+        super(ExceptionMessage.USERNAME_INVALID_FORMAT);
     }
 }
