@@ -1,0 +1,24 @@
+@startuml Gamix-SignUp
+
+actor User
+participant Controller as "PasswordUserController"
+participant PasswordService as "PasswordUserService"
+participant Service as "UserService"
+participant Repository as "UserRepository"
+database Database as DB
+participant JwtManager as "JwtManager"
+
+User -> Controller: Faz uma requisição de signUp
+Controller -> PasswordService: Chama o serviço de signUp
+PasswordService -> Service: Pede para o Service criar um novo usuário
+Service -> Repository: Cria um novo usuário no repositório
+Repository -> DB: Salva os dados do novo usuário no banco de dados
+DB --> Repository: Confirma a operação
+Repository --> Service: Retorna o novo usuário
+Service --> PasswordService: Retorna o novo usuário
+PasswordService --> JwtManager: Pede para gerar os tokens JWT
+JwtManager --> PasswordService: Retorna os tokens JWT
+PasswordService --> Controller: Retorna os tokens JWT
+Controller --> User: Retorna os tokens JWT
+
+@enduml

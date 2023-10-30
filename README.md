@@ -14,6 +14,12 @@ A plataforma Gamix é uma comunidade que une amantes de jogos, desenvolvedores e
 - Banco de Dados: PostgreSQL
 - API: GraphQL
 
+## Como rodar e utilizar a API
+
+Se você deseja rodar o projeto localmente na sua máquina, siga o tutorial existente no [how_to_run_guide.md](docs/how_to_run_guide.md).
+
+Para saber como utilizar a API e fazer requisições, consulte [api_usage_documentation.md](docs/api_usage_documentation.md).
+
 ## Como Contribuir
 
 Se você deseja contribuir com o desenvolvimento do Back-end da plataforma Gamix, você é bem-vindo! Sinta-se à vontade para explorar o código, enviar pull requests e colaborar com melhorias e novas funcionalidades. Consulte as [diretrizes de contribuição](docs/CONTRIBUTING.md) para obter mais informações sobre como contribuir.

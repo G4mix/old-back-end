@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Attach) - Remote",
+            "request": "attach",
+            "hostName": "localhost", // docker desktop usa o 'localhost' | docker toolbox usa o ip do 'docker-machine ip default'
+            "port": 5005
+        }
+    ]
+}

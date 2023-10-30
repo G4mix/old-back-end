@@ -1,0 +1,66 @@
+version: "3.3"
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: database
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+    command: >
+      -c config_file=/mnt/sda1/var/lib/postgresql/data/postgresql.conf
+    volumes:
+      - pg_data:/var/lib/postgres/data
+      - ./docker/database/postgresql.conf:/mnt/sda1/var/lib/postgresql/data/postgresql.conf
+    ports:
+      - 5432:5432
+    networks:
+      - backend_network
+  backend:
+    image: maven:3.9-eclipse-temurin-17-alpine
+    container_name: backend
+    restart: always
+    environment:
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=root
+      - JWT_SIGNING_KEY_SECRET=Graphql
+      - FRONT_END_BASE_URL=http://localhost:3000
+    volumes:
+      - ./src:/app/src
+      - ./graphql.config.yml:/app/graphql.config.yml
+      - ./pom.xml:/app/pom.xml
+      - ./target:/app/target
+      - ./docker/development:/app/scripts
+      - maven_cache:/root/.m2
+    command: >
+      /bin/sh -c '\
+        apk update --no-cache && \
+        apk add --no-cache findutils wget openssl inotify-tools dos2unix && \
+        if [ ! -e /bin/dockerize ]; then \
+          wget -O - https://github.com/jwilder/dockerize/releases/download/v0.7.0/dockerize-linux-amd64-v0.7.0.tar.gz | tar xzf - -C /bin; \
+        fi && \
+        find /app/scripts -type f -name "*.sh" -exec dos2unix {} \; && \
+        chmod +x /app/scripts/*.sh && \
+        /app/scripts/config_dev_env.sh && \
+        /app/scripts/dev.sh'
+    ports:
+      - 8080:8080
+      - 35729:35729
+      - 5005:5005
+    networks:
+      - backend_network
+    depends_on:
+      - database
+    links:
+      - database
+
+volumes:
+  pg_data:
+  maven_cache:
+
+networks:
+  backend_network:
+    driver: bridge

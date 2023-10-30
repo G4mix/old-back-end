@@ -1,0 +1,39 @@
+name: Verify Gamix
+on: [push, pull_request]
+jobs:
+  checkstyle:
+    name: runner / checkstyle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dbelyaev/action-checkstyle@v1.1.1
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          checkstyle_config: ../../.vscode/gamix_style.xml
+  tests:
+    name: runner / tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Cache Docker images.
+        uses: ScribeMD/docker-cache@0.3.6
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
+      - uses: actions/setup-java@v3
+        with:
+          distribution: "temurin"
+          java-version: "17"
+      - name: Do all tests
+        run: |
+          docker-compose up -d database && \
+          export SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.postgresql.Driver && \
+          export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres && \
+          export SPRING_DATASOURCE_USERNAME=postgres && \
+          export SPRING_DATASOURCE_PASSWORD=root && \
+          export JWT_SIGNING_KEY_SECRET=Graphql && \
+          export FRONT_END_BASE_URL=http://localhost:3000 && \
+          chmod +x docker/development/config_test_env.sh && \
+          ./docker/development/config_test_env.sh && \
+          mvn test && mvn test -P unit_tests

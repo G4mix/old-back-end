@@ -1,0 +1,30 @@
+type User {
+    id: Int!
+    username: String!
+    email: String!
+    icon: String
+    passwordUser: PasswordUser
+}
+
+type PasswordUser {
+    id: Int!
+    user: User!
+    verifiedEmail: Boolean
+}
+
+type Query {
+    findAllUsers(skip: Int = 0, limit: Int = 10): [User]
+    findUserByUsername(username: String!): User
+    findUserByEmail(email: String!): User
+    findUserByToken: User
+}
+
+type Mutation {
+    updateUser(input: PartialUserInput!): User
+    deleteAccount: Boolean
+}
+
+input PartialUserInput {
+    username: String
+    icon: String
+}
