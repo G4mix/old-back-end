@@ -2,10 +2,14 @@
 
 Neste projeto, seguimos um guia de estilo de código para manter a consistência e a legibilidade em todo o código Back-end. Essas diretrizes ajudarão a garantir que todos os desenvolvedores possam colaborar efetivamente e compreender facilmente o código.
 
+Para deixar o código formatado de acordo com os padrões do Gamix pode apertar Ctrl + Shift + P no seu VSCode e usar o comando `Format Document`:
+![how_to_format](images/format_document.png)
+Observação: caso esteja utilizando outro editor, encontre essa respectiva função nele e formate de acordo com o padrão estabelecido no `.vscode/gamix_style.xml`.
+
 ## Formatação de Código
 
 - Use indentação com 4 espaços para cada nível de recuo.
-- Evite linhas de código com mais de 80 caracteres.
+- Evite linhas de código com mais de 100 caracteres.
 - Use linhas em branco para separar blocos lógicos de código.
 - Use espaços em branco para separar operadores e expressões.
 - Evite o uso de espaços em branco em excesso.
@@ -33,6 +37,8 @@ A estrutura de diretórios a seguir é comum em projetos Java que utilizam o fra
 
 - `main/`: Contém o código de produção do aplicativo.
 
+- `test/`: Contém todos os códigos de testes do aplicativo.
+
 - `resources/graphql`: Contém o schema da aplicação, onde serão definidos todas as Queries, Mutations e etc.
 
 - `java/`: Armazena o código Java da aplicação.
@@ -42,14 +48,29 @@ A estrutura de diretórios a seguir é comum em projetos Java que utilizam o fra
 - `gamix/`: Pacote da aplicação, onde você coloca as classes relacionadas.
 
 Dentro do pacote `com.gamix`, a estrutura padrão do projeto Spring Boot inclui:
+- `config/`: Classes que realizam configurações importantes, como o dotenv ou spring security.
 
 - `controller/`: Classes que recebem requisições HTTP e direcionam para operações no serviço.
 
+- `enums/`: Enums que contenham dados relevantes e que devem ser consistentes, como o tempo de expiração de tokens de acesso.
+
+- `exceptions/`: Classes com suas respectivas exceções.
+
+- `initialization/`: Classes que precisam ser executadas logo após a inicialização.
+
+- `interfaces/`: Interfaces que serão implementadas por outras classes ficam aqui.
+
+- `models/`: Classes que representam entidades do domínio, mapeando para tabelas no banco de dados.
+
+- `records/`: Records de inputs e outros tipos de dados de entrada e saída ficam aqui.
+
+- `repositories/`: Interfaces ou classes que definem como acessar dados no banco de dados.
+
+- `security/`: Classes relacionadas com a segurança por exemplo classes relacionadas com a autenticação JWT.
+
 - `service/`: Lógica de negócios da aplicação, interagindo com repositórios.
 
-- `repository/`: Interfaces ou classes que definem como acessar dados no banco de dados.
-
-- `model/`: Classes que representam entidades do domínio, mapeando para tabelas no banco de dados.
+- `utils/`: Classes utilitárias que podem ser usadas em diversas situações e não tem uma categoria específica.
 
 ## Tratamento de Exceções
 
