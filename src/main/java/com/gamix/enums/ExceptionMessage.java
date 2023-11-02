@@ -38,8 +38,10 @@ public enum ExceptionMessage {
     PASSWORD_MISSING_NUMBER(HttpStatus.BAD_REQUEST, "Password must contain number(s)"),
     PASSWORD_MISSING_UPPERCASE(HttpStatus.BAD_REQUEST, "Password must contain uppercase letter(s)"),
 
+    ICON_NULL(HttpStatus.BAD_REQUEST, "Null icon URL"),
     ICON_URL_INVALID(HttpStatus.BAD_REQUEST, "Invalid icon URL"),
     ICON_URL_TOO_LONG(HttpStatus.BAD_REQUEST, "Icon URL is too long"),
+    ICON_URL_TOO_SHORT(HttpStatus.BAD_REQUEST, "Icon URL is too short"),
 
     USER_ALREADY_EXISTS_WITH_THIS_USERNAME(HttpStatus.CONFLICT, "User with this username already exists"),
     USER_ALREADY_EXISTS_WITH_THIS_EMAIL(HttpStatus.CONFLICT, "User with this email already exists"),

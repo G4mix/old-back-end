@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
+import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
 import com.gamix.exceptions.user.UserNotFoundByEmail;
 import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.exceptions.user.UserNotFoundByToken;
@@ -18,6 +19,7 @@ import com.gamix.models.User;
 import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
+import com.gamix.utils.ParameterValidator;
 import io.jsonwebtoken.Claims;
 
 @Service
@@ -66,11 +68,21 @@ public class UserService implements UserServiceInterface {
     @Override
     public User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase {
         User userToUpdate = findUserByToken(accessToken);
+        
+        if (userInput.username() != null) {
+            if (userRepository.findByUsername(userInput.username()) != null) {
+                throw new UserAlreadyExistsWithThisUsername();
+            }
 
-        if (userInput.username() != null)
+            ParameterValidator.validateUsername(userInput.username());
+            
             userToUpdate.setUsername(userInput.username());
-        if (userInput.icon() != null)
+        }
+        if (userInput.icon() != null) {
+            ParameterValidator.validateIcon(userInput.icon());
+
             userToUpdate.setIcon(userInput.icon());
+        }
 
         return userRepository.save(userToUpdate);
     }
