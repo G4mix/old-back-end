@@ -75,4 +75,12 @@ public class User {
         this.passwordUser = passwordUser;
         return this;
     }
+
+    public UserProfile getUserProfile() {
+        return userProfile;
+    }
+
+    public void setUserProfile(UserProfile userProfile) {
+        this.userProfile = userProfile;
+    }
 }

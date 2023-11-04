@@ -40,6 +40,13 @@ public class Post {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public UserProfile getAuthor() {
+        return author;
+    }
+    public void setAuthor(UserProfile author) {
+        this.author = author;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -54,7 +61,7 @@ public class Post {
         this.content = content;
     }
 
-        public LocalDateTime getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
     public void setCreatedAt(LocalDateTime createdAt) {
