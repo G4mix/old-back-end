@@ -50,6 +50,9 @@ public enum ExceptionMessage {
     USER_NOT_FOUND_BY_USERNAME(HttpStatus.NOT_FOUND, "User not found by username"),
     USER_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "User not found by ID"),
 
+    POST_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "Post not found by"),
+    POST_NOT_FOUND_BY_TITLE(HttpStatus.NOT_FOUND, "Post not found by title"),
+
     INVALID_ID(HttpStatus.BAD_REQUEST, "Invalid ID");
 
     private final HttpStatus httpStatus;
