@@ -12,10 +12,12 @@ import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.interfaces.services.PostServiceInterface;
+import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.records.inputs.PostController.PostInput;
+import com.gamix.repositories.CommentRepository;
 import com.gamix.repositories.PostRepository;
 import com.gamix.security.JwtManager;
 import io.jsonwebtoken.Claims;
@@ -24,6 +26,9 @@ import io.jsonwebtoken.Claims;
 public class PostService implements PostServiceInterface {
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private JwtManager jwtManager;
@@ -105,14 +110,22 @@ public class PostService implements PostServiceInterface {
 
         return true;
     }
-    /*@Override
-    public Comment commentPost(Integer id, String comment) throws ExceptionBase {
-        try {
-            Post post = findPostById(id);
 
+    @Override
+    public Comment commentPost(Integer postId, String comment, UserProfile author) throws ExceptionBase {
+        try {
+            Post post = findPostById(postId);
+            Comment newComment = new Comment();
+            newComment.setUserProfile(author);
+            newComment.setContent(comment);
+            newComment.setPost(post);
+
+            commentRepository.save(newComment);
+
+            return newComment;
             
         } catch (ExceptionBase ex) {
-            return ex;
+            throw ex;
         }
-    }  */
+    }
 }

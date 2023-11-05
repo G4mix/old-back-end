@@ -12,10 +12,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.service.PostService;
+import com.gamix.service.UserService;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
+import com.gamix.models.Comment;
 import com.gamix.models.Post;
+import com.gamix.models.User;
+import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.records.inputs.PostController.PostInput;
 import com.gamix.security.JwtUserDetails;
@@ -25,6 +29,9 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private UserService userService;
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
@@ -94,6 +101,19 @@ public class PostController {
         } catch (ExceptionBase ex) {
             throw ex;
         }
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @QueryMapping
+    Comment commentPost(@Argument Integer postId,
+                    @Argument("comment") String commentInput,
+                    @Argument JwtUserDetails userDetails) throws ExceptionBase {
+        User user = userService.findUserByUsername(userDetails.getUsername());
+        UserProfile author = user.getUserProfile();
+
+        Comment createdComment = postService.commentPost(postId, commentInput, author);
+
+        return createdComment;
     }
 
     @GraphQlExceptionHandler
