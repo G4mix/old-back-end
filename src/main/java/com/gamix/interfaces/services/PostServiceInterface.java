@@ -11,7 +11,7 @@ import com.gamix.records.inputs.PostController.PostInput;
 public interface PostServiceInterface {
     public Post createPost(PostInput postInput);
 
-    public List<Post> findAllPosts(int skip, int limit);
+    public List<Post> findAll(int skip, int limit);
 
     public Post findPostById(Integer id) throws ExceptionBase;
 

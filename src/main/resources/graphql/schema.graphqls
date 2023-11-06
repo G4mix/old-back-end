@@ -4,12 +4,25 @@ type User {
     email: String!
     icon: String
     passwordUser: PasswordUser
+    userProfile: UserProfile
 }
 
 type PasswordUser {
     id: Int!
     user: User!
     verifiedEmail: Boolean
+}
+
+type Post {
+    author: UserProfile!
+    title: String!
+    content: String!
+}
+
+type UserProfile {
+    id: Int!
+    user: User!
+    posts: [Post]
 }
 
 type Query {
@@ -27,4 +40,9 @@ type Mutation {
 input PartialUserInput {
     username: String
     icon: String
+}
+
+input PartialPostInput {
+    title: String
+    content: String
 }

@@ -24,6 +24,6 @@ public class UserProfile {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "userProfile", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
 }

@@ -47,7 +47,7 @@ public class PostController {
         @Argument("skip") int skip,
         @Argument("limit") int limit
     ) {
-        List<Post> posts = postService.findAllPosts(skip, limit);
+        List<Post> posts = postService.findAll(skip, limit);
 
         return posts;
     }

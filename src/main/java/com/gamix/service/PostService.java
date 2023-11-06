@@ -47,7 +47,7 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public List<Post> findAllPosts(int skip, int limit) {
+    public List<Post> findAll(int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit);
         Page<Post> posts = postRepository.findAll(page);
 

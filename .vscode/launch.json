@@ -3,9 +3,16 @@
     "configurations": [
         {
             "type": "java",
+            "name": "GamixApplication",
+            "request": "launch",
+            "mainClass": "com.gamix.GamixApplication",
+            "projectName": "gamix"
+        },
+        {
+            "type": "java",
             "name": "Debug (Attach) - Remote",
             "request": "attach",
-            "hostName": "localhost", // docker desktop usa o 'localhost' | docker toolbox usa o ip do 'docker-machine ip default'
+            "hostName": "localhost",
             "port": 5005
         }
     ]
