@@ -34,8 +34,14 @@ type Query {
 }
 
 type Mutation {
+    # user class
     updateUser(input: PartialUserInput!): User
     deleteAccount: Boolean
+
+    # post class
+    createPost(input: PartialPostInput!): Post
+    updatePost(input: PartialPostInput!): Post
+    deletePost(postId: Int): Boolean
 }
 
 input PartialUserInput {
@@ -44,6 +50,7 @@ input PartialUserInput {
 }
 
 input PartialPostInput {
+    authorId: Int!
     title: String
     content: String
 }

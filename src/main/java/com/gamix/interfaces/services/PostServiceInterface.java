@@ -6,10 +6,9 @@ import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
-import com.gamix.records.inputs.PostController.PostInput;
 
 public interface PostServiceInterface {
-    public Post createPost(PostInput postInput);
+    public Post createPost(PartialPostInput postInput) throws ExceptionBase;
 
     public List<Post> findAll(int skip, int limit);
 

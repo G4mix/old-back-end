@@ -39,21 +39,24 @@ public class Post {
     public UserProfile getAuthor() {
         return author;
     }
-    public void setAuthor(UserProfile author) {
+    public UserProfile setAuthor(UserProfile author) {
         this.author = author;
+        return author;
     }
 
     public String getTitle() {
         return title;
     }
-    public void setTitle(String title) {
+    public String setTitle(String title) {
         this.title = title;
+        return title;
     }
 
     public String getContent() {
         return content;
     }
-    public void setContent(String content) {
+    public String setContent(String content) {
         this.content = content;
+        return content;
     }
 }

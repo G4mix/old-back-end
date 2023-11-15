@@ -1,6 +1,7 @@
 package com.gamix.service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,14 +12,15 @@ import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
+import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.interfaces.services.PostServiceInterface;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
-import com.gamix.records.inputs.PostController.PostInput;
 import com.gamix.repositories.CommentRepository;
 import com.gamix.repositories.PostRepository;
+import com.gamix.repositories.UserProfileRepository;
 import com.gamix.security.JwtManager;
 import io.jsonwebtoken.Claims;
 
@@ -36,14 +38,30 @@ public class PostService implements PostServiceInterface {
     @Autowired
     private UserService userService;
 
-    @Override
-    public Post createPost(PostInput postInput) {
-        Post newPost = new Post();
-        newPost.setAuthor(postInput.author());
-        newPost.setTitle(postInput.title());
-        newPost.setContent(postInput.content());
+    @Autowired
+    private UserProfileRepository userProfileRepository;
 
-        return postRepository.save(newPost);
+    @Override
+    public Post createPost(PartialPostInput postInput) throws ExceptionBase {
+        try {
+            if (postInput == null) {
+                throw new IllegalArgumentException("postInput cannot be null");
+            }
+
+            Optional<UserProfile> optionalUserProfile = userProfileRepository.findById(postInput.authorId());
+            UserProfile author = optionalUserProfile.orElseThrow(() -> new UserProfileNotFound());
+
+            Post newPost = new Post();
+            newPost.setAuthor(author);
+            newPost.setTitle(postInput.title());
+            newPost.setContent(postInput.content());
+
+            return postRepository.save(newPost);
+        } catch (ExceptionBase ex) {
+            throw ex;    
+        } catch (NoSuchElementException ex) {
+            throw new UserProfileNotFound();
+        }
     }
 
     @Override

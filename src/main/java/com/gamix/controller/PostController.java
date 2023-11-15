@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
@@ -21,7 +22,6 @@ import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
-import com.gamix.records.inputs.PostController.PostInput;
 import com.gamix.security.JwtUserDetails;
 
 @Controller
@@ -34,11 +34,15 @@ public class PostController {
     private UserService userService;
 
     @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
-    Post createPost(@Argument PostInput postInput) {
-        Post newPost = postService.createPost(postInput);
+    @MutationMapping
+    Post createPost(@Argument("input") PartialPostInput postInput) throws ExceptionBase {
+        try {
+            Post newPost = postService.createPost(postInput);
 
-        return newPost;
+            return newPost;
+        } catch (ExceptionBase ex) {
+            throw ex;
+        }
     }
     
     @PreAuthorize("hasAuthority('USER')")
