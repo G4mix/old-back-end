@@ -22,6 +22,7 @@ type Post {
 type UserProfile {
     id: Int!
     user: User!
+    displayName: String
     posts: [Post]
 }
 

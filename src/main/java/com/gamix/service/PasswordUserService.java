@@ -43,6 +43,9 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserProfileService userProfileService;
+
     @Override
     public JwtTokens signUpPasswordUser(SignUpPasswordUserInput signUpPasswordUserInput)
             throws ExceptionBase {
@@ -63,6 +66,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
         User user = userService.createUser(signUpPasswordUserInput.username(),
                 signUpPasswordUserInput.email(), null);
+        userProfileService.createUserProfile(user, signUpPasswordUserInput.username());
         String encodedPassword =
                 new BCryptPasswordEncoder().encode(signUpPasswordUserInput.password());
         createPasswordUser(user, encodedPassword);

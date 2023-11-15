@@ -80,7 +80,8 @@ public class User {
         return userProfile;
     }
 
-    public void setUserProfile(UserProfile userProfile) {
+    public UserProfile setUserProfile(UserProfile userProfile) {
         this.userProfile = userProfile;
+        return userProfile;
     }
 }

@@ -24,6 +24,26 @@ public class UserProfile {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String displayName;
+
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     private List<Post> posts = new ArrayList<>();
+
+    public User getUser() {
+        return user;
+    }
+
+    public UserProfile setUser(User user) {
+        this.user = user;
+        return this;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public UserProfile setDisplayName(String displayName) {
+        this.displayName = displayName;
+        return this;
+    }
 }
