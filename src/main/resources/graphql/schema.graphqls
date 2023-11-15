@@ -14,6 +14,7 @@ type PasswordUser {
 }
 
 type Post {
+    id: Int!
     author: UserProfile!
     title: String!
     content: String!
@@ -27,10 +28,14 @@ type UserProfile {
 }
 
 type Query {
+    # user class
     findAllUsers(skip: Int = 0, limit: Int = 10): [User]
     findUserByUsername(username: String!): User
     findUserByEmail(email: String!): User
     findUserByToken: User
+
+    # post class
+    findAllPosts(skip: Int = 0, limit: Int = 10): [Post]
 }
 
 type Mutation {
