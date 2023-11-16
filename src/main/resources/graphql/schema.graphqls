@@ -36,6 +36,8 @@ type Query {
 
     # post class
     findAllPosts(skip: Int = 0, limit: Int = 10): [Post]
+    findPostById(id: Int!): Post
+    findPostByTitle(title: String): Post
 }
 
 type Mutation {
@@ -45,8 +47,8 @@ type Mutation {
 
     # post class
     createPost(input: PartialPostInput!): Post
-    updatePost(input: PartialPostInput!): Post
-    deletePost(postId: Int): Boolean
+    updatePost(postId: Int!, input: PartialPostInput!): Post
+    deletePost(postId: Int!): Boolean
 }
 
 input PartialUserInput {

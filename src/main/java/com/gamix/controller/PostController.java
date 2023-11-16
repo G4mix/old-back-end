@@ -81,8 +81,8 @@ public class PostController {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
-    Post updatePost(@Argument("id") Integer id,
+    @MutationMapping
+    Post updatePost(@Argument("postId") Integer id,
                     @Argument("input") PartialPostInput partialPostInput, 
                     @AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase{
         try {
@@ -96,8 +96,8 @@ public class PostController {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
-    boolean deletePost(@Argument Integer id, @AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase {
+    @MutationMapping
+    boolean deletePost(@Argument("postId") Integer id, @AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase {
         try {
             String acessToken = userDetails.getAccessToken();
 
@@ -109,7 +109,7 @@ public class PostController {
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
-    Comment commentPost(@Argument Integer postId,
+    Comment commentPost(@Argument("postId") Integer postId,
                     @Argument("comment") String commentInput,
                     @Argument JwtUserDetails userDetails) throws ExceptionBase {
         User user = userService.findUserByUsername(userDetails.getUsername());
