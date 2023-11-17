@@ -12,17 +12,17 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.service.PostService;
-import com.gamix.service.UserService;
-import graphql.ErrorClassification;
-import graphql.GraphQLError;
-import graphql.schema.DataFetchingEnvironment;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.security.JwtUserDetails;
+import com.gamix.service.PostService;
+import com.gamix.service.UserService;
+import graphql.ErrorClassification;
+import graphql.GraphQLError;
+import graphql.schema.DataFetchingEnvironment;
 
 @Controller
 public class PostController {
@@ -35,22 +35,20 @@ public class PostController {
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
-    Post createPost(@Argument("input") PartialPostInput postInput) throws ExceptionBase {
+    Post createPost(@AuthenticationPrincipal JwtUserDetails userDetails,
+            @Argument("input") PartialPostInput postInput) throws ExceptionBase {
         try {
-            Post newPost = postService.createPost(postInput);
-
+            String accessToken = userDetails.getAccessToken();
+            Post newPost = postService.createPost(accessToken, postInput);
             return newPost;
         } catch (ExceptionBase ex) {
             throw ex;
         }
     }
-    
+
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
-    List<Post> findAllPosts(
-        @Argument("skip") int skip,
-        @Argument("limit") int limit
-    ) {
+    List<Post> findAllPosts(@Argument("skip") int skip, @Argument("limit") int limit) {
         List<Post> posts = postService.findAll(skip, limit);
 
         return posts;
@@ -82,12 +80,12 @@ public class PostController {
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
-    Post updatePost(@Argument("postId") Integer id,
-                    @Argument("input") PartialPostInput partialPostInput, 
-                    @AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase{
+    Post updatePost(@AuthenticationPrincipal JwtUserDetails userDetails,
+            @Argument("postId") Integer id, @Argument("input") PartialPostInput partialPostInput)
+            throws ExceptionBase {
         try {
-            String acessToken = userDetails.getAccessToken();
-            Post updatedPost = postService.updatePost(id, partialPostInput, acessToken);
+            String accessToken = userDetails.getAccessToken();
+            Post updatedPost = postService.updatePost(id, partialPostInput, accessToken);
 
             return updatedPost;
         } catch (ExceptionBase ex) {
@@ -97,7 +95,8 @@ public class PostController {
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
-    boolean deletePost(@Argument("postId") Integer id, @AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase {
+    boolean deletePost(@Argument("postId") Integer id,
+            @AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase {
         try {
             String acessToken = userDetails.getAccessToken();
 
@@ -110,8 +109,8 @@ public class PostController {
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     Comment commentPost(@Argument("postId") Integer postId,
-                    @Argument("comment") String commentInput,
-                    @Argument JwtUserDetails userDetails) throws ExceptionBase {
+            @Argument("comment") String commentInput, @Argument JwtUserDetails userDetails)
+            throws ExceptionBase {
         User user = userService.findUserByUsername(userDetails.getUsername());
         UserProfile author = user.getUserProfile();
 
@@ -121,22 +120,17 @@ public class PostController {
     }
 
     @GraphQlExceptionHandler
-    public GraphQLError handle(@NonNull Throwable ex, @NonNull DataFetchingEnvironment environment) {
+    public GraphQLError handle(@NonNull Throwable ex,
+            @NonNull DataFetchingEnvironment environment) {
         if (ex instanceof ExceptionBase) {
-            return GraphQLError
-                    .newError()
-                    .errorType(ErrorClassification.errorClassification(((ExceptionBase) ex).getStatus().toString()))
-                    .message(ex.getMessage())
-                    .path(environment.getExecutionStepInfo().getPath())
-                    .location(environment.getField().getSourceLocation())
-                    .build();
+            return GraphQLError.newError()
+                    .errorType(ErrorClassification
+                            .errorClassification(((ExceptionBase) ex).getStatus().toString()))
+                    .message(ex.getMessage()).path(environment.getExecutionStepInfo().getPath())
+                    .location(environment.getField().getSourceLocation()).build();
         }
-        return GraphQLError
-                .newError()
-                .errorType(ErrorType.BAD_REQUEST)
-                .message(ex.getMessage())
+        return GraphQLError.newError().errorType(ErrorType.BAD_REQUEST).message(ex.getMessage())
                 .path(environment.getExecutionStepInfo().getPath())
-                .location(environment.getField().getSourceLocation())
-                .build();
+                .location(environment.getField().getSourceLocation()).build();
     }
 }

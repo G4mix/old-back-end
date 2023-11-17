@@ -16,15 +16,15 @@ import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.interfaces.services.PostServiceInterface;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
+import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.repositories.CommentRepository;
 import com.gamix.repositories.PostRepository;
-import com.gamix.repositories.UserProfileRepository;
 import com.gamix.security.JwtManager;
 import io.jsonwebtoken.Claims;
 
-@Service        
+@Service
 public class PostService implements PostServiceInterface {
     @Autowired
     private PostRepository postRepository;
@@ -38,18 +38,17 @@ public class PostService implements PostServiceInterface {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserProfileRepository userProfileRepository;
-
     @Override
-    public Post createPost(PartialPostInput postInput) throws ExceptionBase {
+    public Post createPost(String accessToken, PartialPostInput postInput) throws ExceptionBase {
         try {
             if (postInput == null) {
                 throw new IllegalArgumentException("postInput cannot be null");
             }
 
-            Optional<UserProfile> optionalUserProfile = userProfileRepository.findById(postInput.authorId());
-            UserProfile author = optionalUserProfile.orElseThrow(() -> new UserProfileNotFound());
+            User user = userService.findUserByToken(accessToken);
+            UserProfile author = user.getUserProfile();
+            if (author == null)
+                new UserProfileNotFound();
 
             Post newPost = new Post();
             newPost.setAuthor(author);
@@ -58,7 +57,7 @@ public class PostService implements PostServiceInterface {
 
             return postRepository.save(newPost);
         } catch (ExceptionBase ex) {
-            throw ex;    
+            throw ex;
         } catch (NoSuchElementException ex) {
             throw new UserProfileNotFound();
         }
@@ -87,13 +86,14 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public Post updatePost(Integer id, PartialPostInput partialPostInput, String acessToken) throws ExceptionBase {
-        if (!jwtManager.validate(acessToken)) {
+    public Post updatePost(Integer id, PartialPostInput partialPostInput, String accessToken)
+            throws ExceptionBase {
+        if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
         }
 
         Post post = findPostById(id);
-        Claims claims = jwtManager.getTokenClaims(acessToken);
+        Claims claims = jwtManager.getTokenClaims(accessToken);
         Integer userId = Integer.parseInt(claims.getSubject());
         UserProfile postAuthor = findPostById(id).getAuthor();
 
@@ -130,7 +130,8 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public Comment commentPost(Integer postId, String comment, UserProfile author) throws ExceptionBase {
+    public Comment commentPost(Integer postId, String comment, UserProfile author)
+            throws ExceptionBase {
         try {
             Post post = findPostById(postId);
             Comment newComment = new Comment();
@@ -141,7 +142,7 @@ public class PostService implements PostServiceInterface {
             commentRepository.save(newComment);
 
             return newComment;
-            
+
         } catch (ExceptionBase ex) {
             throw ex;
         }

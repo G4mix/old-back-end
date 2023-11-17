@@ -15,7 +15,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "userProfile")
 public class UserProfile {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -40,6 +40,15 @@ public class UserProfile {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public UserProfile setId(Integer id) {
+        this.id = id;
+        return this;
     }
 
     public UserProfile setDisplayName(String displayName) {
