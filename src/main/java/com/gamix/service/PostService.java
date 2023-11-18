@@ -39,7 +39,8 @@ public class PostService implements PostServiceInterface {
     private UserService userService;
 
     @Override
-    public Post createPost(String accessToken, PartialPostInput postInput) throws ExceptionBase {
+    public Post createPost(String accessToken, PartialPostInput postInput)
+            throws ExceptionBase {
         try {
             if (postInput == null) {
                 throw new IllegalArgumentException("postInput cannot be null");
@@ -74,14 +75,12 @@ public class PostService implements PostServiceInterface {
     @Override
     public Post findPostById(Integer id) throws ExceptionBase {
         Optional<Post> post = postRepository.findById(id);
-
         return post.orElseThrow(() -> new PostNotFoundById());
     }
 
     @Override
     public Post findPostByTitle(String title) throws ExceptionBase {
         Optional<Post> post = postRepository.findPostByTitle(title);
-
         return post.orElseThrow(() -> new PostNotFoundByTitle());
     }
 

@@ -50,8 +50,7 @@ public class PostController {
     @QueryMapping
     List<Post> findAllPosts(@Argument("skip") int skip, @Argument("limit") int limit) {
         List<Post> posts = postService.findAll(skip, limit);
-
-        return posts;
+        return posts; // .stream().map(PostReturn::new).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -59,7 +58,6 @@ public class PostController {
     Post findPostById(@Argument Integer id) throws ExceptionBase {
         try {
             Post post = postService.findPostById(id);
-
             return post;
         } catch (ExceptionBase ex) {
             throw ex;
@@ -71,7 +69,6 @@ public class PostController {
     Post findPostByTitle(@Argument String title) throws ExceptionBase {
         try {
             Post post = postService.findPostByTitle(title);
-
             return post;
         } catch (ExceptionBase ex) {
             throw ex;
@@ -86,7 +83,6 @@ public class PostController {
         try {
             String accessToken = userDetails.getAccessToken();
             Post updatedPost = postService.updatePost(id, partialPostInput, accessToken);
-
             return updatedPost;
         } catch (ExceptionBase ex) {
             throw ex;

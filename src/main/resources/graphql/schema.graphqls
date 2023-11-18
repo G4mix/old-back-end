@@ -19,9 +19,9 @@ type Post {
     title: String!
     content: String!
     createdAt: String!
-    likesCount: int!
-    commentsCount: int!
-    viewsCount: int!
+    likesCount: Int!
+    commentsCount: Int!
+    viewsCount: Int!
     updatedAt: String
 }
 

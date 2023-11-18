@@ -7,14 +7,12 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -26,9 +24,6 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_profile_id")
@@ -55,27 +50,6 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
-    public int calculateLikesCount() {
-        return entityManager.createQuery("SELECT COUNT(l) FROM Like l WHERE l.post = :post", Long.class)
-                .setParameter("post", this)
-                .getSingleResult()
-                .intValue();
-    }
-
-    public int calculateCommentsCount() {
-        return entityManager.createQuery("SELECT COUNT(c) FROM Comment c WHERE c.post = :post", Long.class)
-                .setParameter("post", this)
-                .getSingleResult()
-                .intValue();
-    }
-
-    public int calculateViewsCount() {
-        return entityManager.createQuery("SELECT COUNT(v) FROM View v WHERE v.post = :post", Long.class)
-                .setParameter("post", this)
-                .getSingleResult()
-                .intValue();
-    }
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -84,6 +58,10 @@ public class Post {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public Integer getId() {
+        return this.id;
     }
 
     public UserProfile getAuthor() {
@@ -126,5 +104,15 @@ public class Post {
     }
     public List<View> getViews() {
         return this.views;
+    }
+
+    public int getLikesCount() {
+        return this.likes.size();
+    }
+    public int getCommentsCount() {
+        return this.comments.size();
+    }
+    public int getViewsCount() {
+        return this.views.size();
     }
 }
