@@ -16,10 +16,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws")
-            .setAllowedOriginPatterns("*")
+        registry.addEndpoint("/websockets")
             .setAllowedOrigins(dotenv.get("FRONT_END_BASE_URL"))
-            .withSockJS();
+            .addInterceptors(new WebSocketHandshakeInterceptor())
+            .withSockJS()
+            .setWebSocketEnabled(true)
+            .setSessionCookieNeeded(false);
     }
 
     @Override
