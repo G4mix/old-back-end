@@ -52,7 +52,7 @@ public class PostController {
     @QueryMapping
     List<Post> findAllPosts(@Argument("skip") int skip, @Argument("limit") int limit) {
         List<Post> posts = postService.findAll(skip, limit);
-        return posts; // .stream().map(PostReturn::new).collect(Collectors.toList());
+        return posts;
     }
 
     @PreAuthorize("hasAuthority('USER')")

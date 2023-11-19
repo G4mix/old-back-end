@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
@@ -66,9 +67,8 @@ public class PostService implements PostServiceInterface {
 
     @Override
     public List<Post> findAll(int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit);
+        Pageable page = PageRequest.of(skip, limit, sortByUpdatedAtOrCreatedAt());
         Page<Post> posts = postRepository.findAll(page);
-
         return posts.getContent();
     }
 
@@ -145,5 +145,12 @@ public class PostService implements PostServiceInterface {
         } catch (ExceptionBase ex) {
             throw ex;
         }
+    }
+
+    private Sort sortByUpdatedAtOrCreatedAt() {
+        return Sort.by(
+            Sort.Order.desc("updatedAt").nullsLast(),
+            Sort.Order.desc("createdAt")
+        );
     }
 }
