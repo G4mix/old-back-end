@@ -4,7 +4,6 @@ import java.util.List;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
-import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 
 public interface PostServiceInterface {
@@ -16,11 +15,11 @@ public interface PostServiceInterface {
 
     public Post findPostByTitle(String title) throws ExceptionBase;
 
-    public Post updatePost(Integer id, PartialPostInput PartialPostInput, String accessToken)
+    public Post updatePost(String accessToken, Integer id, PartialPostInput PartialPostInput)
             throws ExceptionBase;
 
-    public boolean deletePost(Integer id, String acessToken) throws ExceptionBase;
+    public boolean deletePost(String accessToken, Integer id) throws ExceptionBase;
 
-    public Comment commentPost(Integer postId, String comment, UserProfile author)
+    public Comment commentPost(String accessToken, Integer postId, String comment)
             throws ExceptionBase;
 }

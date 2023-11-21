@@ -62,7 +62,6 @@ input PartialUserInput {
 }
 
 input PartialPostInput {
-    authorId: Int
     title: String
     content: String
 }

@@ -15,24 +15,17 @@ import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
-import com.gamix.models.User;
-import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.security.JwtUserDetails;
 import com.gamix.service.PostService;
-import com.gamix.service.UserService;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.schema.DataFetchingEnvironment;
 
 @Controller
 public class PostController {
-
     @Autowired
     private PostService postService;
-
-    @Autowired
-    private UserService userService;
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
@@ -84,7 +77,7 @@ public class PostController {
             throws ExceptionBase {
         try {
             String accessToken = userDetails.getAccessToken();
-            Post updatedPost = postService.updatePost(id, partialPostInput, accessToken);
+            Post updatedPost = postService.updatePost(accessToken, id, partialPostInput);
             return updatedPost;
         } catch (ExceptionBase ex) {
             throw ex;
@@ -93,12 +86,12 @@ public class PostController {
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
-    boolean deletePost(@Argument("postId") Integer id,
-            @AuthenticationPrincipal JwtUserDetails userDetails) throws ExceptionBase {
+    boolean deletePost(@AuthenticationPrincipal JwtUserDetails userDetails,
+        @Argument("postId") Integer id) throws ExceptionBase {
         try {
             String acessToken = userDetails.getAccessToken();
 
-            return postService.deletePost(id, acessToken);
+            return postService.deletePost(acessToken, id);
         } catch (ExceptionBase ex) {
             throw ex;
         }
@@ -106,13 +99,13 @@ public class PostController {
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
-    Comment commentPost(@Argument("postId") Integer postId,
-            @Argument("comment") String commentInput, @Argument JwtUserDetails userDetails)
+    Comment commentPost(@Argument JwtUserDetails userDetails,
+            @Argument("postId") Integer postId,
+            @Argument("comment") String commentInput)
             throws ExceptionBase {
-        User user = userService.findUserByUsername(userDetails.getUsername());
-        UserProfile author = user.getUserProfile();
+        String accessToken = userDetails.getAccessToken();
 
-        Comment createdComment = postService.commentPost(postId, commentInput, author);
+        Comment createdComment = postService.commentPost(accessToken, postId, commentInput);
 
         return createdComment;
     }

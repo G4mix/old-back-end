@@ -23,7 +23,6 @@ import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.repositories.CommentRepository;
 import com.gamix.repositories.PostRepository;
 import com.gamix.security.JwtManager;
-import io.jsonwebtoken.Claims;
 
 @Service
 public class PostService implements PostServiceInterface {
@@ -85,18 +84,16 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public Post updatePost(Integer id, PartialPostInput partialPostInput, String accessToken)
+    public Post updatePost(String accessToken, Integer id, PartialPostInput partialPostInput)
             throws ExceptionBase {
         if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
         }
 
         Post post = findPostById(id);
-        Claims claims = jwtManager.getTokenClaims(accessToken);
-        Integer userId = Integer.parseInt(claims.getSubject());
-        UserProfile postAuthor = findPostById(id).getAuthor();
+        UserProfile postAuthor = post.getAuthor();
 
-        if (userService.findUserById(userId).getUserProfile() != postAuthor) {
+        if (userService.findUserByToken(accessToken).getUserProfile() != postAuthor) {
             throw new InvalidAccessToken();
         }
 
@@ -112,16 +109,14 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public boolean deletePost(Integer id, String acessToken) throws ExceptionBase {
-        if (!jwtManager.validate(acessToken)) {
+    public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
+        if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
         }
 
-        Claims claims = jwtManager.getTokenClaims(acessToken);
-        Integer userId = Integer.parseInt(claims.getSubject());
         UserProfile postAuthor = findPostById(id).getAuthor();
 
-        if (userService.findUserById(userId).getUserProfile() == postAuthor) {
+        if (userService.findUserByToken(accessToken).getUserProfile() == postAuthor) {
             postRepository.deleteById(id);
         }
 
@@ -129,10 +124,13 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public Comment commentPost(Integer postId, String comment, UserProfile author)
+    public Comment commentPost(String accessToken, Integer postId, String comment)
             throws ExceptionBase {
         try {
             Post post = findPostById(postId);
+            User user = userService.findUserByToken(accessToken);
+            UserProfile author = user.getUserProfile();
+
             Comment newComment = new Comment();
             newComment.setUserProfile(author);
             newComment.setContent(comment);
@@ -145,6 +143,21 @@ public class PostService implements PostServiceInterface {
         } catch (ExceptionBase ex) {
             throw ex;
         }
+    }
+
+    public boolean likePost() {
+        
+        return true;
+    }
+
+    public boolean unlikePost() {
+        return true;
+
+    }
+
+    public boolean viewPost() {
+        return true;
+
     }
 
     private Sort sortByUpdatedAtOrCreatedAt() {
