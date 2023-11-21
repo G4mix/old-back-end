@@ -6,3 +6,6 @@ extensions:
       headers:
         user-agent: Spring for GraphQL
       introspect: false
+spring:
+  main:
+    allow-bean-definition-overriding: true

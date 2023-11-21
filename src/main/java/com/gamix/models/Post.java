@@ -63,16 +63,19 @@ public class Post {
     private List<Comment> comments = new ArrayList<>();
 
     @Getter
+    @Setter
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Images> images = new ArrayList<>();
+    private List<Image> images = new ArrayList<>();
 
     @Getter
+    @Setter
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Links> links = new ArrayList<>();
+    private List<Link> links = new ArrayList<>();
 
     @Getter
+    @Setter
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private List<Tags> tags = new ArrayList<>();
+    private List<Tag> tags = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

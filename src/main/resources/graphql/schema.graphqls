@@ -13,16 +13,30 @@ type PasswordUser {
     verifiedEmail: Boolean
 }
 
+type Link {
+    id: Int!
+    link: String!
+    post: Post
+}
+
+type Tag {
+    id: Int!
+    name: String!
+    post: Post
+}
+
 type Post {
     id: Int!
     author: UserProfile!
     title: String!
     content: String!
     createdAt: String!
+    updatedAt: String
+    links: [Link]!
+    tags: [Tag]!
     likesCount: Int!
     commentsCount: Int!
     viewsCount: Int!
-    updatedAt: String
 }
 
 type UserProfile {
@@ -65,6 +79,5 @@ input PartialPostInput {
     title: String
     content: String
     links: [String]
-    images: [String]
     tags: [String]
 }

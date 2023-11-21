@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 @Entity
-public class Tags {
+public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -20,6 +20,15 @@ public class Tags {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 60)
     private String name;
+
+    @Column(nullable = false)
+    private String src;
+
+    @Column(nullable = false)
+    private Integer width;
+
+    @Column(nullable = false)
+    private Integer height;
 }

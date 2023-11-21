@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 @Entity
-public class Links {
+public class Link {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

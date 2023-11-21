@@ -66,7 +66,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
         User user = userService.createUser(signUpPasswordUserInput.username(),
                 signUpPasswordUserInput.email(), null);
-        userProfileService.createUserProfile(user, signUpPasswordUserInput.username());
+        userProfileService.createUserProfile(user);
         String encodedPassword =
                 new BCryptPasswordEncoder().encode(signUpPasswordUserInput.password());
         createPasswordUser(user, encodedPassword);

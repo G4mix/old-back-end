@@ -16,7 +16,9 @@ import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.interfaces.services.PostServiceInterface;
 import com.gamix.models.Comment;
+import com.gamix.models.Link;
 import com.gamix.models.Post;
+import com.gamix.models.Tag;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
@@ -45,6 +47,15 @@ public class PostService implements PostServiceInterface {
     @Autowired
     private ViewService viewService;
 
+    @Autowired
+    private LinkService linkService;
+
+    @Autowired
+    private TagService tagService;
+
+    // @Autowired
+    // private ImageService imageService;
+
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput)
             throws ExceptionBase {
@@ -62,6 +73,21 @@ public class PostService implements PostServiceInterface {
             newPost.setAuthor(author);
             newPost.setTitle(postInput.title());
             newPost.setContent(postInput.content());
+            
+            if (postInput.links() != null && !postInput.links().isEmpty()) {
+                List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
+                newPost.setLinks(links);
+            }
+            
+            if (postInput.tags() != null && !postInput.tags().isEmpty()) {
+                List<Tag> tags = tagService.createTagsForPost(newPost, postInput.tags());
+                newPost.setTags(tags);
+            }
+
+            // if (postInput.images() != null && !postInput.images().isEmpty()) {
+            //     List<Image> images = imageService.createImagesForPost(post, postInput.images());
+            //     newPost.setImages(images);
+            // }
 
             return postRepository.save(newPost);
         } catch (NoSuchElementException ex) {

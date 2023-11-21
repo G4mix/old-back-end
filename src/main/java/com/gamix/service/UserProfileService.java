@@ -14,8 +14,8 @@ public class UserProfileService implements UserProfileServiceInterface {
     private UserProfileRepository userProfileRepository;
 
     @Override
-    public UserProfile createUserProfile(User user, String displayName) {
-        UserProfile userProfile = new UserProfile().setUser(user).setDisplayName(displayName);;
+    public UserProfile createUserProfile(User user) {
+        UserProfile userProfile = new UserProfile().setUser(user).setDisplayName(user.getUsername());;
 
         return userProfileRepository.save(userProfile);
     }

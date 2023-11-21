@@ -8,7 +8,6 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -29,7 +28,7 @@ public class PostController {
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
-    @SendTo("/topic/feed")
+    // @SendTo("/topic/feed")
     Post createPost(@AuthenticationPrincipal JwtUserDetails userDetails,
             @Argument("input") PartialPostInput postInput) throws ExceptionBase {
         try {
