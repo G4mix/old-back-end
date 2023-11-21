@@ -16,22 +16,31 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "post")
 public class Post {
     
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Getter
+    @Setter
     @ManyToOne(optional = true)
     @JoinColumn(name = "user_profile_id")
     private UserProfile author;
     
+    @Getter
+    @Setter
     @Column(nullable = false, length = 70)
     private String title;
 
+    @Getter
+    @Setter
     @Column(nullable = false, length = 700)
     private String content;
 
@@ -41,14 +50,29 @@ public class Post {
     @Column(nullable = true)
     private LocalDateTime updatedAt;
 
+    @Getter
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<View> views = new ArrayList<>();
 
+    @Getter
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 
+    @Getter
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
+
+    @Getter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Images> images = new ArrayList<>();
+
+    @Getter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Links> links = new ArrayList<>();
+
+    @Getter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Tags> tags = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
@@ -60,50 +84,12 @@ public class Post {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Integer getId() {
-        return this.id;
-    }
-
-    public UserProfile getAuthor() {
-        return author;
-    }
-    public UserProfile setAuthor(UserProfile author) {
-        this.author = author;
-        return author;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-    public String setTitle(String title) {
-        this.title = title;
-        return title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-    public String setContent(String content) {
-        this.content = content;
-        return content;
-    }
-
     public String getCreatedAt() {
         return createdAt != null ? createdAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
     }
 
     public String getUpdatedAt() {
         return updatedAt != null ? updatedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
-    }
-
-    public List<Like> getLikes() {
-        return this.likes;
-    }
-    public List<Comment> getComments() {
-        return this.comments;
-    }
-    public List<View> getViews() {
-        return this.views;
     }
 
     public int getLikesCount() {
