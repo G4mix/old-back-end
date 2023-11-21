@@ -64,4 +64,7 @@ input PartialUserInput {
 input PartialPostInput {
     title: String
     content: String
+    links: [String]
+    images: [String]
+    tags: [String]
 }
