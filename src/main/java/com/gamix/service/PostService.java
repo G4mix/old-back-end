@@ -26,6 +26,10 @@ import com.gamix.security.JwtManager;
 
 @Service
 public class PostService implements PostServiceInterface {
+
+    @Autowired
+    private JwtManager jwtManager;
+
     @Autowired
     private PostRepository postRepository;
 
@@ -33,10 +37,13 @@ public class PostService implements PostServiceInterface {
     private CommentRepository commentRepository;
 
     @Autowired
-    private JwtManager jwtManager;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    private LikeService likeService;
+
+    @Autowired
+    private ViewService viewService;
 
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput)
@@ -57,8 +64,6 @@ public class PostService implements PostServiceInterface {
             newPost.setContent(postInput.content());
 
             return postRepository.save(newPost);
-        } catch (ExceptionBase ex) {
-            throw ex;
         } catch (NoSuchElementException ex) {
             throw new UserProfileNotFound();
         }
@@ -126,38 +131,36 @@ public class PostService implements PostServiceInterface {
     @Override
     public Comment commentPost(String accessToken, Integer postId, String comment)
             throws ExceptionBase {
-        try {
-            Post post = findPostById(postId);
-            User user = userService.findUserByToken(accessToken);
-            UserProfile author = user.getUserProfile();
+        Post post = findPostById(postId);
+        User user = userService.findUserByToken(accessToken);
+        UserProfile author = user.getUserProfile();
 
-            Comment newComment = new Comment();
-            newComment.setUserProfile(author);
-            newComment.setContent(comment);
-            newComment.setPost(post);
+        Comment newComment = new Comment();
+        newComment.setUserProfile(author);
+        newComment.setContent(comment);
+        newComment.setPost(post);
 
-            commentRepository.save(newComment);
+        commentRepository.save(newComment);
 
-            return newComment;
-
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        return newComment;
     }
 
-    public boolean likePost() {
-        
-        return true;
+    public void likePost(String accessToken, Integer postId) throws ExceptionBase {
+        Post post = findPostById(postId);
+        User user = userService.findUserByToken(accessToken);
+        likeService.likePost(post, user.getUserProfile());
     }
 
-    public boolean unlikePost() {
-        return true;
-
+    public void unlikePost(String accessToken, Integer postId) throws ExceptionBase {
+        Post post = findPostById(postId);
+        User user = userService.findUserByToken(accessToken);
+        likeService.unlikePost(post, user.getUserProfile());
     }
 
-    public boolean viewPost() {
-        return true;
-
+    public void viewPost(String accessToken, Integer postId) throws ExceptionBase {
+        Post post = findPostById(postId);
+        User user = userService.findUserByToken(accessToken);
+        viewService.viewPost(post, user.getUserProfile());
     }
 
     private Sort sortByUpdatedAtOrCreatedAt() {
