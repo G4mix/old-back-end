@@ -19,4 +19,20 @@ public class LinkService {
         }
         return postLinks;
     }
+
+    public List<Link> updateLinksForPost(Post post, List<String> linksStrings) {
+        List<Link> postLinks = post.getLinks();
+        for (String linkString : linksStrings) {
+            Link link = new Link();
+            link.setLink(linkString);
+            link.setPost(post);
+    
+            if (postLinks.contains(link)) {
+                postLinks.remove(link);
+            } else {
+                postLinks.add(link);
+            }
+        }
+        return postLinks;
+    }
 }

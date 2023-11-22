@@ -93,4 +93,8 @@ public class Comment {
     public LocalDateTime updatedAt() {
         return this.updatedAt;
     }
+
+    public int getLikesCount() {
+        return this.likes.size();
+    }
 }

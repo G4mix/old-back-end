@@ -2,7 +2,6 @@ package com.gamix.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,7 +16,6 @@ import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.interfaces.services.PostServiceInterface;
 import com.gamix.models.Comment;
-import com.gamix.models.Image;
 import com.gamix.models.Link;
 import com.gamix.models.Post;
 import com.gamix.models.Tag;
@@ -56,47 +54,41 @@ public class PostService implements PostServiceInterface {
     @Autowired
     private TagService tagService;
 
-    @Autowired
-    private ImageService imageService;
+    // @Autowired
+    // private ImageService imageService;
 
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
             throws ExceptionBase, IOException {
-        try {
-            if (postInput == null) {
-                throw new IllegalArgumentException("postInput cannot be null");
-            }
 
-            User user = userService.findUserByToken(accessToken);
-            UserProfile author = user.getUserProfile();
-            if (author == null)
-                new UserProfileNotFound();
+        User user = userService.findUserByToken(accessToken);
+        UserProfile author = user.getUserProfile();
+        if (author == null)
+            new UserProfileNotFound();
 
-            Post newPost = new Post();
-            newPost.setAuthor(author);
-            newPost.setTitle(postInput.title());
-            newPost.setContent(postInput.content());
-            
-            if (postInput.links() != null && !postInput.links().isEmpty()) {
-                List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
-                newPost.setLinks(links);
-            }
-            
-            if (postInput.tags() != null && !postInput.tags().isEmpty()) {
-                List<Tag> tags = tagService.createTagsForPost(newPost, postInput.tags());
-                newPost.setTags(tags);
-            }
-
-            if (partImages != null && !partImages.isEmpty()) {
-                List<Image> images = imageService.createImagesForPost(newPost, partImages);
-                System.out.println(images);
-                newPost.setImages(images);
-            }
-            return newPost;
-            // return postRepository.save(newPost);
-        } catch (NoSuchElementException ex) {
-            throw new UserProfileNotFound();
+        Post newPost = new Post();
+        newPost.setAuthor(author);
+        newPost.setTitle(postInput.title());
+        newPost.setContent(postInput.content());
+        
+        if (postInput.links() != null && !postInput.links().isEmpty()) {
+            List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
+            newPost.setLinks(links);
         }
+        
+        if (postInput.tags() != null && !postInput.tags().isEmpty()) {
+            List<Tag> tags = tagService.createTagsForPost(newPost, postInput.tags());
+            newPost.setTags(tags);
+        }
+
+        System.out.println(partImages);
+        // if (partImages != null && !partImages.isEmpty()) {
+        //     List<Image> images = imageService.createImagesForPost(newPost, partImages);
+        //     System.out.println(images);
+        //     newPost.setImages(images);
+        // }
+
+        return postRepository.save(newPost);
     }
 
     @Override
@@ -119,7 +111,7 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public Post updatePost(String accessToken, Integer id, PartialPostInput partialPostInput)
+    public Post updatePost(String accessToken, Integer id, PartialPostInput postInput)
             throws ExceptionBase {
         if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
@@ -132,12 +124,22 @@ public class PostService implements PostServiceInterface {
             throw new InvalidAccessToken();
         }
 
-        if (partialPostInput.title() != null) {
-            post.setTitle(partialPostInput.title());
+        if (postInput.title() != null) {
+            post.setTitle(postInput.title());
         }
 
-        if (partialPostInput.content() != null) {
-            post.setContent(partialPostInput.content());
+        if (postInput.content() != null) {
+            post.setContent(postInput.content());
+        }
+
+        if (postInput.links() != null && !postInput.links().isEmpty()) {
+            List<Link> links = linkService.updateLinksForPost(post, postInput.links());
+            post.setLinks(links);
+        }
+
+        if (postInput.tags() != null && !postInput.tags().isEmpty()) {
+            List<Tag> tags = tagService.updateTagsForPost(post, postInput.tags());
+            post.setTags(tags);
         }
 
         return postRepository.save(post);
@@ -153,9 +155,9 @@ public class PostService implements PostServiceInterface {
 
         if (userService.findUserByToken(accessToken).getUserProfile() == postAuthor) {
             postRepository.deleteById(id);
+            return true;
         }
-
-        return true;
+        return false;
     }
 
     @Override
