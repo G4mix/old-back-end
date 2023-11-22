@@ -17,6 +17,7 @@ import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.interfaces.services.PostServiceInterface;
 import com.gamix.models.Comment;
+import com.gamix.models.Image;
 import com.gamix.models.Link;
 import com.gamix.models.Post;
 import com.gamix.models.Tag;
@@ -55,8 +56,8 @@ public class PostService implements PostServiceInterface {
     @Autowired
     private TagService tagService;
 
-    // @Autowired
-    // private ImageService imageService;
+    @Autowired
+    private ImageService imageService;
 
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
@@ -65,9 +66,9 @@ public class PostService implements PostServiceInterface {
         if (
             postInput.content() == "" &&
             postInput.title() == "" &&
-            postInput.links().isEmpty() &&
-            postInput.tags().isEmpty() &&
-            partImages.isEmpty()
+            (postInput.links() == null || postInput.links().isEmpty()) &&
+            (postInput.tags() == null || postInput.tags().isEmpty()) &&
+            (partImages == null || partImages.isEmpty())
         ) {
             throw new CompletelyEmptyPost();
         }
@@ -92,12 +93,11 @@ public class PostService implements PostServiceInterface {
             newPost.setTags(tags);
         }
 
-        System.out.println(partImages);
-        // if (partImages != null && !partImages.isEmpty()) {
-        //     List<Image> images = imageService.createImagesForPost(newPost, partImages);
-        //     System.out.println(images);
-        //     newPost.setImages(images);
-        // }
+        if (partImages != null && !partImages.isEmpty()) {
+            List<Image> images = imageService.createImagesForPost(newPost, partImages);
+            System.out.println(images);
+            newPost.setImages(images);
+        }
 
         return postRepository.save(newPost);
     }
