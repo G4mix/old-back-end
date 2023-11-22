@@ -1,44 +1,26 @@
-package com.gamix.controller;
+package com.gamix.resolvers.Post;
 
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.models.Comment;
 import com.gamix.models.Post;
-import com.gamix.records.inputs.PostController.PartialPostInput;
-import com.gamix.security.JwtUserDetails;
 import com.gamix.service.PostService;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
+import graphql.kickstart.tools.GraphQLQueryResolver;
 import graphql.schema.DataFetchingEnvironment;
 
 @Controller
-public class PostController {
+public class PostQueryResolver implements GraphQLQueryResolver {
     @Autowired
     private PostService postService;
-
-    @PreAuthorize("hasAuthority('USER')")
-    @MutationMapping
-    // @SendTo("/topic/feed")
-    Post createPost(@AuthenticationPrincipal JwtUserDetails userDetails,
-            @Argument("input") PartialPostInput postInput) throws ExceptionBase {
-        try {
-            String accessToken = userDetails.getAccessToken();
-            Post newPost = postService.createPost(accessToken, postInput);
-            return newPost;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
-    }
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
@@ -67,46 +49,6 @@ public class PostController {
         } catch (ExceptionBase ex) {
             throw ex;
         }
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @MutationMapping
-    Post updatePost(@AuthenticationPrincipal JwtUserDetails userDetails,
-            @Argument("postId") Integer id, @Argument("input") PartialPostInput partialPostInput)
-            throws ExceptionBase {
-        try {
-            String accessToken = userDetails.getAccessToken();
-            Post updatedPost = postService.updatePost(accessToken, id, partialPostInput);
-            return updatedPost;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @MutationMapping
-    boolean deletePost(@AuthenticationPrincipal JwtUserDetails userDetails,
-        @Argument("postId") Integer id) throws ExceptionBase {
-        try {
-            String acessToken = userDetails.getAccessToken();
-
-            return postService.deletePost(acessToken, id);
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
-    Comment commentPost(@Argument JwtUserDetails userDetails,
-            @Argument("postId") Integer postId,
-            @Argument("comment") String commentInput)
-            throws ExceptionBase {
-        String accessToken = userDetails.getAccessToken();
-
-        Comment createdComment = postService.commentPost(accessToken, postId, commentInput);
-
-        return createdComment;
     }
 
     @GraphQlExceptionHandler

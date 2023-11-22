@@ -1,3 +1,5 @@
+scalar Upload
+
 type User {
     id: Int!
     username: String!
@@ -80,4 +82,5 @@ input PartialPostInput {
     content: String
     links: [String]
     tags: [String]
+    images: [Upload]
 }

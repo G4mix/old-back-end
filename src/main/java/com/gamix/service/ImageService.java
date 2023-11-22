@@ -12,20 +12,30 @@ import com.gamix.models.Image;
 import com.gamix.models.Post;
 import com.gamix.utils.ImageUploader;
 import com.gamix.utils.MultipartFileToFileConverter;
+import com.gamix.utils.SingleMultipartFile;
+import jakarta.servlet.http.Part;
 
 @Service
 public class ImageService {
 
-    public List<Image> createImagesForPost(Post post, List<MultipartFile> files) throws IOException {
+    public List<Image> createImagesForPost(Post post, List<Part> files) throws IOException {
         List<Image> images = new ArrayList<>();
-        for (MultipartFile file : files) {
-            BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+        for (Part partFile : files) {
+            MultipartFile multipartFile = new SingleMultipartFile(partFile);
+            
+            BufferedImage bufferedImage = ImageIO.read(multipartFile.getInputStream());
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
-            String fileName = file.getOriginalFilename();
+            String fileName = multipartFile.getOriginalFilename();
 
-            File fileToUpload = MultipartFileToFileConverter.convert(file);
-            String src = ImageUploader.upload(fileToUpload);
+            System.out.println(fileName);
+            System.out.println(width);
+            System.out.println(height);
+            
+            File file = MultipartFileToFileConverter.convert(multipartFile);
+            String src = ImageUploader.upload(file);
+            
+            System.out.println(src);
 
             Image image = new Image();
             image.setName(fileName);

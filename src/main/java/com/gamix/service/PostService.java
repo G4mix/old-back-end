@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.interfaces.services.PostServiceInterface;
 import com.gamix.models.Comment;
+import com.gamix.models.Image;
 import com.gamix.models.Link;
 import com.gamix.models.Post;
 import com.gamix.models.Tag;
@@ -53,12 +55,12 @@ public class PostService implements PostServiceInterface {
     @Autowired
     private TagService tagService;
 
-    // @Autowired
-    // private ImageService imageService;
+    @Autowired
+    private ImageService imageService;
 
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput)
-            throws ExceptionBase {
+            throws ExceptionBase, IOException {
         try {
             if (postInput == null) {
                 throw new IllegalArgumentException("postInput cannot be null");
@@ -84,12 +86,14 @@ public class PostService implements PostServiceInterface {
                 newPost.setTags(tags);
             }
 
-            // if (postInput.images() != null && !postInput.images().isEmpty()) {
-            //     List<Image> images = imageService.createImagesForPost(post, postInput.images());
-            //     newPost.setImages(images);
-            // }
-
-            return postRepository.save(newPost);
+            System.out.println("Salve 1");
+            if (postInput.images() != null && !postInput.images().isEmpty()) {
+                System.out.println("Salve 2");
+                List<Image> images = imageService.createImagesForPost(newPost, postInput.images());
+                newPost.setImages(images);
+            }
+            return newPost;
+            // return postRepository.save(newPost);
         } catch (NoSuchElementException ex) {
             throw new UserProfileNotFound();
         }
