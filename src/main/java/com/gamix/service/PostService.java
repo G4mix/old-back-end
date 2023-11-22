@@ -86,9 +86,7 @@ public class PostService implements PostServiceInterface {
                 newPost.setTags(tags);
             }
 
-            System.out.println("Salve 1");
             if (postInput.images() != null && !postInput.images().isEmpty()) {
-                System.out.println("Salve 2");
                 List<Image> images = imageService.createImagesForPost(newPost, postInput.images());
                 newPost.setImages(images);
             }
