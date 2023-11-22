@@ -34,27 +34,12 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     // @SendTo("/topic/feed")
-    Boolean createPost(@Argument("input") PartialPostInput postInput, DataFetchingEnvironment env) throws ExceptionBase, IOException {
+    Post createPost(@Argument("input") PartialPostInput postInput, List<Part> images, DataFetchingEnvironment env) throws ExceptionBase, IOException {
         try {
-            List<Part> images = env.getArgument("images");
-            System.out.println(postInput.images());
-            System.out.println(images);
-
-            int i = 1;
-            for (Part part : images) {
-              String uploadName = "copy" + i;
-              try {
-                part.write("/" + uploadName);
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-              i++;
-            }
-            return true;
-            // String authorizationHeader = httpServletRequest.getHeader("Authorization");
-            // String accessToken = authorizationHeader.substring(7);
-            // Post newPost = postService.createPost(accessToken, postInput);
-            // return newPost;
+            String authorizationHeader = httpServletRequest.getHeader("Authorization");
+            String accessToken = authorizationHeader.substring(7);
+            Post newPost = postService.createPost(accessToken, postInput, images);
+            return newPost;
         } catch (Exception ex) {
             throw ex;
         }

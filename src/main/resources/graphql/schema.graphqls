@@ -67,7 +67,7 @@ type Mutation {
     deleteAccount: Boolean
 
     # post class
-    createPost(input: PartialPostInput!): Boolean
+    createPost(input: PartialPostInput!, images: [Upload]): Post
     updatePost(postId: Int!, input: PartialPostInput!): Post
     deletePost(postId: Int!): Boolean
 }
@@ -82,5 +82,4 @@ input PartialPostInput {
     content: String
     links: [String]
     tags: [String]
-    images: [Upload]
 }

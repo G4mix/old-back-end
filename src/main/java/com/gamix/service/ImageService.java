@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.gamix.models.Image;
@@ -17,6 +18,8 @@ import jakarta.servlet.http.Part;
 
 @Service
 public class ImageService {
+    @Autowired
+    private ImageUploader imageUploader;
 
     public List<Image> createImagesForPost(Post post, List<Part> files) throws IOException {
         List<Image> images = new ArrayList<>();
@@ -27,13 +30,9 @@ public class ImageService {
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
             String fileName = multipartFile.getOriginalFilename();
-
-            System.out.println(fileName);
-            System.out.println(width);
-            System.out.println(height);
             
             File file = MultipartFileToFileConverter.convert(multipartFile);
-            String src = ImageUploader.upload(file);
+            String src = imageUploader.upload(file);
             
             System.out.println(src);
 

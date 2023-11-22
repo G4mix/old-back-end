@@ -14,22 +14,24 @@ import java.util.List;
 import javax.xml.bind.DatatypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import io.github.cdimascio.dotenv.Dotenv;
 
+@Component
 public class ImageUploader {
     @Autowired
-    private static Dotenv dotenv;
+    private Dotenv dotenv;
 
-    public static final String UPLOAD_API_URL = "https://api.imgur.com/3/image";
-    public static final int MAX_UPLOAD_ATTEMPTS = 3;
+    public final String UPLOAD_API_URL = "https://api.imgur.com/3/image";
+    public final int MAX_UPLOAD_ATTEMPTS = 3;
 
-    public static String upload(File file) {
+    public String upload(File file) {
         HttpURLConnection conn = getHttpConnection(UPLOAD_API_URL);
         writeToConnection(conn, "image=" + toBase64(file));
         return getResponse(conn);
     }
 
-    public static String createAlbum(List<String> imageIds, Integer userId) {
+    public String createAlbum(List<String> imageIds, Integer userId) {
         String ALBUM_API_URL = "https://api.imgur.com/3/" + userId;
         HttpURLConnection conn = getHttpConnection(ALBUM_API_URL);
         String ids = "";
@@ -43,7 +45,7 @@ public class ImageUploader {
         return getResponse(conn);
     }
 
-    private static String toBase64(File file) {
+    private String toBase64(File file) {
         try {
             byte[] b = new byte[(int) file.length()];
             FileInputStream fs = new FileInputStream(file);
@@ -55,7 +57,7 @@ public class ImageUploader {
         }
     }
 
-    private static HttpURLConnection getHttpConnection(String url) {
+    private HttpURLConnection getHttpConnection(String url) {
         HttpURLConnection conn;
         try {
             conn = (HttpURLConnection) new URL(url).openConnection();
@@ -73,7 +75,7 @@ public class ImageUploader {
         }
     }
 
-    private static void writeToConnection(HttpURLConnection conn, String message) {
+    private void writeToConnection(HttpURLConnection conn, String message) {
         OutputStreamWriter writer;
         try {
             writer = new OutputStreamWriter(conn.getOutputStream());
@@ -85,7 +87,7 @@ public class ImageUploader {
         }
     }
 
-    private static String getResponse(HttpURLConnection conn) {
+    private String getResponse(HttpURLConnection conn) {
         StringBuilder str = new StringBuilder();
         BufferedReader reader;
         try {
