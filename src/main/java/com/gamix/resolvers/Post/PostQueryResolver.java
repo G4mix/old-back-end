@@ -25,6 +25,7 @@ public class PostQueryResolver implements GraphQLQueryResolver {
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     List<Post> findAllPosts(@Argument("skip") int skip, @Argument("limit") int limit) {
+        System.out.println("CHAMANDOOOOOOOOOO");
         List<Post> posts = postService.findAll(skip, limit);
         return posts;
     }

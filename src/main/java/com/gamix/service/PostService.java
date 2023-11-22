@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
+import com.gamix.exceptions.parameters.posts.CompletelyEmptyPost;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
@@ -60,6 +61,16 @@ public class PostService implements PostServiceInterface {
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
             throws ExceptionBase, IOException {
+        
+        if (
+            postInput.content() == "" &&
+            postInput.title() == "" &&
+            postInput.links().isEmpty() &&
+            postInput.tags().isEmpty() &&
+            partImages.isEmpty()
+        ) {
+            throw new CompletelyEmptyPost();
+        }
 
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();

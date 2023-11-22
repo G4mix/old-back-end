@@ -1,26 +1,19 @@
 package com.gamix.service;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.gamix.models.Image;
 import com.gamix.models.Post;
-import com.gamix.utils.ImageUploader;
-import com.gamix.utils.MultipartFileToFileConverter;
 import com.gamix.utils.SingleMultipartFile;
 import jakarta.servlet.http.Part;
 
 @Service
 public class ImageService {
-    @Autowired
-    private ImageUploader imageUploader;
-
     public List<Image> createImagesForPost(Post post, List<Part> files) throws IOException {
         List<Image> images = new ArrayList<>();
         for (Part partFile : files) {
@@ -31,8 +24,7 @@ public class ImageService {
             int height = bufferedImage.getHeight();
             String fileName = multipartFile.getOriginalFilename();
             
-            File file = MultipartFileToFileConverter.convert(multipartFile);
-            String src = imageUploader.upload(file);
+            String src = ""; // fazer upload do arquivo e pegar o src
             
             System.out.println(src);
 
