@@ -29,7 +29,6 @@ services:
       - FRONT_END_BASE_URL=http://localhost:3000
     volumes:
       - ./src:/app/src
-      - ./graphql.config.yml:/app/graphql.config.yml
       - ./pom.xml:/app/pom.xml
       - ./target:/app/target
       - ./docker/development:/app/scripts
