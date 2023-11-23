@@ -27,6 +27,15 @@ type Tag {
     post: Post
 }
 
+type Image {
+    id: Int!
+    post: Post!
+    name: String!
+    src: String!
+    width: Int!
+    height: Int!
+}
+
 type Post {
     id: Int!
     author: UserProfile!
@@ -36,6 +45,7 @@ type Post {
     updatedAt: String
     links: [Link]!
     tags: [Tag]!
+    images: [Image]!
     likesCount: Int!
     commentsCount: Int!
     viewsCount: Int!

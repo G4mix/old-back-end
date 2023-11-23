@@ -9,28 +9,28 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import com.gamix.models.Image;
 import com.gamix.models.Post;
+import com.gamix.models.User;
+import com.gamix.utils.SingleMultipartFile;
 import jakarta.servlet.http.Part;
 
 @Service
-public class ImageService {    
-    public List<Image> createImagesForPost(Post post, List<Part> files) throws IOException {
-        String imagesFolder = "images/posts/"+post.getId()+"/";
+public class ImageService {
+    private final Integer MAX_SIZE = 2 * 1024 * 1024;
+    public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws IOException {
+        String imagesFolderPath = "/images/posts/"+user.getId()+"/";
+        createDirectoryIfNotExists(imagesFolderPath);
+
         List<Image> images = new ArrayList<>();
         for (Part partFile : files) {
-            String fileName = partFile.getSubmittedFileName();
-            InputStream fileContent = partFile.getInputStream();
+            MultipartFile file = new SingleMultipartFile(partFile);
+            String fileName = file.getOriginalFilename();
+            InputStream fileContent = file.getInputStream();
+            
+            if (file.getSize() > MAX_SIZE) continue;
 
-            long fileSizeInBytes = partFile.getSize();
-            long maxSizeBytes = 2 * 1024 * 1024;
-    
-            if (fileSizeInBytes > maxSizeBytes) {
-                continue;
-            }
-
-            String resourcesPath = getClass().getClassLoader().getResource("").getPath();
-            String imagesFolderPath = resourcesPath + imagesFolder;
             String src = imagesFolderPath + fileName;
             File imageFile = new File(src);
 
@@ -54,10 +54,22 @@ public class ImageService {
 
     private void saveFile(InputStream fileContent, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            byte[] buffer = new byte[2097152];
+            byte[] buffer = new byte[MAX_SIZE];
             int bytesRead;
             while ((bytesRead = fileContent.read(buffer)) != -1) {
                 fos.write(buffer, 0, bytesRead);
+            }
+        }
+    }
+
+    private void createDirectoryIfNotExists(String directoryPath) {
+        File directory = new File(directoryPath);
+        if (!directory.exists()) {
+            boolean created = directory.mkdirs();
+            if (created) {
+                System.out.println("Pasta criada com sucesso: " + directoryPath);
+            } else {
+                System.out.println("Falha ao criar a pasta: " + directoryPath);
             }
         }
     }

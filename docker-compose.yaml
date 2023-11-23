@@ -35,6 +35,7 @@ services:
       - ./target:/app/target
       - ./docker/development:/app/scripts
       - ./.env:/tmp/.env
+      - ./images:/images
       - maven_cache:/root/.m2
     command: >
       /bin/sh -c '\

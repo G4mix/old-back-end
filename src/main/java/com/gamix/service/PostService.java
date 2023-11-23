@@ -68,7 +68,7 @@ public class PostService implements PostServiceInterface {
             postInput.title() == "" &&
             (postInput.links() == null || postInput.links().isEmpty()) &&
             (postInput.tags() == null || postInput.tags().isEmpty()) &&
-            (partImages == null || partImages.isEmpty())
+            (partImages == null)
         ) {
             throw new CompletelyEmptyPost();
         }
@@ -93,10 +93,13 @@ public class PostService implements PostServiceInterface {
             newPost.setTags(tags);
         }
 
-        if (partImages != null && !partImages.isEmpty()) {
-            List<Image> images = imageService.createImagesForPost(newPost, partImages);
-            System.out.println(images);
-            newPost.setImages(images);
+        if (partImages != null && !partImages.contains(null) && !partImages.isEmpty()) {
+            try {
+                List<Image> images = imageService.createImagesForPost(newPost, partImages, user);
+                newPost.setImages(images);
+            } catch (Exception ex) {
+                System.out.println(ex.getMessage());
+            }
         }
 
         return postRepository.save(newPost);
