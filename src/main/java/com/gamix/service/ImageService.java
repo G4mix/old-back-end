@@ -21,7 +21,7 @@ public class ImageService {
     private final Integer MAX_SIZE = 2 * 1024 * 1024;
     public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws IOException {
         String imagesFolderPath = "/images/posts/"+user.getId()+"/";
-        createDirectoryIfNotExists("."+imagesFolderPath);
+        createDirectoryIfNotExists(imagesFolderPath);
 
         List<Image> images = new ArrayList<>();
         for (Part partFile : files) {
@@ -32,7 +32,8 @@ public class ImageService {
             if (file.getSize() > MAX_SIZE) continue;
 
             String src = imagesFolderPath + fileName;
-            File imageFile = new File("."+src);
+            
+            File imageFile = new File(src);
 
             saveFile(fileContent, imageFile);
 

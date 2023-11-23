@@ -6,13 +6,13 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class ImagesController {
     private static final String BASE_PATH = "images";
-
+    
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -21,15 +21,14 @@ public class ImagesController {
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
         try {
             Resource resource = resourceLoader.getResource("classpath:" + BASE_PATH + "/" + imageName);
-
+            System.out.println("Resource: " + resource);
             if (resource.exists() && resource.isReadable()) {
+                System.out.println("Resource exists and is readable");
                 return ResponseEntity.ok().body(resource);
             } else {
-                System.out.println("Morri 1");
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            System.out.println("Morri 2");
             return ResponseEntity.notFound().build();
         }
     }
