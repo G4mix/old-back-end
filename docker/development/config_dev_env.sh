@@ -6,18 +6,7 @@ if [ -e /app/.env ]; then
     exit 0
 fi
 
-# Verifica se o arquivo /tmp/.env existe
-if [ ! -e /tmp/.env ]; then
-    echo "O arquivo /tmp/.env não existe. Nenhuma variável será definida."
-    exit 1
-fi
-
-# Lê o valor do clientID do arquivo /tmp/.env e define como variável de ambiente
-export IMGUR_CLIENT_ID=$(grep -E '^IMGUR_CLIENT_ID=' /tmp/.env | cut -d '=' -f2-)
-
 # Cria o arquivo .env e adiciona as variáveis de ambiente
-
-/tmp/.env
 
 cat <<EOL > /app/.env
 SPRING_DATASOURCE_DRIVER_CLASS_NAME=$SPRING_DATASOURCE_DRIVER_CLASS_NAME

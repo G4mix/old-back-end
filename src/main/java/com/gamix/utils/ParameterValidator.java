@@ -6,9 +6,6 @@ import com.gamix.exceptions.parameters.email.EmailInvalidFormat;
 import com.gamix.exceptions.parameters.email.EmailNull;
 import com.gamix.exceptions.parameters.email.EmailTooLong;
 import com.gamix.exceptions.parameters.icon.IconNull;
-import com.gamix.exceptions.parameters.icon.IconUrlInvalid;
-import com.gamix.exceptions.parameters.icon.IconUrlTooLong;
-import com.gamix.exceptions.parameters.icon.IconUrlTooShort;
 import com.gamix.exceptions.parameters.password.PasswordMissingNumber;
 import com.gamix.exceptions.parameters.password.PasswordMissingSpecialChar;
 import com.gamix.exceptions.parameters.password.PasswordMissingUppercase;
@@ -64,11 +61,5 @@ public class ParameterValidator {
     public static void validateIcon(String icon) throws ExceptionBase {
         if (icon == null)
             throw new IconNull();
-        if (icon.length() < 10)
-            throw new IconUrlTooShort();
-        if (icon.length() > 120)
-            throw new IconUrlTooLong();
-        if (icon.matches("^(https?:\\/\\/)?([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)"))
-            throw new IconUrlInvalid();
     }
 }
