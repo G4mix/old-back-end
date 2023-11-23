@@ -8,17 +8,24 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.gamix.models.Image;
 import com.gamix.models.Post;
 import com.gamix.models.User;
+import com.gamix.repositories.ImageRepository;
 import com.gamix.utils.SingleMultipartFile;
 import jakarta.servlet.http.Part;
 
 @Service
 public class ImageService {
+
     private final Integer MAX_SIZE = 2 * 1024 * 1024;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
     public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws IOException {
         String imagesFolderPath = "/images/posts/"+user.getId()+"/";
         createDirectoryIfNotExists(imagesFolderPath);
@@ -51,6 +58,24 @@ public class ImageService {
             images.add(image);
         }
         return images;
+    }
+
+    public void deleteImage(Post post) {
+        for (Image image : post.getImages()) {
+            if (!imageIsReferencedByOtherPosts(image)) {
+                System.out.println("Deletando "+image.getSrc());
+                deleteImageFromDisk(image.getSrc());
+            }
+        }
+    }
+
+    private boolean imageIsReferencedByOtherPosts(Image image) {
+        return imageRepository.countBySrc(image.getSrc()) > 1;
+    }
+
+    private void deleteImageFromDisk(String imagePath) {
+        File file = new File(imagePath);
+        if (file.exists()) file.delete();
     }
 
     private void saveFile(InputStream fileContent, File file) throws IOException {

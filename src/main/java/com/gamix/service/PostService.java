@@ -202,17 +202,10 @@ public class PostService implements PostServiceInterface {
 
         if (accessTokenOwner.getId() != postAuthor.getId()) return false;
         
-        System.out.println("Tentando deletar");
-        // Remover o post da lista de posts do UserProfile
+        imageService.deleteImage(post);
         postAuthor.getPosts().remove(post);
-
-        // Defina o autor do post como nulo para que a referência seja eliminada
         post.setAuthor(null);
-
-        // Salve as alterações no repositório da UserProfile
         userProfileRepository.save(postAuthor);
-
-        // Excluir o post
         postRepository.delete(post);
 
         return true;
