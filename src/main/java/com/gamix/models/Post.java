@@ -19,7 +19,9 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(chain = true)
 @Entity
 @Table(name = "post")
 public class Post {
@@ -46,42 +48,43 @@ public class Post {
     @Column(nullable = false, length = 700)
     private String content;
 
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<View> views = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Image> images = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Link> links = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Tag> tags = new ArrayList<>();
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = true)
     private LocalDateTime updatedAt;
-
-    @Getter
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<View> views = new ArrayList<>();
-
-    @Getter
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Like> likes = new ArrayList<>();
-
-    @Getter
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Comment> comments = new ArrayList<>();
-
-    @Getter
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Image> images = new ArrayList<>();
-
-    @Getter
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Link> links = new ArrayList<>();
-
-    @Getter
-    @Setter
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Tag> tags = new ArrayList<>();
-
+    
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

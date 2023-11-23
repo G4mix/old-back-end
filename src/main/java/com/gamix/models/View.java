@@ -10,10 +10,13 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(chain = true)
 @Entity
 @Table(name = "view")
 public class View {
+
     @Getter
     @Setter
     @Id

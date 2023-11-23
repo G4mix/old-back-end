@@ -30,6 +30,7 @@ import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.repositories.CommentRepository;
 import com.gamix.repositories.PostRepository;
+import com.gamix.repositories.UserProfileRepository;
 import com.gamix.security.JwtManager;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
@@ -63,6 +64,9 @@ public class PostService implements PostServiceInterface {
 
     @Autowired
     private ImageService imageService;
+
+    @Autowired
+    private UserProfileRepository userProfileRepository;
 
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
@@ -197,8 +201,20 @@ public class PostService implements PostServiceInterface {
         UserProfile postAuthor = post.getAuthor();
 
         if (accessTokenOwner.getId() != postAuthor.getId()) return false;
+        
+        System.out.println("Tentando deletar");
+        // Remover o post da lista de posts do UserProfile
+        postAuthor.getPosts().remove(post);
 
+        // Defina o autor do post como nulo para que a referência seja eliminada
+        post.setAuthor(null);
+
+        // Salve as alterações no repositório da UserProfile
+        userProfileRepository.save(postAuthor);
+
+        // Excluir o post
         postRepository.delete(post);
+
         return true;
     }
 

@@ -1,6 +1,7 @@
 package com.gamix.models;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.persistence.CascadeType;
@@ -17,41 +18,59 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
+@Accessors(chain = true)
 @Entity
 @Table(name = "comment")
 public class Comment {
     
+    @Getter
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
+
+    @Getter
+    @Setter
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Like> likes = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToOne
+    @JoinColumn(name = "user_profile_id")
+    private UserProfile userProfile;
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Comment> replies = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "parent_comment_id")
+    private Comment parentComment;
+
+    @Getter
+    @Setter
+    @Column(nullable = false, length = 200)
+    private String content;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
     
     @Column(nullable = true)
     private LocalDateTime updatedAt;
-
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "post_id")
-    private Post post;
-
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Like> likes = new ArrayList<>();
-
-    @OneToOne
-    @JoinColumn(name = "user_profile_id")
-    private UserProfile userProfile;
-
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Comment> replies = new ArrayList<>();
-
-    @ManyToOne
-    @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;
-
-    @Column(nullable = false, length = 200)
-    private String content;
 
     @PrePersist
     protected void onCreate() {
@@ -63,36 +82,12 @@ public class Comment {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public String getContent() {
-        return content;
+    public String getCreatedAt() {
+        return createdAt != null ? createdAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Post getPost() {
-        return post;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
-    }
-
-    public UserProfile getUserProfile() {
-        return userProfile;
-    }
-
-    public void setUserProfile(UserProfile userProfile) {
-        this.userProfile = userProfile;
-    }
-
-    public LocalDateTime createdAt() {
-        return this.createdAt;
-    }
-
-    public LocalDateTime updatedAt() {
-        return this.updatedAt;
+    public String getUpdatedAt() {
+        return updatedAt != null ? updatedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
     }
 
     public int getLikesCount() {
