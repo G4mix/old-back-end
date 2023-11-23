@@ -38,8 +38,6 @@ public enum ExceptionMessage {
     PASSWORD_MISSING_NUMBER(HttpStatus.BAD_REQUEST, "Senha deve conter número(s)."),
     PASSWORD_MISSING_UPPERCASE(HttpStatus.BAD_REQUEST, "Senha deve conter letra(s) maiúscula(s)."),
 
-    ICON_NULL(HttpStatus.BAD_REQUEST, "URL do ícone nula."),
-
     USER_ALREADY_EXISTS_WITH_THIS_USERNAME(HttpStatus.CONFLICT, "Usuário com esse nome de usuário já existe."),
     USER_ALREADY_EXISTS_WITH_THIS_EMAIL(HttpStatus.CONFLICT, "Usuário com esse email já existe."), 
     USER_NOT_FOUND_BY_TOKEN(HttpStatus.NOT_FOUND, "Usuário não encontrado por token."),
@@ -54,7 +52,8 @@ public enum ExceptionMessage {
     COMPLETELY_EMPTY_POST(HttpStatus.BAD_REQUEST, "Você não pode enviar um post totalmente vazio."),
     TITLE_TOO_LONG(HttpStatus.BAD_REQUEST, "Titulo muito longo (comprimento máximo e 70 caracteres)."),
     CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "Conteúdo muito longo (comprimento máximo e 700 caracteres)."),
-    TOO_MANY_LINKS(HttpStatus.BAD_REQUEST, "Muitos links no conteúdo do post."),
+    TOO_MANY_LINKS(HttpStatus.BAD_REQUEST, "Muitos links no post (máximo 5)."),
+    TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "Muitas imagens no post (máximo 8)."),
 
     INVALID_ID(HttpStatus.BAD_REQUEST, "ID Inválido.");
 

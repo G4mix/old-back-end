@@ -5,7 +5,6 @@ import com.gamix.exceptions.parameters.email.EmailEmpty;
 import com.gamix.exceptions.parameters.email.EmailInvalidFormat;
 import com.gamix.exceptions.parameters.email.EmailNull;
 import com.gamix.exceptions.parameters.email.EmailTooLong;
-import com.gamix.exceptions.parameters.icon.IconNull;
 import com.gamix.exceptions.parameters.password.PasswordMissingNumber;
 import com.gamix.exceptions.parameters.password.PasswordMissingSpecialChar;
 import com.gamix.exceptions.parameters.password.PasswordMissingUppercase;
@@ -56,10 +55,5 @@ public class ParameterValidator {
             throw new EmailTooLong();
         else if (!email.matches("^\\w+@gmail\\.com$"))
             throw new EmailInvalidFormat();
-    }
-
-    public static void validateIcon(String icon) throws ExceptionBase {
-        if (icon == null)
-            throw new IconNull();
     }
 }

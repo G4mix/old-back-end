@@ -14,6 +14,7 @@ import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.CompletelyEmptyPost;
 import com.gamix.exceptions.parameters.posts.ContentTooLong;
 import com.gamix.exceptions.parameters.posts.TitleTooLong;
+import com.gamix.exceptions.parameters.posts.TooManyImages;
 import com.gamix.exceptions.parameters.posts.TooManyLinks;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
@@ -31,6 +32,7 @@ import com.gamix.repositories.CommentRepository;
 import com.gamix.repositories.PostRepository;
 import com.gamix.security.JwtManager;
 import jakarta.servlet.http.Part;
+import jakarta.transaction.Transactional;
 
 @Service
 public class PostService implements PostServiceInterface {
@@ -111,6 +113,9 @@ public class PostService implements PostServiceInterface {
         if (partImages != null && !partImages.contains(null) && !partImages.isEmpty()) {
             try {
                 List<Image> images = imageService.createImagesForPost(newPost, partImages, user);
+                if (images.size() > 8){
+                    throw new TooManyImages();
+                }
                 newPost.setImages(images);
             } catch (Exception ex) {
                 System.out.println("Erro na criacao de imagens: "+ex.getMessage());
@@ -130,12 +135,18 @@ public class PostService implements PostServiceInterface {
     @Override
     public Post findPostById(Integer id) throws ExceptionBase {
         Optional<Post> post = postRepository.findById(id);
+        if (post == null) {
+            throw new PostNotFoundById();
+        }
         return post.orElseThrow(() -> new PostNotFoundById());
     }
 
     @Override
     public Post findPostByTitle(String title) throws ExceptionBase {
         Optional<Post> post = postRepository.findPostByTitle(title);
+        if (post == null) {
+            throw new PostNotFoundByTitle();
+        }
         return post.orElseThrow(() -> new PostNotFoundByTitle());
     }
 
@@ -175,18 +186,20 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
+    @Transactional
     public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
         if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
         }
 
-        UserProfile postAuthor = findPostById(id).getAuthor();
+        UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
+        Post post = findPostById(id);
+        UserProfile postAuthor = post.getAuthor();
 
-        if (userService.findUserByToken(accessToken).getUserProfile() == postAuthor) {
-            postRepository.deleteById(id);
-            return true;
-        }
-        return false;
+        if (accessTokenOwner.getId() != postAuthor.getId()) return false;
+
+        postRepository.delete(post);
+        return true;
     }
 
     @Override

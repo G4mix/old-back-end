@@ -1,7 +1,6 @@
 package com.gamix.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,19 +22,19 @@ public class Like {
 
     @Getter
     @Setter
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "post_id")
     private Post post;
 
     @Getter
     @Setter
-    @ManyToOne(optional = true, fetch = FetchType.EAGER)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "comment_id")
     private Comment comment;
     
     @Getter
     @Setter
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfile userProfile;
 }

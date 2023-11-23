@@ -103,9 +103,11 @@ public class Post {
     public int getLikesCount() {
         return this.likes.size();
     }
+
     public int getCommentsCount() {
         return this.comments.size();
     }
+
     public int getViewsCount() {
         return this.views.size();
     }

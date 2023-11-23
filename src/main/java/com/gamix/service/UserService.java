@@ -21,6 +21,7 @@ import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
 import io.jsonwebtoken.Claims;
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService implements UserServiceInterface {
@@ -79,8 +80,6 @@ public class UserService implements UserServiceInterface {
             userToUpdate.setUsername(userInput.username());
         }
         if (userInput.icon() != null) {
-            ParameterValidator.validateIcon(userInput.icon());
-
             userToUpdate.setIcon(userInput.icon());
         }
 
@@ -88,6 +87,7 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
+    @Transactional
     public boolean deleteAccount(String accessToken) throws ExceptionBase {
         if (!jwtManager.validate(accessToken))
             throw new InvalidAccessToken();

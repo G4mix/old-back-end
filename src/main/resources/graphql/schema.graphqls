@@ -46,9 +46,9 @@ type Post {
     links: [Link]!
     tags: [Tag]!
     images: [Image]!
-    likesCount: Int!
-    commentsCount: Int!
-    viewsCount: Int!
+    likesCount: Int
+    commentsCount: Int
+    viewsCount: Int
 }
 
 type UserProfile {

@@ -8,10 +8,10 @@ public class ExceptionBase extends Exception {
     private final HttpStatus status;
     private final String error, message;
 
-    public ExceptionBase(ExceptionMessage exceptionMessage) {
-        this.error = exceptionMessage.toString();
-        this.status = exceptionMessage.getHttpStatus();
-        this.message = exceptionMessage.getMessage();
+    public ExceptionBase(ExceptionMessage invalidAccessToken) {
+        this.error = invalidAccessToken.toString();
+        this.status = invalidAccessToken.getHttpStatus();
+        this.message = invalidAccessToken.getMessage();
     }
 
     public String getMessage() {

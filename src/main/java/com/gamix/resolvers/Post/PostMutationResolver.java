@@ -1,5 +1,6 @@
 package com.gamix.resolvers.Post;
 
+import static com.gamix.utils.ControllerUtils.throwGraphQLError;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.service.PostService;
-import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import graphql.schema.DataFetchingEnvironment;
@@ -34,13 +34,13 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     // @SendTo("/topic/feed")
-    Post createPost(@Argument("input") PartialPostInput postInput, List<Part> images, DataFetchingEnvironment env) throws ExceptionBase, IOException {
+    Post createPost(@Argument("input") PartialPostInput postInput, List<Part> images) throws ExceptionBase, IOException {
         try {
             String authorizationHeader = httpServletRequest.getHeader("Authorization");
             String accessToken = authorizationHeader.substring(7);
             Post newPost = postService.createPost(accessToken, postInput, images);
             return newPost;
-        } catch (Exception ex) {
+        } catch (ExceptionBase ex) {
             throw ex;
         }
     }
@@ -88,11 +88,7 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     public GraphQLError handle(@NonNull Throwable ex,
             @NonNull DataFetchingEnvironment environment) {
         if (ex instanceof ExceptionBase) {
-            return GraphQLError.newError()
-                    .errorType(ErrorClassification
-                            .errorClassification(((ExceptionBase) ex).getStatus().toString()))
-                    .message(ex.getMessage()).path(environment.getExecutionStepInfo().getPath())
-                    .location(environment.getField().getSourceLocation()).build();
+            return throwGraphQLError((ExceptionBase) ex);
         }
         return GraphQLError.newError().errorType(ErrorType.BAD_REQUEST).message(ex.getMessage())
                 .path(environment.getExecutionStepInfo().getPath())
