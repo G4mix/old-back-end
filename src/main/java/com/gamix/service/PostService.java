@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.CompletelyEmptyPost;
+import com.gamix.exceptions.parameters.posts.ContentTooLong;
+import com.gamix.exceptions.parameters.posts.TitleTooLong;
+import com.gamix.exceptions.parameters.posts.TooManyLinks;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
@@ -69,8 +72,17 @@ public class PostService implements PostServiceInterface {
             (postInput.links() == null || postInput.links().isEmpty()) &&
             (postInput.tags() == null || postInput.tags().isEmpty()) &&
             (partImages == null)
+            
         ) {
             throw new CompletelyEmptyPost();
+        }
+
+        if (postInput.title().length() > 70 ) {
+            throw new TitleTooLong();
+        }
+
+        if (postInput.content().length() > 700 ) {
+            throw new ContentTooLong();
         }
 
         User user = userService.findUserByToken(accessToken);
@@ -85,6 +97,9 @@ public class PostService implements PostServiceInterface {
         
         if (postInput.links() != null && !postInput.links().isEmpty()) {
             List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
+            if (links.size() > 5) {
+                throw new TooManyLinks();
+            }
             newPost.setLinks(links);
         }
         
@@ -98,7 +113,7 @@ public class PostService implements PostServiceInterface {
                 List<Image> images = imageService.createImagesForPost(newPost, partImages, user);
                 newPost.setImages(images);
             } catch (Exception ex) {
-                System.out.println(ex.getMessage());
+                System.out.println("Erro na criacao de imagens: "+ex.getMessage());
             }
         }
 

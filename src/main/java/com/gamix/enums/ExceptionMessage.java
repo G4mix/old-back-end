@@ -40,20 +40,23 @@ public enum ExceptionMessage {
 
     ICON_NULL(HttpStatus.BAD_REQUEST, "URL do ícone nula."),
 
-    USER_ALREADY_EXISTS_WITH_THIS_USERNAME(HttpStatus.CONFLICT, "User with this username already exists"),
-    USER_ALREADY_EXISTS_WITH_THIS_EMAIL(HttpStatus.CONFLICT, "User with this email already exists"),
-    USER_NOT_FOUND_BY_TOKEN(HttpStatus.NOT_FOUND, "User not found by token"),
-    USER_NOT_FOUND_BY_EMAIL(HttpStatus.NOT_FOUND, "User not found by email"),
-    USER_NOT_FOUND_BY_USERNAME(HttpStatus.NOT_FOUND, "User not found by username"),
-    USER_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "User not found by ID"),
+    USER_ALREADY_EXISTS_WITH_THIS_USERNAME(HttpStatus.CONFLICT, "Usuário com esse nome de usuário já existe."),
+    USER_ALREADY_EXISTS_WITH_THIS_EMAIL(HttpStatus.CONFLICT, "Usuário com esse email já existe."), 
+    USER_NOT_FOUND_BY_TOKEN(HttpStatus.NOT_FOUND, "Usuário não encontrado por token."),
+    USER_NOT_FOUND_BY_EMAIL(HttpStatus.NOT_FOUND, "Usuário não encontrado por email."), 
+    USER_NOT_FOUND_BY_USERNAME(HttpStatus.NOT_FOUND, "Usuário não encontrado por nome de usuário."), 
+    USER_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "Usuário não encontrado por ID."), 
 
-    USER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "User profile not found by ID"),
+    USER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "Perfil de usuário não encontrado por ID."), 
 
-    POST_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "Post not found by"),
-    POST_NOT_FOUND_BY_TITLE(HttpStatus.NOT_FOUND, "Post not found by title"),
-    COMPLETELY_EMPTY_POST(HttpStatus.BAD_REQUEST, "Você não pode enviar um post totalmente vazio"),
+    POST_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "Post não encontrado por ID."), 
+    POST_NOT_FOUND_BY_TITLE(HttpStatus.NOT_FOUND, "Post não encontrado por Titulo."),
+    COMPLETELY_EMPTY_POST(HttpStatus.BAD_REQUEST, "Você não pode enviar um post totalmente vazio."),
+    TITLE_TOO_LONG(HttpStatus.BAD_REQUEST, "Titulo muito longo (comprimento máximo e 70 caracteres)."),
+    CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "Conteúdo muito longo (comprimento máximo e 700 caracteres)."),
+    TOO_MANY_LINKS(HttpStatus.BAD_REQUEST, "Muitos links no conteúdo do post."),
 
-    INVALID_ID(HttpStatus.BAD_REQUEST, "Invalid ID");
+    INVALID_ID(HttpStatus.BAD_REQUEST, "ID Inválido.");
 
     private final HttpStatus httpStatus;
     private final String message;
