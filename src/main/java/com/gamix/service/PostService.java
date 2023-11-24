@@ -117,7 +117,7 @@ public class PostService implements PostServiceInterface {
         if (partImages != null && !partImages.contains(null) && !partImages.isEmpty()) {
             try {
                 List<Image> images = imageService.createImagesForPost(newPost, partImages, user);
-                if (images.size() > 8){
+                if (images.size() > 8) {
                     throw new TooManyImages();
                 }
                 newPost.setImages(images);

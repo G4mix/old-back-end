@@ -21,7 +21,7 @@ import jakarta.servlet.http.Part;
 @Service
 public class ImageService {
 
-    private final Integer MAX_SIZE = 2 * 1024 * 1024;
+    private final Integer MAX_SIZE = 1048576;
 
     @Autowired
     private ImageRepository imageRepository;
