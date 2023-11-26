@@ -51,9 +51,6 @@ public class PostService implements PostServiceInterface {
     private UserService userService;
 
     @Autowired
-    private LikeService likeService;
-
-    @Autowired
     private ViewService viewService;
 
     @Autowired
@@ -226,17 +223,6 @@ public class PostService implements PostServiceInterface {
         return newComment;
     }
 
-    public void likePost(String accessToken, Integer postId) throws ExceptionBase {
-        Post post = findPostById(postId);
-        User user = userService.findUserByToken(accessToken);
-        likeService.likePost(post, user.getUserProfile());
-    }
-
-    public void unlikePost(String accessToken, Integer postId) throws ExceptionBase {
-        Post post = findPostById(postId);
-        User user = userService.findUserByToken(accessToken);
-        likeService.unlikePost(post, user.getUserProfile());
-    }
 
     public void viewPost(String accessToken, Integer postId) throws ExceptionBase {
         Post post = findPostById(postId);

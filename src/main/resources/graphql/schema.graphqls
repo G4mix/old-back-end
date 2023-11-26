@@ -80,6 +80,10 @@ type Mutation {
     createPost(input: PartialPostInput!, images: [Upload]): Post
     updatePost(postId: Int!, input: PartialPostInput!, images: [Upload]): Post
     deletePost(postId: Int!): Boolean
+
+    # like class
+    likePost(postId: Int!): Boolean
+    unlikePost(postId: Int!): Boolean
 }
 
 input PartialUserInput {

@@ -3,6 +3,7 @@ package com.gamix.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
+import com.gamix.resolvers.Like.LikeMutationResolver;
 import com.gamix.resolvers.Post.PostMutationResolver;
 import com.gamix.resolvers.Post.PostQueryResolver;
 import com.gamix.resolvers.User.UserMutationResolver;
@@ -25,14 +26,16 @@ public class GraphQLConfig {
     @Bean
     public GraphQL graphQL(
         UserQueryResolver userQueryResolver, UserMutationResolver userMutationResolver,
-        PostQueryResolver postQueryResolver, PostMutationResolver postMutationResolver
+        PostQueryResolver postQueryResolver, PostMutationResolver postMutationResolver,
+        LikeMutationResolver likeMutationResolver
     ) {
         SchemaParserBuilder schemaParserBuilder = SchemaParser.newParser()
                 .file("graphql/schema.graphqls")
                 .scalars(uploadScalar())
                 .resolvers(
                     userQueryResolver, userMutationResolver, 
-                    postQueryResolver, postMutationResolver
+                    postQueryResolver, postMutationResolver,
+                    likeMutationResolver
                 );
         
         GraphQLSchema graphQLSchema = schemaParserBuilder.build().makeExecutableSchema();

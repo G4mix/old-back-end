@@ -24,10 +24,6 @@ public interface PostServiceInterface {
 
     public Comment commentPost(String accessToken, Integer postId, String comment)
             throws ExceptionBase;
-
-    public void likePost(String accessToken, Integer postId) throws ExceptionBase;
-
-    public void unlikePost(String accessToken, Integer postId) throws ExceptionBase;
     
     public void viewPost(String accessToken, Integer postId) throws ExceptionBase;
 }
