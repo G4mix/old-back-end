@@ -17,8 +17,8 @@ public interface PostServiceInterface {
 
     public Post findPostByTitle(String title) throws ExceptionBase;
 
-    public Post updatePost(String accessToken, Integer id, PartialPostInput PartialPostInput)
-            throws ExceptionBase;
+    public Post updatePost(String accessToken, Integer id, PartialPostInput PartialPostInput, List<Part> partImages)
+            throws ExceptionBase, IOException;
 
     public boolean deletePost(String accessToken, Integer id) throws ExceptionBase;
 

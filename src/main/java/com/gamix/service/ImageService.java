@@ -60,7 +60,109 @@ public class ImageService {
         return images;
     }
 
-    public void deleteImage(Post post) {
+    public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws IOException {
+        String imagesFolderPath = "/images/posts/" + user.getId() + "/";
+        createDirectoryIfNotExists(imagesFolderPath);
+    
+        List<Image> postImages = post.getImages();
+
+        if (files == null || files.isEmpty()) {
+            postImages.clear();
+            deleteImages(post);
+            return postImages;
+        }
+
+        List<Image> imagesToAdd = new ArrayList<>();
+        List<Image> imagesToRemove = new ArrayList<>();
+
+        for (Part partFile : files) {
+            MultipartFile file = new SingleMultipartFile(partFile);
+            String fileName = file.getOriginalFilename();
+            InputStream fileContent = file.getInputStream();
+        
+            String src = imagesFolderPath + fileName;
+        
+            boolean imageExists = false;
+        
+            for (Image postImage : postImages) {
+                if (postImage.getName().equals(fileName)) {
+                    imageExists = true;
+                    break;
+                }
+            }
+        
+            if (imageExists && file.getSize() == 0) continue;
+
+            File imageFile = new File(src);
+            saveFile(fileContent, imageFile);
+        
+            BufferedImage bufferedImage = ImageIO.read(imageFile);
+            int width = bufferedImage.getWidth();
+            int height = bufferedImage.getHeight();
+        
+            Image newImage = new Image();
+            newImage.setName(fileName);
+            newImage.setSrc(src);
+            newImage.setWidth(width);
+            newImage.setHeight(height);
+            newImage.setPost(post);
+        
+            imagesToAdd.add(newImage);
+        }
+
+        for (Part partFile : files) {
+            MultipartFile file = new SingleMultipartFile(partFile);
+            String fileName = file.getOriginalFilename();
+            InputStream fileContent = file.getInputStream();
+    
+            if (file.getSize() > MAX_SIZE) continue;
+    
+            String src = imagesFolderPath + fileName;
+            File imageFile = new File(src);
+            saveFile(fileContent, imageFile);
+    
+            BufferedImage bufferedImage = ImageIO.read(imageFile);
+            int width = bufferedImage.getWidth();
+            int height = bufferedImage.getHeight();
+    
+            Image newImage = new Image();
+            newImage.setName(fileName);
+            newImage.setSrc(src);
+            newImage.setWidth(width);
+            newImage.setHeight(height);
+            newImage.setPost(post);
+    
+            imagesToAdd.add(newImage);
+        }
+    
+        for (Image postImage : postImages) {
+            boolean found = false;
+            for (Image newImage : imagesToAdd) {
+                if (newImage.getSrc().equals(postImage.getSrc())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                deleteImage(postImage);
+                imagesToRemove.add(postImage);
+            }
+        }
+    
+        postImages.removeAll(imagesToRemove);
+        postImages.addAll(imagesToAdd);
+    
+        return postImages;
+    }
+
+    public void deleteImage(Image image) {
+        if (!imageIsReferencedByOtherPosts(image)) {
+            System.out.println("Deletando "+image.getSrc());
+            deleteImageFromDisk(image.getSrc());
+        }
+    }
+
+    public void deleteImages(Post post) {
         for (Image image : post.getImages()) {
             if (!imageIsReferencedByOtherPosts(image)) {
                 System.out.println("Deletando "+image.getSrc());

@@ -102,10 +102,10 @@ public class PostService implements PostServiceInterface {
         newPost.setContent(postInput.content());
         
         if (postInput.links() != null && !postInput.links().isEmpty()) {
-            List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
-            if (links.size() > 5) {
+            if (postInput.links().size() > 5) {
                 throw new TooManyLinks();
             }
+            List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
             newPost.setLinks(links);
         }
         
@@ -114,16 +114,12 @@ public class PostService implements PostServiceInterface {
             newPost.setTags(tags);
         }
 
-        if (partImages != null && !partImages.contains(null) && !partImages.isEmpty()) {
-            try {
-                List<Image> images = imageService.createImagesForPost(newPost, partImages, user);
-                if (images.size() > 8) {
-                    throw new TooManyImages();
-                }
-                newPost.setImages(images);
-            } catch (Exception ex) {
-                System.out.println("Erro na criacao de imagens: "+ex.getMessage());
+        if (partImages != null && !partImages.isEmpty()) {
+            if (partImages.size() > 8) {
+                throw new TooManyImages();
             }
+            List<Image> images = imageService.createImagesForPost(newPost, partImages, user);
+            newPost.setImages(images);
         }
 
         return postRepository.save(newPost);
@@ -155,8 +151,8 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public Post updatePost(String accessToken, Integer id, PartialPostInput postInput)
-            throws ExceptionBase {
+    public Post updatePost(String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages)
+            throws ExceptionBase, IOException {
         if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
         }
@@ -176,15 +172,20 @@ public class PostService implements PostServiceInterface {
             post.setContent(postInput.content());
         }
 
-        if (postInput.links() != null && !postInput.links().isEmpty()) {
-            List<Link> links = linkService.updateLinksForPost(post, postInput.links());
-            post.setLinks(links);
+        if (postInput.links().size() > 5) {
+            throw new TooManyLinks();
         }
+        List<Link> links = linkService.updateLinksForPost(post, postInput.links());
+        post.setLinks(links);
+        
+        List<Tag> tags = tagService.updateTagsForPost(post, postInput.tags());
+        post.setTags(tags);
 
-        if (postInput.tags() != null && !postInput.tags().isEmpty()) {
-            List<Tag> tags = tagService.updateTagsForPost(post, postInput.tags());
-            post.setTags(tags);
+        if (partImages.size() > 8) {
+            throw new TooManyImages();
         }
+        List<Image> images = imageService.updateImagesForPost(post, partImages, postAuthor.getUser());
+        post.setImages(images);
 
         return postRepository.save(post);
     }
@@ -202,7 +203,7 @@ public class PostService implements PostServiceInterface {
 
         if (accessTokenOwner.getId() != postAuthor.getId()) return false;
         
-        imageService.deleteImage(post);
+        imageService.deleteImages(post);
         postAuthor.getPosts().remove(post);
         post.setAuthor(null);
         userProfileRepository.save(postAuthor);

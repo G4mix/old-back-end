@@ -48,11 +48,11 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     Post updatePost(@Argument("postId") Integer id,
-            @Argument("input") PartialPostInput partialPostInput) throws ExceptionBase {
+            @Argument("input") PartialPostInput partialPostInput, List<Part> images) throws ExceptionBase, IOException {
         try {
             String authorizationHeader = httpServletRequest.getHeader("Authorization");
             String accessToken = authorizationHeader.substring(7);
-            Post updatedPost = postService.updatePost(accessToken, id, partialPostInput);
+            Post updatedPost = postService.updatePost(accessToken, id, partialPostInput, images);
             return updatedPost;
         } catch (ExceptionBase ex) {
             throw ex;

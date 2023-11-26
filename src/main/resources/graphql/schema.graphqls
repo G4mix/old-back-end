@@ -78,7 +78,7 @@ type Mutation {
 
     # post class
     createPost(input: PartialPostInput!, images: [Upload]): Post
-    updatePost(postId: Int!, input: PartialPostInput!): Post
+    updatePost(postId: Int!, input: PartialPostInput!, images: [Upload]): Post
     deletePost(postId: Int!): Boolean
 }
 

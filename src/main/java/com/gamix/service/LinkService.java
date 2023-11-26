@@ -22,17 +22,36 @@ public class LinkService {
 
     public List<Link> updateLinksForPost(Post post, List<String> linksStrings) {
         List<Link> postLinks = post.getLinks();
+
+        if (linksStrings == null || linksStrings.isEmpty()) {
+            postLinks.clear();
+            return postLinks;
+        }
+
+        List<Link> linksToRemove = new ArrayList<>();
+
         for (String linkString : linksStrings) {
-            Link link = new Link();
-            link.setLink(linkString);
-            link.setPost(post);
-    
-            if (postLinks.contains(link)) {
-                postLinks.remove(link);
-            } else {
-                postLinks.add(link);
+            boolean linkExists = false;
+            for (Link postLink : postLinks) {
+                if (postLink.getLink().equals(linkString)) {
+                    linkExists = true;
+                    break;
+                }
+            }
+            if (!linkExists) {
+                Link newLink = new Link();
+                newLink.setLink(linkString);
+                newLink.setPost(post);
+                postLinks.add(newLink);
             }
         }
+
+        for (Link postLink : postLinks) {
+            if (!linksStrings.contains(postLink.getLink())) {
+                linksToRemove.add(postLink);
+            }
+        }
+        postLinks.removeAll(linksToRemove);
         return postLinks;
     }
 }
