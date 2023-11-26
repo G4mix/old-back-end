@@ -11,6 +11,8 @@ import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.parameters.posts.TooManyImages;
 import com.gamix.models.Image;
 import com.gamix.models.Post;
 import com.gamix.models.User;
@@ -60,7 +62,7 @@ public class ImageService {
         return images;
     }
 
-    public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws IOException {
+    public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase, IOException {
         String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
     
@@ -72,6 +74,10 @@ public class ImageService {
             return postImages;
         }
 
+        if (files.size() > 8) {
+            throw new TooManyImages();
+        }
+
         List<Image> imagesToAdd = new ArrayList<>();
         List<Image> imagesToRemove = new ArrayList<>();
 
@@ -79,18 +85,19 @@ public class ImageService {
             MultipartFile file = new SingleMultipartFile(partFile);
             String fileName = file.getOriginalFilename();
             InputStream fileContent = file.getInputStream();
-        
+            
             String src = imagesFolderPath + fileName;
-        
+            
             boolean imageExists = false;
-        
+            
             for (Image postImage : postImages) {
                 if (postImage.getName().equals(fileName)) {
+                    imagesToAdd.add(postImage);
                     imageExists = true;
                     break;
                 }
             }
-        
+            
             if (imageExists && file.getSize() == 0) continue;
 
             File imageFile = new File(src);
@@ -107,31 +114,6 @@ public class ImageService {
             newImage.setHeight(height);
             newImage.setPost(post);
         
-            imagesToAdd.add(newImage);
-        }
-
-        for (Part partFile : files) {
-            MultipartFile file = new SingleMultipartFile(partFile);
-            String fileName = file.getOriginalFilename();
-            InputStream fileContent = file.getInputStream();
-    
-            if (file.getSize() > MAX_SIZE) continue;
-    
-            String src = imagesFolderPath + fileName;
-            File imageFile = new File(src);
-            saveFile(fileContent, imageFile);
-    
-            BufferedImage bufferedImage = ImageIO.read(imageFile);
-            int width = bufferedImage.getWidth();
-            int height = bufferedImage.getHeight();
-    
-            Image newImage = new Image();
-            newImage.setName(fileName);
-            newImage.setSrc(src);
-            newImage.setWidth(width);
-            newImage.setHeight(height);
-            newImage.setPost(post);
-    
             imagesToAdd.add(newImage);
         }
     

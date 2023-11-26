@@ -151,39 +151,36 @@ public class PostService implements PostServiceInterface {
     }
 
     @Override
-    public Post updatePost(String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages)
-            throws ExceptionBase, IOException {
+    public Post updatePost(
+        String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages
+    ) throws ExceptionBase, IOException {
         if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
         }
 
         Post post = findPostById(id);
         UserProfile postAuthor = post.getAuthor();
-
-        if (userService.findUserByToken(accessToken).getUserProfile() != postAuthor) {
+        User userFromToken = userService.findUserByToken(accessToken);
+        UserProfile userProfileFromToken = userFromToken.getUserProfile();
+        
+        if (userProfileFromToken.getId() != postAuthor.getId()) {
             throw new InvalidAccessToken();
         }
-
+        
         if (postInput.title() != null) {
             post.setTitle(postInput.title());
         }
-
+        
         if (postInput.content() != null) {
             post.setContent(postInput.content());
         }
-
-        if (postInput.links().size() > 5) {
-            throw new TooManyLinks();
-        }
+        
         List<Link> links = linkService.updateLinksForPost(post, postInput.links());
         post.setLinks(links);
         
         List<Tag> tags = tagService.updateTagsForPost(post, postInput.tags());
         post.setTags(tags);
-
-        if (partImages.size() > 8) {
-            throw new TooManyImages();
-        }
+        
         List<Image> images = imageService.updateImagesForPost(post, partImages, postAuthor.getUser());
         post.setImages(images);
 

@@ -3,6 +3,8 @@ package com.gamix.service;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.parameters.posts.TooManyLinks;
 import com.gamix.models.Link;
 import com.gamix.models.Post;
 
@@ -20,12 +22,16 @@ public class LinkService {
         return postLinks;
     }
 
-    public List<Link> updateLinksForPost(Post post, List<String> linksStrings) {
+    public List<Link> updateLinksForPost(Post post, List<String> linksStrings) throws ExceptionBase {
         List<Link> postLinks = post.getLinks();
 
         if (linksStrings == null || linksStrings.isEmpty()) {
             postLinks.clear();
             return postLinks;
+        }
+
+        if (linksStrings.size() > 5) {
+            throw new TooManyLinks();
         }
 
         List<Link> linksToRemove = new ArrayList<>();
