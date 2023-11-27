@@ -114,10 +114,5 @@ public class Post {
     public int getViewsCount() {
         return this.views.size();
     }
-
-    public boolean getIsLiked() {
-        return false;
-    }
-
     
 }

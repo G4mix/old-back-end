@@ -3,7 +3,6 @@ package com.gamix.interfaces.services;
 import java.io.IOException;
 import java.util.List;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import jakarta.servlet.http.Part;
@@ -21,9 +20,4 @@ public interface PostServiceInterface {
             throws ExceptionBase, IOException;
 
     public boolean deletePost(String accessToken, Integer id) throws ExceptionBase;
-
-    public Comment commentPost(String accessToken, Integer postId, String comment)
-            throws ExceptionBase;
-    
-    public void viewPost(String accessToken, Integer postId) throws ExceptionBase;
 }

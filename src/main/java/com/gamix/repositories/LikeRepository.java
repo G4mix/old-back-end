@@ -1,5 +1,6 @@
 package com.gamix.repositories;
 
+import com.gamix.models.Comment;
 import com.gamix.models.Like;
 import com.gamix.models.Post;
 import com.gamix.models.UserProfile;
@@ -13,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface LikeRepository extends JpaRepository<Like, Integer> {
 
+    boolean existsByCommentAndUserProfile(Comment comment, UserProfile userProfile);
     boolean existsByPostAndUserProfile(Post post, UserProfile userProfile);
     Like findByPostAndUserProfile(Post post, UserProfile userProfile);
     

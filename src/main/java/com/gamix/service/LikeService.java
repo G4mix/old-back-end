@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.models.Comment;
 import com.gamix.models.Like;
 import com.gamix.models.Post;
 import com.gamix.models.User;
@@ -58,6 +59,10 @@ public class LikeService {
 
     public boolean userHasLikedPost(Post post, UserProfile userProfile) {
         return likeRepository.existsByPostAndUserProfile(post, userProfile);
+    }
+
+    public boolean userHasLikedComment(Comment comment, UserProfile userProfile) {
+        return likeRepository.existsByCommentAndUserProfile(comment, userProfile);
     }
 
     @Transactional

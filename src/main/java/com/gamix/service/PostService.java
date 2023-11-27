@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
@@ -20,7 +19,6 @@ import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.interfaces.services.PostServiceInterface;
-import com.gamix.models.Comment;
 import com.gamix.models.Image;
 import com.gamix.models.Link;
 import com.gamix.models.Post;
@@ -28,10 +26,10 @@ import com.gamix.models.Tag;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PostController.PartialPostInput;
-import com.gamix.repositories.CommentRepository;
 import com.gamix.repositories.PostRepository;
 import com.gamix.repositories.UserProfileRepository;
 import com.gamix.security.JwtManager;
+import com.gamix.utils.SortUtils;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
 
@@ -45,13 +43,7 @@ public class PostService implements PostServiceInterface {
     private PostRepository postRepository;
 
     @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
     private UserService userService;
-
-    @Autowired
-    private ViewService viewService;
 
     @Autowired
     private LinkService linkService;
@@ -127,7 +119,7 @@ public class PostService implements PostServiceInterface {
 
     @Override
     public List<Post> findAll(int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit, sortByUpdatedAtOrCreatedAt());
+        Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
         Page<Post> posts = postRepository.findAll(page);
         return posts.getContent();
     }
@@ -214,35 +206,5 @@ public class PostService implements PostServiceInterface {
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
         return likeService.userHasLikedPost(post, author);
-    }
-
-    @Override
-    public Comment commentPost(String accessToken, Integer postId, String comment)
-            throws ExceptionBase {
-        Post post = findPostById(postId);
-        User user = userService.findUserByToken(accessToken);
-        UserProfile author = user.getUserProfile();
-
-        Comment newComment = new Comment();
-        newComment.setUserProfile(author);
-        newComment.setContent(comment);
-        newComment.setPost(post);
-
-        commentRepository.save(newComment);
-
-        return newComment;
-    }
-
-    public void viewPost(String accessToken, Integer postId) throws ExceptionBase {
-        Post post = findPostById(postId);
-        User user = userService.findUserByToken(accessToken);
-        viewService.viewPost(post, user.getUserProfile());
-    }
-
-    private Sort sortByUpdatedAtOrCreatedAt() {
-        return Sort.by(
-            Sort.Order.desc("updatedAt").nullsLast(),
-            Sort.Order.desc("createdAt")
-        );
     }
 }

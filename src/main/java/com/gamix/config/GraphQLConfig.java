@@ -3,6 +3,9 @@ package com.gamix.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
+import com.gamix.resolvers.Comment.CommentMutationResolver;
+import com.gamix.resolvers.Comment.CommentQueryResolver;
+import com.gamix.resolvers.Comment.CommentResolver;
 import com.gamix.resolvers.Like.LikeMutationResolver;
 import com.gamix.resolvers.Post.PostMutationResolver;
 import com.gamix.resolvers.Post.PostQueryResolver;
@@ -28,6 +31,7 @@ public class GraphQLConfig {
     public GraphQL graphQL(
         UserQueryResolver userQueryResolver, UserMutationResolver userMutationResolver,
         PostResolver postResolver, PostQueryResolver postQueryResolver, PostMutationResolver postMutationResolver,
+        CommentResolver commentResolver, CommentQueryResolver commentQueryResolver, CommentMutationResolver commentMutationResolver,
         LikeMutationResolver likeMutationResolver
     ) {
         SchemaParserBuilder schemaParserBuilder = SchemaParser.newParser()
@@ -36,6 +40,7 @@ public class GraphQLConfig {
                 .resolvers(
                     userQueryResolver, userMutationResolver, 
                     postResolver, postQueryResolver, postMutationResolver,
+                    commentResolver, commentQueryResolver, commentMutationResolver,
                     likeMutationResolver
                 );
         

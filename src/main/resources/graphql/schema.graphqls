@@ -21,6 +21,18 @@ type Link {
     post: Post
 }
 
+type Comment {
+    id: Int!
+    post: Post!
+    content: String!
+    likesCount: Int!
+    author: UserProfile
+    replies: [Comment]
+    createdAt: String!
+    updatedAt: String
+    isLiked: Boolean!
+}
+
 type Tag {
     id: Int!
     name: String!
@@ -46,6 +58,7 @@ type Post {
     links: [Link]!
     tags: [Tag]!
     images: [Image]!
+    comments: [Comment]!
     likesCount: Int
     commentsCount: Int
     viewsCount: Int
@@ -70,6 +83,9 @@ type Query {
     findAllPosts(skip: Int = 0, limit: Int = 10): [Post]
     findPostById(id: Int!): Post
     findPostByTitle(title: String): Post
+
+    # comment class
+    findAllCommentsOfAPost(postId: Int!, skip: Int = 0, limit: Int = 10): [Comment]
 }
 
 type Mutation {
@@ -84,6 +100,9 @@ type Mutation {
 
     # like class
     likePost(postId: Int!, isLiked: Boolean!): Boolean
+
+    # comment class
+    commentPost(postId: Int!, content: String!): Comment
 }
 
 input PartialUserInput {

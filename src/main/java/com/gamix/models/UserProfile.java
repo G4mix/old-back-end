@@ -40,6 +40,11 @@ public class UserProfile {
     @Getter
     @Setter
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Post> posts = new ArrayList<>();
 
     @Getter 

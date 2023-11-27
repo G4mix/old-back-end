@@ -11,7 +11,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.service.PostService;
@@ -65,17 +64,6 @@ public class PostMutationResolver implements GraphQLMutationResolver {
         } catch (ExceptionBase ex) {
             throw ex;
         }
-    }
-
-    @PreAuthorize("hasAuthority('USER')")
-    Comment commentPost(@Argument("postId") Integer postId,
-            @Argument("comment") String commentInput) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
-
-        Comment createdComment = postService.commentPost(accessToken, postId, commentInput);
-
-        return createdComment;
     }
 
     @GraphQlExceptionHandler

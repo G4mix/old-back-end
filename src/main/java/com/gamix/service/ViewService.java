@@ -1,6 +1,8 @@
 package com.gamix.service;
 
+import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Post;
+import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.models.View;
 import com.gamix.repositories.ViewRepository;
@@ -15,12 +17,18 @@ public class ViewService {
     @Autowired
     private ViewRepository viewRepository;
 
-    public void viewPost(Post post, UserProfile userProfile) {
-        if (postHasBeenViewed(post, userProfile)) throw new RuntimeException("Usuário já viu o post.");
+    @Autowired
+    private UserService userService;
+
+    public boolean viewPost(String accessToken, Post post) throws ExceptionBase {
+        User user = userService.findUserByToken(accessToken);
+        UserProfile userProfile = user.getUserProfile();
+        if (postHasBeenViewed(post, userProfile)) return false;
         View view = new View();
         view.setPost(post);
         view.setUserProfile(userProfile);
         viewRepository.save(view);
+        return true;
     }
 
     public Page<Post> findAllViewedPostsPageable(UserProfile userProfile, int skip, int limit) {
@@ -28,7 +36,7 @@ public class ViewService {
         return viewRepository.findViewedPostsByUserProfile(userProfile, pageable);
     }
 
-    private boolean postHasBeenViewed(Post post, UserProfile userProfile) {
+    public boolean postHasBeenViewed(Post post, UserProfile userProfile) {
         return viewRepository.existsByPostAndUserProfile(post, userProfile);
     }
 }

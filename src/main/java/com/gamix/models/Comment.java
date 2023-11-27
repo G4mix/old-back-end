@@ -14,28 +14,29 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(chain = true)
 @Entity
-@Table(name = "comment")
+@Table(name = "comment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_profile_id", "post_id"}))
 public class Comment {
-    
+
     @Getter
     @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+
     @Getter
     @Setter
-    @ManyToOne(optional = true)
+    @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
 
@@ -46,9 +47,8 @@ public class Comment {
 
     @Getter
     @Setter
-    @OneToOne
-    @JoinColumn(name = "user_profile_id")
-    private UserProfile userProfile;
+    @ManyToOne
+    private UserProfile author;    
 
     @Getter
     @Setter
