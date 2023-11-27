@@ -201,6 +201,7 @@ public class PostService implements PostServiceInterface {
         if (accessTokenOwner.getId() != postAuthor.getId()) return false;
         
         imageService.deleteImages(post);
+        likeService.deleteLikesByPost(post);
         postAuthor.getPosts().remove(post);
         post.setAuthor(null);
         userProfileRepository.save(postAuthor);

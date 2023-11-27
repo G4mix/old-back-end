@@ -60,6 +60,11 @@ public class LikeService {
         return likeRepository.existsByPostAndUserProfile(post, userProfile);
     }
 
+    @Transactional
+    public void deleteLikesByPost(Post post) {
+        likeRepository.deleteByPost(post);
+    }
+
     private Sort sortByUpdatedAtOrCreatedAt() {
         return Sort.by(
             Sort.Order.desc("updatedAt").nullsLast(),
