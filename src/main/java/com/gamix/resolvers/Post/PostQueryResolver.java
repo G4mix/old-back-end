@@ -4,7 +4,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,14 +22,12 @@ public class PostQueryResolver implements GraphQLQueryResolver {
     private PostService postService;
 
     @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
     List<Post> findAllPosts(@Argument("skip") int skip, @Argument("limit") int limit) {
         List<Post> posts = postService.findAll(skip, limit);
         return posts;
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
     Post findPostById(@Argument Integer id) throws ExceptionBase {
         try {
             Post post = postService.findPostById(id);
@@ -41,7 +38,6 @@ public class PostQueryResolver implements GraphQLQueryResolver {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
     Post findPostByTitle(@Argument String title) throws ExceptionBase {
         try {
             Post post = postService.findPostByTitle(title);

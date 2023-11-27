@@ -6,8 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.execution.ErrorType;
 import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,7 +30,6 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     private HttpServletRequest httpServletRequest;
 
     @PreAuthorize("hasAuthority('USER')")
-    @MutationMapping
     // @SendTo("/topic/feed")
     Post createPost(@Argument("input") PartialPostInput postInput, List<Part> images) throws ExceptionBase, IOException {
         try {
@@ -46,7 +43,6 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @MutationMapping
     Post updatePost(@Argument("postId") Integer id,
             @Argument("input") PartialPostInput partialPostInput, List<Part> images) throws ExceptionBase, IOException {
         try {
@@ -60,7 +56,6 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @MutationMapping
     boolean deletePost(@Argument("postId") Integer id) throws ExceptionBase {
         try {
             String authorizationHeader = httpServletRequest.getHeader("Authorization");
@@ -73,7 +68,6 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     }
 
     @PreAuthorize("hasAuthority('USER')")
-    @QueryMapping
     Comment commentPost(@Argument("postId") Integer postId,
             @Argument("comment") String commentInput) throws ExceptionBase {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");

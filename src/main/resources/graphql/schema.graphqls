@@ -49,6 +49,7 @@ type Post {
     likesCount: Int
     commentsCount: Int
     viewsCount: Int
+    isLiked: Boolean
 }
 
 type UserProfile {
@@ -82,8 +83,7 @@ type Mutation {
     deletePost(postId: Int!): Boolean
 
     # like class
-    likePost(postId: Int!): Boolean
-    unlikePost(postId: Int!): Boolean
+    likePost(postId: Int!, isLiked: Boolean!): Boolean
 }
 
 input PartialUserInput {

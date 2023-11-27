@@ -13,8 +13,9 @@ import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.repositories.LikeRepository;
-import com.gamix.repositories.PostRepository;
-import com.gamix.repositories.UserProfileRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 @Service
 public class LikeService {
@@ -22,44 +23,30 @@ public class LikeService {
     private LikeRepository likeRepository;
 
     @Autowired
-    private PostService postService;
-
-    @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserProfileRepository userProfileRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    @Autowired
-    private PostRepository postRepository;
-
-    public boolean likePost(String accessToken, int postId) throws ExceptionBase {
-        Post post = postService.findPostById(postId);
+    @Transactional
+    public boolean likePost(String accessToken, Post post, boolean isLiked) throws ExceptionBase {
         User user = userService.findUserByToken(accessToken);
         UserProfile userProfile = user.getUserProfile();
+        if (isLiked) {
+            if (userHasLikedPost(post, userProfile)) return true;
+            Like like = new Like();
+            like.setPost(post);
+            like.setUserProfile(userProfile);
+            likeRepository.save(like);
+        } else {
+            Like like = likeRepository.findByPostAndUserProfile(post, userProfile);
+            if (like == null) return true;
 
-        if (userHasLikedPost(post, userProfile)) throw new RuntimeException("Usuário já curtiu o post.");
-        Like like = new Like();
-        like.setPost(post);
-        like.setUserProfile(userProfile);
-        likeRepository.save(like);
-        return true;
-    }
-
-    public boolean unlikePost(String accessToken, int postId) throws ExceptionBase {
-        Post post = postService.findPostById(postId);
-        User user = userService.findUserByToken(accessToken);
-        UserProfile userProfile = user.getUserProfile();
-
-        Like like = likeRepository.findByPostAndUserProfile(post, userProfile);
-        if (like == null) throw new RuntimeException("Usuário ainda não curtiu o post.");
-
-        userProfile.getLikes().remove(like);
-        post.getLikes().remove(like);
-        userProfileRepository.save(userProfile);
-        postRepository.save(post);
-
-        likeRepository.delete(like);
+            entityManager.createQuery("DELETE FROM Like l WHERE l.post = :post AND l.userProfile = :userProfile")
+                .setParameter("post", post)
+                .setParameter("userProfile", userProfile)
+                .executeUpdate();
+        }
         return true;
     }
 
@@ -69,7 +56,7 @@ public class LikeService {
         return posts.getContent();
     }
 
-    private boolean userHasLikedPost(Post post, UserProfile userProfile) {
+    public boolean userHasLikedPost(Post post, UserProfile userProfile) {
         return likeRepository.existsByPostAndUserProfile(post, userProfile);
     }
 

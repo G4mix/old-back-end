@@ -63,6 +63,9 @@ public class PostService implements PostServiceInterface {
     private ImageService imageService;
 
     @Autowired
+    private LikeService likeService;
+
+    @Autowired
     private UserProfileRepository userProfileRepository;
 
     @Override
@@ -206,6 +209,12 @@ public class PostService implements PostServiceInterface {
         return true;
     }
 
+    public boolean getIsLiked(String accessToken, Post post) throws ExceptionBase {
+        User user = userService.findUserByToken(accessToken);
+        UserProfile author = user.getUserProfile();
+        return likeService.userHasLikedPost(post, author);
+    }
+
     @Override
     public Comment commentPost(String accessToken, Integer postId, String comment)
             throws ExceptionBase {
@@ -222,7 +231,6 @@ public class PostService implements PostServiceInterface {
 
         return newComment;
     }
-
 
     public void viewPost(String accessToken, Integer postId) throws ExceptionBase {
         Post post = findPostById(postId);
