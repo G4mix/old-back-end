@@ -17,14 +17,13 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(chain = true)
 @Entity
-@Table(name = "comment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_profile_id", "post_id"}))
+@Table(name = "comment")
 public class Comment {
 
     @Getter
