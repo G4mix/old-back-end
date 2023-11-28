@@ -1,8 +1,8 @@
 package com.gamix.models;
 
 import java.io.Serializable;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,11 +14,14 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-@Embeddable
 public class CommentId implements Serializable {
-    @Column(name = "user_profile_id")
-    private Integer userProfileId;
+    private Integer id;
 
-    @Column(name = "post_id")
-    private Integer postId;
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "user_profile_id")
+    private UserProfile author;
 }

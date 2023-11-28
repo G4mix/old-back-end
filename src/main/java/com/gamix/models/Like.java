@@ -5,7 +5,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
@@ -25,10 +24,7 @@ public class Like {
     private Post post;
 
     @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "comment_user_profile_id", referencedColumnName = "user_profile_id"),
-        @JoinColumn(name = "comment_post_id", referencedColumnName = "post_id")
-    })
+    @JoinColumn(name = "comment_id")
     private Comment comment;
     
     @ManyToOne

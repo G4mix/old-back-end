@@ -16,13 +16,6 @@ public class CommentResolver implements GraphQLResolver<Comment> {
     @Autowired
     private HttpServletRequest httpServletRequest;
 
-    public int getId(@Lazy Comment comment) throws ExceptionBase {
-        String postId = comment.getCommentId().getPostId().toString();
-        String userProfileId = comment.getCommentId().getUserProfileId().toString();
-        String id = postId + userProfileId;
-        return Integer.parseInt(id);
-    }
-
     public boolean getIsLiked(@Lazy Comment comment) throws ExceptionBase {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         String accessToken = authorizationHeader.substring(7);

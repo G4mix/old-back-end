@@ -68,7 +68,6 @@ public class PostService implements PostServiceInterface {
             postInput.content() == "" &&
             postInput.title() == "" &&
             (postInput.links() == null || postInput.links().isEmpty()) &&
-            (postInput.tags() == null || postInput.tags().isEmpty()) &&
             (partImages == null)
             
         ) {
