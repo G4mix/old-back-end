@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Comment;
+import com.gamix.models.CommentId;
 import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
@@ -36,9 +37,11 @@ public class CommentService {
         UserProfile author = user.getUserProfile();
 
         Comment newComment = new Comment();
-        newComment.setAuthor(author);
+        CommentId commentId = new CommentId();
+        commentId.setPostId(post.getId());
+        commentId.setUserProfileId(author.getId());
+        newComment.setCommentId(commentId);
         newComment.setContent(comment);
-        newComment.setPost(post);
 
         commentRepository.save(newComment);
 
@@ -47,7 +50,7 @@ public class CommentService {
 
     public List<Comment> findAllCommentsOfAPost(int postId, int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-        Page<Comment> posts = commentRepository.findAllByPostId(postId, page);
+        Page<Comment> posts = commentRepository.findAllByIdPostId(postId, page);
         return posts.getContent();
     }
 
