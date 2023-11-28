@@ -7,28 +7,22 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
+@Data
 @Accessors(chain = true)
 @Entity
 public class Tag {
 
-    @Getter
-    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Getter
-    @Setter
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
     
-    @Getter
-    @Setter
     @Column(nullable = false, length = 50)
     private String name;
 }

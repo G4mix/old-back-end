@@ -29,6 +29,7 @@ public class Post {
     @Getter
     @Setter
     @Id
+    @Column(name = "post_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 

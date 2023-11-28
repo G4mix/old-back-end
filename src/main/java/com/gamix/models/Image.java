@@ -7,42 +7,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
+@Data
 @Accessors(chain = true)
 @Entity
 public class Image {
-    @Getter
-    @Setter
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
-    @Getter
-    @Setter
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @Getter
-    @Setter
     @Column(nullable = false, length = 60)
     private String name;
     
-    @Getter
-    @Setter
+
     @Column(nullable = false)
     private String src;
-    
-    @Getter
-    @Setter
+
     @Column(nullable = false)
     private Integer width;
-    
-    @Getter
-    @Setter
+
     @Column(nullable = false)
     private Integer height;
 }

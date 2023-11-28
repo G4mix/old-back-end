@@ -5,37 +5,32 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import lombok.experimental.Accessors;
 
+@Data
 @Accessors(chain = true)
 @Entity
 @Table(name = "like_entity")
 public class Like {
-
-    @Getter
-    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Getter
-    @Setter
     @ManyToOne(optional = true)
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @Getter
-    @Setter
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "comment_id")
+    @ManyToOne
+    @JoinColumns({
+        @JoinColumn(name = "comment_user_profile_id", referencedColumnName = "user_profile_id"),
+        @JoinColumn(name = "comment_post_id", referencedColumnName = "post_id")
+    })
     private Comment comment;
     
-    @Getter
-    @Setter
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfile userProfile;

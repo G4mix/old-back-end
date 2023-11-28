@@ -7,6 +7,7 @@ import java.util.List;
 import com.gamix.serializable.CommentId;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -36,9 +37,25 @@ public class Comment {
 
     @Getter
     @Setter
+    @ManyToOne
+    @JoinColumn(name = "post_id", referencedColumnName = "post_id", insertable = false, updatable = false)
+    private Post post;
+
+    @Getter
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "user_profile_id", referencedColumnName = "user_profile_id", insertable = false, updatable = false)
+    private UserProfile author;
+
+    @Getter
+    @Setter
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Like> likes = new ArrayList<>();
 
+    @Getter
+    @Setter
+    @Embedded
+    private CommentId parentComment;
 
     @Getter
     @Setter
