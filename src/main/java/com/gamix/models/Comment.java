@@ -18,17 +18,11 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-@Data
 @Accessors(chain = true)
-@AllArgsConstructor
-@NoArgsConstructor
 @Table(name = "comment")
 @Entity
 public class Comment {
@@ -36,24 +30,36 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
+
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "user_profile_id")
     private UserProfile author;
 
+    @Getter
+    @Setter
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    private List<Comment> replies = new ArrayList<>();
+
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "parent_comment_id")
     private Comment parentComment;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Like> likes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Comment> replies = new ArrayList<>();
-
+    @Getter
+    @Setter
     @Column(nullable = false, length = 200)
     private String content;
 

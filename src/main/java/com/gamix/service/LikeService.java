@@ -51,6 +51,28 @@ public class LikeService {
         return true;
     }
 
+    @Transactional
+    public boolean likeComment(String accessToken, Comment comment, boolean isLiked) throws ExceptionBase {
+        User user = userService.findUserByToken(accessToken);
+        UserProfile userProfile = user.getUserProfile();
+        if (isLiked) {
+            if (userHasLikedComment(comment, userProfile)) return true;
+            Like like = new Like();
+            like.setComment(comment);
+            like.setUserProfile(userProfile);
+            likeRepository.save(like);
+        } else {
+            Like like = likeRepository.findByCommentAndUserProfile(comment, userProfile);
+            if (like == null) return true;
+
+            entityManager.createQuery("DELETE FROM Like l WHERE l.comment = :comment AND l.userProfile = :userProfile")
+                .setParameter("comment", comment)
+                .setParameter("userProfile", userProfile)
+                .executeUpdate();
+        }
+        return true;
+    }
+
     public List<Post> findAllLikesPageable(Post post, UserProfile userProfile, int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit, sortByUpdatedAtOrCreatedAt());
         Page<Post> posts = likeRepository.findPostsByUserProfile(userProfile, page);

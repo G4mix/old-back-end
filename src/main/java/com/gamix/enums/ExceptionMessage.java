@@ -55,6 +55,8 @@ public enum ExceptionMessage {
     TOO_MANY_LINKS(HttpStatus.BAD_REQUEST, "Muitos links no post (máximo 5)."),
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "Muitas imagens no post (máximo 8)."),
 
+    COMMENT_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "Comentario nao encontrado por ID"),
+
     INVALID_ID(HttpStatus.BAD_REQUEST, "ID Inválido.");
 
     private final HttpStatus httpStatus;

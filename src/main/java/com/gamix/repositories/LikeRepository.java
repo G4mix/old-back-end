@@ -19,7 +19,8 @@ public interface LikeRepository extends JpaRepository<Like, Integer> {
     boolean existsByCommentAndUserProfile(Comment comment, UserProfile userProfile);
     boolean existsByPostAndUserProfile(Post post, UserProfile userProfile);
     Like findByPostAndUserProfile(Post post, UserProfile userProfile);
-    
+    Like findByCommentAndUserProfile(Comment comment, UserProfile userProfile);
+
     @Query("SELECT l.post FROM Like l WHERE l.userProfile = :userProfile")
     Page<Post> findPostsByUserProfile(UserProfile userProfile, Pageable pageable);
 

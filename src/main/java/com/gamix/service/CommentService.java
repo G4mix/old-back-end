@@ -7,20 +7,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.comment.CommentIdNotFound;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.repositories.CommentRepository;
 import com.gamix.utils.SortUtils;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CommentService {
     @Autowired
     private CommentRepository commentRepository;
-
-    @Autowired
-    private PostService postService;
     
     @Autowired
     private UserService userService;
@@ -29,9 +28,8 @@ public class CommentService {
     private LikeService likeService;
 
     public Comment commentPost(
-        String accessToken, Integer postId, String comment
+        String accessToken, Post post, String comment
     ) throws ExceptionBase {
-        Post post = postService.findPostById(postId);
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
 
@@ -45,9 +43,30 @@ public class CommentService {
         return newComment;
     }
 
+    public Comment replyComment(String accessToken, Integer commentId, String content) throws ExceptionBase {
+        User user = userService.findUserByToken(accessToken);
+        UserProfile author = user.getUserProfile();
+        Comment parentComment = commentRepository.findCommentById(commentId)
+            .orElseThrow(() -> new CommentIdNotFound());
+
+        Comment newReply = new Comment()
+            .setParentComment(parentComment)
+            .setAuthor(author)
+            .setContent(content)
+            .setPost(parentComment.getPost());
+        
+        parentComment.getReplies().add(newReply);
+        commentRepository.save(newReply);
+        return newReply;
+    }
+
+    public Comment findCommentById(Integer commentId) throws ExceptionBase {
+        return commentRepository.findCommentById(commentId).orElseThrow(() -> new CommentIdNotFound());
+    }
+
     public List<Comment> findAllCommentsOfAPost(int postId, int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-        Page<Comment> posts = commentRepository.findAllByPostId(postId, page);
+        Page<Comment> posts = commentRepository.findAllByPostIdAndParentCommentIsNull(postId, page);
         return posts.getContent();
     }
 
@@ -55,5 +74,10 @@ public class CommentService {
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
         return likeService.userHasLikedComment(comment, author);
+    }
+
+    @Transactional
+    public void deleteCommentsByPost(Post post) {
+        commentRepository.deleteAllByPost(post);
     }
 }
