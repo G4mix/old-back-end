@@ -52,6 +52,9 @@ public class PostService implements PostServiceInterface {
     private TagService tagService;
 
     @Autowired
+    private CommentService commentService;
+
+    @Autowired
     private ImageService imageService;
 
     @Autowired
@@ -68,7 +71,6 @@ public class PostService implements PostServiceInterface {
             postInput.content() == "" &&
             postInput.title() == "" &&
             (postInput.links() == null || postInput.links().isEmpty()) &&
-            (postInput.tags() == null || postInput.tags().isEmpty()) &&
             (partImages == null)
             
         ) {
@@ -193,6 +195,7 @@ public class PostService implements PostServiceInterface {
         if (accessTokenOwner.getId() != postAuthor.getId()) return false;
         
         imageService.deleteImages(post);
+        commentService.deleteCommentsByPost(post);
         likeService.deleteLikesByPost(post);
         postAuthor.getPosts().remove(post);
         post.setAuthor(null);

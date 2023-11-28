@@ -10,7 +10,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.models.Comment;
 import com.gamix.models.Post;
+import com.gamix.service.CommentService;
 import com.gamix.service.LikeService;
 import com.gamix.service.PostService;
 import graphql.GraphQLError;
@@ -22,6 +24,9 @@ import jakarta.servlet.http.HttpServletRequest;
 public class LikeMutationResolver implements GraphQLMutationResolver {
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private CommentService commentService;
     
     @Autowired
     private LikeService likeService;
@@ -37,6 +42,17 @@ public class LikeMutationResolver implements GraphQLMutationResolver {
         Post post = postService.findPostById(postId);
 
         return likeService.likePost(accessToken, post, isLiked);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @MutationMapping
+    boolean likeComment(@Argument("commentId") int commentId, @Argument("isLiked") boolean isLiked) throws ExceptionBase {
+        String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        String accessToken = authorizationHeader.substring(7);
+        Comment comment = commentService.findCommentById(commentId);
+        System.out.println(commentId);
+        System.out.println(isLiked);
+        return likeService.likeComment(accessToken, comment, isLiked);
     }
 
     @GraphQlExceptionHandler

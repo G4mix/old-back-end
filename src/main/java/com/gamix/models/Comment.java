@@ -41,7 +41,7 @@ public class Comment {
 
     @Getter
     @Setter
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Like> likes = new ArrayList<>();
 
     @Getter
@@ -51,7 +51,7 @@ public class Comment {
 
     @Getter
     @Setter
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Comment> replies = new ArrayList<>();
 
     @Getter

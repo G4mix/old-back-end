@@ -100,9 +100,11 @@ type Mutation {
 
     # like class
     likePost(postId: Int!, isLiked: Boolean!): Boolean
+    likeComment(commentId: Int!, isLiked: Boolean!): Boolean
 
     # comment class
     commentPost(postId: Int!, content: String!): Comment
+    replyComment(commentId: Int!, content: String!): Comment
 }
 
 input PartialUserInput {
