@@ -50,8 +50,6 @@ public class LikeMutationResolver implements GraphQLMutationResolver {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         String accessToken = authorizationHeader.substring(7);
         Comment comment = commentService.findCommentById(commentId);
-        System.out.println(commentId);
-        System.out.println(isLiked);
         return likeService.likeComment(accessToken, comment, isLiked);
     }
 
