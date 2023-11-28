@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import com.gamix.serializable.CommentId;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,43 +25,25 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(chain = true)
-@Table(name = "comment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_profile_id", "comment_id"}))
+@Table(name = "comment")
 @Entity
 public class Comment {
-
+    
     @Getter
     @Setter
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-
-    @Getter
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "post_id")
-    private Post post;
+    @EmbeddedId
+    private CommentId commentId;
 
     @Getter
     @Setter
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Like> likes = new ArrayList<>();
 
-    @Getter
-    @Setter
-    @ManyToOne
-    private UserProfile author;    
 
     @Getter
     @Setter
     @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Comment> replies = new ArrayList<>();
-
-    @Getter
-    @Setter
-    @ManyToOne
-    @JoinColumn(name = "parent_comment_id")
-    private Comment parentComment;
 
     @Getter
     @Setter
