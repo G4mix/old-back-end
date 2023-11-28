@@ -23,8 +23,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 @Accessors(chain = true)
+@Table(name = "comment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_profile_id", "comment_id"}))
 @Entity
-@Table(name = "comment", uniqueConstraints = @UniqueConstraint(columnNames = {"user_profile_id", "post_id"}))
 public class Comment {
 
     @Getter
