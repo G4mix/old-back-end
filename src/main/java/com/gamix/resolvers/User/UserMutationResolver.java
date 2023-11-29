@@ -2,20 +2,14 @@ package com.gamix.resolvers.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.execution.ErrorType;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.User;
 import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.service.UserService;
-import graphql.ErrorClassification;
-import graphql.GraphQLError;
 import graphql.kickstart.tools.GraphQLMutationResolver;
-import graphql.schema.DataFetchingEnvironment;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller

@@ -50,15 +50,17 @@ public enum ExceptionMessage {
     POST_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "Post não encontrado por ID."), 
     POST_NOT_FOUND_BY_TITLE(HttpStatus.NOT_FOUND, "Post não encontrado por Titulo."),
     COMPLETELY_EMPTY_POST(HttpStatus.BAD_REQUEST, "Você não pode enviar um post totalmente vazio."),
-    TITLE_TOO_LONG(HttpStatus.BAD_REQUEST, "Titulo muito longo (comprimento máximo e 70 caracteres)."),
-    CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "Conteúdo muito longo (comprimento máximo e 700 caracteres)."),
+    TITLE_TOO_LONG(HttpStatus.BAD_REQUEST, "Titulo muito longo (comprimento máximo é 70 caracteres)."),
+    CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "Conteúdo muito longo (comprimento máximo é 700 caracteres)."),
     TOO_MANY_LINKS(HttpStatus.BAD_REQUEST, "Muitos links no post (máximo 5)."),
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "Muitas imagens no post (máximo 8)."),
 
     ERROR_CREATING_IMAGE(HttpStatus.BAD_REQUEST, "Erro ao criar a imagem"),
     HANDLE_IMAGE_ERROR(HttpStatus.BAD_REQUEST, "Dados da imagem inválidos."),
 
-    COMMENT_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "Comentario nao encontrado por ID"),
+    COMMENT_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "Comentário não encontrado por ID"),
+    COMMENT_EMPTY(HttpStatus.BAD_REQUEST, "Comentário não pode ser vazio"),
+    TOO_LONG_COMMENT(HttpStatus.BAD_REQUEST, "Comentário muito longo (comprimento máximo é 200 caracteres)"),
 
     INVALID_ID(HttpStatus.BAD_REQUEST, "ID Inválido.");
 

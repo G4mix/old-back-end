@@ -1,11 +1,11 @@
 package com.gamix.exceptions;
 
-import graphql.*;
-import graphql.kickstart.execution.error.*;
-import org.springframework.stereotype.*;
-
-import java.util.*;
-import java.util.stream.*;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Component;
+import graphql.ExceptionWhileDataFetching;
+import graphql.GraphQLError;
+import graphql.kickstart.execution.error.GraphQLErrorHandler;
 
 @Component
 public class GraphQLExceptionHandler implements GraphQLErrorHandler {

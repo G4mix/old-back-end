@@ -6,12 +6,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.image.ErrorCreatingImage;
 import com.gamix.exceptions.parameters.posts.TooManyImages;
 import com.gamix.models.Image;
 import com.gamix.models.Post;
@@ -35,38 +37,38 @@ public class ImageService {
         createDirectoryIfNotExists(imagesFolderPath);
 
         List<Image> images = new ArrayList<>();
-        for (Part partFile : files) {
-            MultipartFile file = new SingleMultipartFile(partFile);
-            String fileName = file.getOriginalFilename();
-            InputStream fileContent = file.getInputStream();
-            
-            if (file.getSize() > MAX_SIZE) continue;
+        try {
+            for (Part partFile : files) {
+                MultipartFile file = new SingleMultipartFile(partFile);
+                String fileName = file.getOriginalFilename();
+                InputStream fileContent = file.getInputStream();
+                
+                if (file.getSize() > MAX_SIZE) continue;
 
-            String fileExtension = getFileExtension(fileName);
-            if (!allowedExtensions.contains(fileExtension)) continue;
-            
-            String src = imagesFolderPath + fileName;
-            
-            File imageFile = new File(src);
-
-            saveFile(fileContent, imageFile);
-
-            BufferedImage bufferedImage = ImageIO.read(imageFile);
-            int width = bufferedImage.getWidth();
-            int height = bufferedImage.getHeight();
-
-            if (fileName != null && src != null && post != null) {
-                Image image = new Image();
-                image.setName(fileName);
-                image.setSrc(src);
-                image.setWidth(width);
-                image.setHeight(height);
-                image.setPost(post);
+                String fileExtension = getFileExtension(fileName);
+                if (!allowedExtensions.contains(fileExtension)) continue;
+                
+                String src = imagesFolderPath + fileName;
+                
+                File imageFile = new File(src);
+                saveFile(fileContent, imageFile);
+    
+                BufferedImage bufferedImage = ImageIO.read(imageFile);
+                int width = bufferedImage.getWidth();
+                int height = bufferedImage.getHeight();
+    
+                Image image = new Image()
+                    .setName(fileName)
+                    .setSrc(src)
+                    .setWidth(width)
+                    .setHeight(height)
+                    .setPost(post);
 
                 images.add(image);
-            } else {
-                throw new ErrorCreatingImage();
+
             }
+        } catch (IOException e) {
+            throw new ErrorCreatingImage();
         }
         return images;
     }
@@ -89,62 +91,65 @@ public class ImageService {
 
         List<Image> imagesToAdd = new ArrayList<>();
         List<Image> imagesToRemove = new ArrayList<>();
-
-        for (Part partFile : files) {
-            MultipartFile file = new SingleMultipartFile(partFile);
-            String fileName = file.getOriginalFilename();
-            InputStream fileContent = file.getInputStream();
+        try {
+            for (Part partFile : files) {
+                MultipartFile file = new SingleMultipartFile(partFile);
+                String fileName = file.getOriginalFilename();
+                InputStream fileContent = file.getInputStream();
+                
+                String src = imagesFolderPath + fileName;
+                
+                boolean imageExists = false;
+                
+                for (Image postImage : postImages) {
+                    if (postImage.getName().equals(fileName)) {
+                        imagesToAdd.add(postImage);
+                        imageExists = true;
+                        break;
+                    }
+                }
+                
+                if (imageExists && file.getSize() == 0) continue;
+                String fileExtension = getFileExtension(fileName);
+                if (!allowedExtensions.contains(fileExtension)) continue;
+    
+                File imageFile = new File(src);
+                saveFile(fileContent, imageFile);
             
-            String src = imagesFolderPath + fileName;
+                BufferedImage bufferedImage = ImageIO.read(imageFile);
+                int width = bufferedImage.getWidth();
+                int height = bufferedImage.getHeight();
             
-            boolean imageExists = false;
+                Image newImage = new Image()
+                    .setName(fileName)
+                    .setSrc(src)
+                    .setWidth(width)
+                    .setHeight(height)
+                    .setPost(post);
             
+                imagesToAdd.add(newImage);
+            }
+        
             for (Image postImage : postImages) {
-                if (postImage.getName().equals(fileName)) {
-                    imagesToAdd.add(postImage);
-                    imageExists = true;
-                    break;
+                boolean found = false;
+                for (Image newImage : imagesToAdd) {
+                    if (newImage.getSrc().equals(postImage.getSrc())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    deleteImage(postImage);
+                    imagesToRemove.add(postImage);
                 }
             }
+        
+            postImages.removeAll(imagesToRemove);
+            postImages.addAll(imagesToAdd);
+        
+        } catch (IOException e) {
             
-            if (imageExists && file.getSize() == 0) continue;
-            String fileExtension = getFileExtension(fileName);
-            if (!allowedExtensions.contains(fileExtension)) continue;
-
-            File imageFile = new File(src);
-            saveFile(fileContent, imageFile);
-        
-            BufferedImage bufferedImage = ImageIO.read(imageFile);
-            int width = bufferedImage.getWidth();
-            int height = bufferedImage.getHeight();
-        
-            Image newImage = new Image();
-            newImage.setName(fileName);
-            newImage.setSrc(src);
-            newImage.setWidth(width);
-            newImage.setHeight(height);
-            newImage.setPost(post);
-        
-            imagesToAdd.add(newImage);
         }
-    
-        for (Image postImage : postImages) {
-            boolean found = false;
-            for (Image newImage : imagesToAdd) {
-                if (newImage.getSrc().equals(postImage.getSrc())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                deleteImage(postImage);
-                imagesToRemove.add(postImage);
-            }
-        }
-    
-        postImages.removeAll(imagesToRemove);
-        postImages.addAll(imagesToAdd);
-    
         return postImages;
     }
 
@@ -170,15 +175,13 @@ public class ImageService {
         if (file.exists()) file.delete();
     }
 
-    private void saveFile(InputStream fileContent, File file) throws ExceptionBase {
+    private void saveFile(InputStream fileContent, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             byte[] buffer = new byte[MAX_SIZE];
             int bytesRead;
             while ((bytesRead = fileContent.read(buffer)) != -1) {
                 fos.write(buffer, 0, bytesRead);
             }
-        } catch (IOException e) {
-            throw new HandleImagesError();
         }
     }
 

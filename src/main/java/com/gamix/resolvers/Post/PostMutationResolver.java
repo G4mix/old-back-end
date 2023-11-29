@@ -1,22 +1,16 @@
 package com.gamix.resolvers.Post;
 
-import static com.gamix.utils.ControllerUtils.throwGraphQLError;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.GraphQlExceptionHandler;
-import org.springframework.graphql.execution.ErrorType;
-import org.springframework.lang.NonNull;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Post;
 import com.gamix.records.inputs.PostController.PartialPostInput;
 import com.gamix.service.PostService;
-import graphql.GraphQLError;
 import graphql.kickstart.tools.GraphQLMutationResolver;
-import graphql.schema.DataFetchingEnvironment;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 

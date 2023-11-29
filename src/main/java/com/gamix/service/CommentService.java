@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.comment.CommentIdNotFound;
+import com.gamix.exceptions.comment.EmptyComment;
+import com.gamix.exceptions.comment.TooLongContent;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.models.User;
@@ -28,15 +30,23 @@ public class CommentService {
     private LikeService likeService;
 
     public Comment commentPost(
-        String accessToken, Post post, String comment
+        String accessToken, Post post, String content
     ) throws ExceptionBase {
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
 
+        if (content == "") {
+            throw new EmptyComment();
+        }
+        
+        if (content.length() > 200){
+            throw new TooLongContent();
+        }
+
         Comment newComment = new Comment();
         newComment.setAuthor(author);
         newComment.setPost(post);
-        newComment.setContent(comment);
+        newComment.setContent(content);
 
         commentRepository.save(newComment);
 
