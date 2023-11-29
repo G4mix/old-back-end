@@ -54,6 +54,7 @@ public class UpdateUserTest {
         existingUser.setUsername("oldUsername");
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUsername(partialUserInput.username())).thenReturn(null);
 
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));

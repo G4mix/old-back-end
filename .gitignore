@@ -1,6 +1,8 @@
 target/
 .mvn/wrapper/maven-wrapper.jar
 
+images/
+
 ### IDEs ###
 .idea/
 *.iws

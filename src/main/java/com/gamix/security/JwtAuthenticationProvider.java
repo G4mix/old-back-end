@@ -37,7 +37,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             JwtAuthenticationToken jwtAuthenticationToken =
                     (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
             String accessToken = jwtAuthenticationToken.getToken();
-
+            
             if (!jwtManager.validate(accessToken))
                 throw new InvalidAccessToken();
 

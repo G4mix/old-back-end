@@ -11,14 +11,16 @@ public class CookieUtils {
     public static Map<String, String> generateCookies(JwtTokens jwtTokens, CookieOptions options) {
         Cookie refreshTokenCookie = new Cookie("refreshToken", jwtTokens.refreshToken());
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(
-                options.rememberMe() ? ((int) (ExpirationTime.REMEMBER_ME.getValue() / 1000))
-                        : ((int) (ExpirationTime.REFRESH_TOKEN.getValue() / 1000)));
+        refreshTokenCookie.setMaxAge((
+            options.rememberMe() 
+                ? ((int) (ExpirationTime.REMEMBER_ME.getValue() / 1000))
+                : ((int) (ExpirationTime.REFRESH_TOKEN.getValue() / 1000))
+        ) + 300);
         refreshTokenCookie.setSecure(options.isSecure());
 
         Cookie accessTokenCookie = new Cookie("accessToken", jwtTokens.accessToken());
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(3600);
+        accessTokenCookie.setMaxAge(3900);
         accessTokenCookie.setSecure(options.isSecure());
 
         Map<String, String> cookieStrings = new HashMap<>();

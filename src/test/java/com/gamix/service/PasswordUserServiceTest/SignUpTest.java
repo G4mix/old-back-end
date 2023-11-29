@@ -30,12 +30,14 @@ import com.gamix.exceptions.parameters.username.UsernameTooShort;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
 import com.gamix.models.User;
+import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.service.PasswordUserService;
+import com.gamix.service.UserProfileService;
 import com.gamix.service.UserService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,6 +45,9 @@ public class SignUpTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private UserProfileService userProfileService;
 
     @Mock
     private UserRepository userRepository;
@@ -65,7 +70,9 @@ public class SignUpTest {
         when(userRepository.findByEmail("validemail@gmail.com")).thenReturn(Optional.empty());
 
         User mockUser = new User().setId(1);
+        UserProfile mockUserProfile = new UserProfile().setUser(mockUser).setDisplayName(mockUser.getUsername());
 
+        when(userProfileService.createUserProfile(mockUser)).thenReturn(mockUserProfile);
         when(userService.createUser("username", "validemail@gmail.com", null)).thenReturn(mockUser);
         when(jwtManager.generateJwtTokens(eq(1), any(String.class), eq(false)))
                 .thenReturn(new JwtTokens("accessToken", "refreshToken", false));

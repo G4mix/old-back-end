@@ -8,9 +8,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
+@Data
+@Accessors(chain = true)
 @Entity
 public class PasswordUser {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -26,61 +31,7 @@ public class PasswordUser {
 
     @Column(nullable = false)
     private Integer loginAttempts = 0;
-
+    
     @Column(nullable = true)
     private LocalDateTime blockedUntil;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public PasswordUser setId(Integer id) {
-        this.id = id;
-        return this;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public PasswordUser setUser(User user) {
-        this.user = user;
-        return this;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public PasswordUser setPassword(String password) {
-        this.password = password;
-        return this;
-    }
-
-    public Boolean getVerifiedEmail() {
-        return verifiedEmail;
-    }
-
-    public PasswordUser setVerifiedEmail(Boolean verifiedEmail) {
-        this.verifiedEmail = verifiedEmail;
-        return this;
-    }
-
-    public Integer getLoginAttempts() {
-        return loginAttempts;
-    }
-
-    public PasswordUser setLoginAttempts(Integer loginAttempts) {
-        this.loginAttempts = loginAttempts;
-        return this;
-    }
-
-    public LocalDateTime getBlockedUntil() {
-        return blockedUntil;
-    }
-
-    public PasswordUser setBlockedUntil(LocalDateTime blockedUntil) {
-        this.blockedUntil = blockedUntil;
-        return this;
-    }
 }

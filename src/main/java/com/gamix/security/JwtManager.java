@@ -11,15 +11,12 @@ import com.gamix.interfaces.security.JwtManagerInterface;
 import com.gamix.models.User;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.UserRepository;
-import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class JwtManager implements JwtManagerInterface {
-    @Autowired
-    private Dotenv dotenv;
 
     @Autowired
     private UserRepository userRepository;
@@ -27,7 +24,7 @@ public class JwtManager implements JwtManagerInterface {
     @Override
     public Claims getTokenClaims(String token) throws TokenClaimsException {
         try {
-            return Jwts.parser().setSigningKey(dotenv.get("JWT_SIGNING_KEY_SECRET"))
+            return Jwts.parser().setSigningKey(System.getenv("JWT_SIGNING_KEY_SECRET"))
                     .parseClaimsJws(token).getBody();
         } catch (Exception e) {
             throw new TokenClaimsException();
@@ -41,12 +38,16 @@ public class JwtManager implements JwtManagerInterface {
         Date expirationDate = body.getExpiration();
         Date currentDate = new Date();
 
-        Optional<User> user = userRepository.findById(Integer.parseInt(body.getSubject()));
+        Optional<User> userOptional = userRepository.findById(Integer.parseInt(body.getSubject()));
 
         boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-        boolean invalidUser = !user.isPresent();
-        boolean invalidPasswordUser = user.get().getPasswordUser() != null && !(body.get("password")
-                .toString().equals(user.get().getPasswordUser().getPassword()));
+        boolean invalidUser = !userOptional.isPresent();
+        boolean invalidPasswordUser = false;
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            invalidPasswordUser = user.getPasswordUser() != null && !body.get("password")
+                    .toString().equals(user.getPasswordUser().getPassword());
+        }
 
         if (isExpired || invalidUser || invalidPasswordUser)
             return false;
@@ -73,6 +74,6 @@ public class JwtManager implements JwtManagerInterface {
         Date expirationDate = new Date(System.currentTimeMillis() + expirationTime.getValue());
 
         return Jwts.builder().setClaims(claims).setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS512, dotenv.get("JWT_SIGNING_KEY_SECRET")).compact();
+                .signWith(SignatureAlgorithm.HS512, System.getenv("JWT_SIGNING_KEY_SECRET")).compact();
     }
 }
