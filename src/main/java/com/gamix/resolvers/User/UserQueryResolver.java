@@ -30,36 +30,24 @@ public class UserQueryResolver implements GraphQLQueryResolver {
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByToken() throws Exception {
-        try {
-            String authorizationHeader = httpServletRequest.getHeader("Authorization");
-            String accessToken = authorizationHeader.substring(7);
-            User user = userService.findUserByToken(accessToken);
-            return user;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        String accessToken = authorizationHeader.substring(7);
+        User user = userService.findUserByToken(accessToken);
+        return user;
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByUsername(@Argument String username) throws ExceptionBase {
-        try {
-            User user = userService.findUserByUsername(username);
-            return user;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        User user = userService.findUserByUsername(username);
+        return user;
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByEmail(@Argument String email) throws ExceptionBase {
-        try {
-            User user = userService.findUserByEmail(email);
-            return user;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        User user = userService.findUserByEmail(email);
+        return user;
     }
 
 }

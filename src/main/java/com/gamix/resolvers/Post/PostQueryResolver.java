@@ -23,21 +23,13 @@ public class PostQueryResolver implements GraphQLQueryResolver {
 
     @PreAuthorize("hasAuthority('USER')")
     Post findPostById(@Argument Integer id) throws ExceptionBase {
-        try {
-            Post post = postService.findPostById(id);
-            return post;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        Post post = postService.findPostById(id);
+        return post;
     }
 
     @PreAuthorize("hasAuthority('USER')")
     Post findPostByTitle(@Argument String title) throws ExceptionBase {
-        try {
-            Post post = postService.findPostByTitle(title);
-            return post;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        Post post = postService.findPostByTitle(title);
+        return post;
     }
 }

@@ -23,25 +23,17 @@ public class UserMutationResolver implements GraphQLMutationResolver {
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     User updateUser(@Argument("input") PartialUserInput userInput) throws ExceptionBase {
-        try {
-            String authorizationHeader = httpServletRequest.getHeader("Authorization");
-            String accessToken = authorizationHeader.substring(7);
-            User updatedUser = userService.updateUser(accessToken, userInput);
-            return updatedUser;
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        String accessToken = authorizationHeader.substring(7);
+        User updatedUser = userService.updateUser(accessToken, userInput);
+        return updatedUser;
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping
     boolean deleteAccount() throws ExceptionBase {
-        try {
-            String authorizationHeader = httpServletRequest.getHeader("Authorization");
-            String accessToken = authorizationHeader.substring(7);
-            return userService.deleteAccount(accessToken);
-        } catch (ExceptionBase ex) {
-            throw ex;
-        }
+        String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        String accessToken = authorizationHeader.substring(7);
+        return userService.deleteAccount(accessToken);
     }
 }

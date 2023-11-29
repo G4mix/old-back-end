@@ -8,13 +8,13 @@ import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.language.SourceLocation;
 
-public class ExceptionBase extends Exception implements GraphQLError {
+public class ExceptionBase extends RuntimeException implements GraphQLError {
     private final HttpStatus status;
     private final String error, message;
 
     public ExceptionBase(ExceptionMessage e) {
-        this.error = e.toString();
         this.status = e.getHttpStatus();
+        this.error = e.toString();
         this.message = e.getMessage();
     }
 
@@ -30,7 +30,7 @@ public class ExceptionBase extends Exception implements GraphQLError {
     public HttpStatusCode getStatus() {
         return status;
     }
-
+    
     @Override
     public List<SourceLocation> getLocations() {
         return null;
