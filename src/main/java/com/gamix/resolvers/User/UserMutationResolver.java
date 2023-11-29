@@ -50,19 +50,4 @@ public class UserMutationResolver implements GraphQLMutationResolver {
             throw ex;
         }
     }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(@NonNull Throwable ex,
-            @NonNull DataFetchingEnvironment environment) {
-        if (ex instanceof ExceptionBase) {
-            return GraphQLError.newError()
-                    .errorType(ErrorClassification
-                            .errorClassification(((ExceptionBase) ex).getStatus().toString()))
-                    .message(ex.getMessage()).path(environment.getExecutionStepInfo().getPath())
-                    .location(environment.getField().getSourceLocation()).build();
-        }
-        return GraphQLError.newError().errorType(ErrorType.BAD_REQUEST).message(ex.getMessage())
-                .path(environment.getExecutionStepInfo().getPath())
-                .location(environment.getField().getSourceLocation()).build();
-    }
 }

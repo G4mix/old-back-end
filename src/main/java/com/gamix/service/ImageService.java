@@ -24,11 +24,13 @@ import jakarta.servlet.http.Part;
 public class ImageService {
 
     private final Integer MAX_SIZE = 1048576;
+    
+    private final List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
 
     @Autowired
     private ImageRepository imageRepository;
 
-    public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws IOException {
+    public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
         String imagesFolderPath = "/images/posts/"+user.getId()+"/";
         createDirectoryIfNotExists(imagesFolderPath);
 
@@ -40,6 +42,9 @@ public class ImageService {
             
             if (file.getSize() > MAX_SIZE) continue;
 
+            String fileExtension = getFileExtension(fileName);
+            if (!allowedExtensions.contains(fileExtension)) continue;
+            
             String src = imagesFolderPath + fileName;
             
             File imageFile = new File(src);
@@ -50,19 +55,23 @@ public class ImageService {
             int width = bufferedImage.getWidth();
             int height = bufferedImage.getHeight();
 
-            Image image = new Image();
-            image.setName(fileName);
-            image.setSrc(src);
-            image.setWidth(width);
-            image.setHeight(height);
-            image.setPost(post);
+            if (fileName != null && src != null && post != null) {
+                Image image = new Image();
+                image.setName(fileName);
+                image.setSrc(src);
+                image.setWidth(width);
+                image.setHeight(height);
+                image.setPost(post);
 
-            images.add(image);
+                images.add(image);
+            } else {
+                throw new ErrorCreatingImage();
+            }
         }
         return images;
     }
 
-    public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase, IOException {
+    public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
         String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
     
@@ -99,6 +108,8 @@ public class ImageService {
             }
             
             if (imageExists && file.getSize() == 0) continue;
+            String fileExtension = getFileExtension(fileName);
+            if (!allowedExtensions.contains(fileExtension)) continue;
 
             File imageFile = new File(src);
             saveFile(fileContent, imageFile);
@@ -146,10 +157,7 @@ public class ImageService {
 
     public void deleteImages(Post post) {
         for (Image image : post.getImages()) {
-            if (!imageIsReferencedByOtherPosts(image)) {
-                System.out.println("Deletando "+image.getSrc());
-                deleteImageFromDisk(image.getSrc());
-            }
+            deleteImage(image);
         }
     }
 
@@ -162,14 +170,26 @@ public class ImageService {
         if (file.exists()) file.delete();
     }
 
-    private void saveFile(InputStream fileContent, File file) throws IOException {
+    private void saveFile(InputStream fileContent, File file) throws ExceptionBase {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             byte[] buffer = new byte[MAX_SIZE];
             int bytesRead;
             while ((bytesRead = fileContent.read(buffer)) != -1) {
                 fos.write(buffer, 0, bytesRead);
             }
+        } catch (IOException e) {
+            throw new HandleImagesError();
         }
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName != null && !fileName.isEmpty()) {
+            int lastDotIndex = fileName.lastIndexOf('.');
+            if (lastDotIndex >= 0) {
+                return fileName.substring(lastDotIndex);
+            }
+        }
+        return "";
     }
 
     private void createDirectoryIfNotExists(String directoryPath) {

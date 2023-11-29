@@ -65,7 +65,7 @@ public class PostService implements PostServiceInterface {
 
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
-            throws ExceptionBase, IOException {
+            throws ExceptionBase {
         
         if (
             postInput.content() == "" &&
@@ -147,7 +147,7 @@ public class PostService implements PostServiceInterface {
     @Override
     public Post updatePost(
         String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages
-    ) throws ExceptionBase, IOException {
+    ) throws ExceptionBase {
         if (!jwtManager.validate(accessToken)) {
             throw new InvalidAccessToken();
         }

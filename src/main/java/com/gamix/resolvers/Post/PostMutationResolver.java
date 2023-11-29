@@ -65,15 +65,4 @@ public class PostMutationResolver implements GraphQLMutationResolver {
             throw ex;
         }
     }
-
-    @GraphQlExceptionHandler
-    public GraphQLError handle(@NonNull Throwable ex,
-            @NonNull DataFetchingEnvironment environment) {
-        if (ex instanceof ExceptionBase) {
-            return throwGraphQLError((ExceptionBase) ex);
-        }
-        return GraphQLError.newError().errorType(ErrorType.BAD_REQUEST).message(ex.getMessage())
-                .path(environment.getExecutionStepInfo().getPath())
-                .location(environment.getField().getSourceLocation()).build();
-    }
 }
