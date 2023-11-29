@@ -21,6 +21,12 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>{
 
     @Modifying
     @Transactional
-    @Query("delete from Comment l where l.post = :post")
-    void deleteAllByPost(@Param("post") Post post);
+    @Query("DELETE FROM Like l WHERE l.comment IN (SELECT c FROM Comment c WHERE c.post = :post)")
+    void deleteLikesByPost(@Param("post") Post post);    
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Comment c WHERE c.post = :post")
+    void deleteCommentsByPost(@Param("post") Post post);
+    
 }

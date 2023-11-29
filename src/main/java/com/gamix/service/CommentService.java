@@ -88,6 +88,7 @@ public class CommentService {
 
     @Transactional
     public void deleteCommentsByPost(Post post) {
-        commentRepository.deleteAllByPost(post);
+        commentRepository.deleteLikesByPost(post);
+        commentRepository.deleteCommentsByPost(post);
     }
 }
