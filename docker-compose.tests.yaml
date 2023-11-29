@@ -42,7 +42,6 @@ services:
         fi && \
         find /app/scripts -type f -name "*.sh" -exec dos2unix {} \; && \
         chmod +x /app/scripts/*.sh && \
-        /app/scripts/config_dev_env.sh && \
         /app/scripts/test.sh'
     ports:
       - 8080:8080

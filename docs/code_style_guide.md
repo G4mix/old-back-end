@@ -48,7 +48,7 @@ A estrutura de diretórios a seguir é comum em projetos Java que utilizam o fra
 - `gamix/`: Pacote da aplicação, onde você coloca as classes relacionadas.
 
 Dentro do pacote `com.gamix`, a estrutura padrão do projeto Spring Boot inclui:
-- `config/`: Classes que realizam configurações importantes, como o dotenv ou spring security.
+- `config/`: Classes que realizam configurações importantes, como o spring security.
 
 - `controller/`: Classes que recebem requisições HTTP e direcionam para operações no serviço.
 
