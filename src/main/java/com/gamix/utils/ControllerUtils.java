@@ -10,6 +10,7 @@ import graphql.ErrorClassification;
 import graphql.GraphQLError;
 
 public class ControllerUtils {
+    
     public static ResponseEntity<Object> throwError(ExceptionBase ex) {
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("message", ex.getMessage());

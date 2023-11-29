@@ -38,12 +38,16 @@ public class JwtManager implements JwtManagerInterface {
         Date expirationDate = body.getExpiration();
         Date currentDate = new Date();
 
-        Optional<User> user = userRepository.findById(Integer.parseInt(body.getSubject()));
+        Optional<User> userOptional = userRepository.findById(Integer.parseInt(body.getSubject()));
 
         boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-        boolean invalidUser = !user.isPresent();
-        boolean invalidPasswordUser = user.get().getPasswordUser() != null && !(body.get("password")
-                .toString().equals(user.get().getPasswordUser().getPassword()));
+        boolean invalidUser = !userOptional.isPresent();
+        boolean invalidPasswordUser = false;
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            invalidPasswordUser = user.getPasswordUser() != null && !body.get("password")
+                    .toString().equals(user.getPasswordUser().getPassword());
+        }
 
         if (isExpired || invalidUser || invalidPasswordUser)
             return false;
