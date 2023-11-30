@@ -1,18 +1,17 @@
 version: "3.3"
 services:
   database:
-    image: postgres:16-alpine
+    build:
+      context: .
+      dockerfile: database.Dockerfile
     container_name: database
     restart: always
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    command: >
-      -c config_file=/mnt/sda1/var/lib/postgresql/data/postgresql.conf
     volumes:
       - pg_data:/var/lib/postgres/data
-      - ./docker/database/postgresql.conf:/mnt/sda1/var/lib/postgresql/data/postgresql.conf
     ports:
       - 5432:5432
 
