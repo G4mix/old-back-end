@@ -25,7 +25,6 @@ public class Image {
 
     @Column(nullable = false, length = 60)
     private String name;
-    
 
     @Column(nullable = false)
     private String src;

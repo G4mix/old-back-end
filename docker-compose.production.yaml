@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: database.Dockerfile
+    image: lordluch/gamix-database
     container_name: database
     restart: always
     volumes:
@@ -11,17 +12,18 @@ services:
     ports:
       - 5432:5432
     networks:
-      - backend_network
+      - gamix_network
   backend:
     build:
       context: .
       dockerfile: Dockerfile
+    image: lordluch/gamix-back-end
     container_name: backend
     restart: always
     ports:
       - 8080:8080
     networks:
-      - backend_network
+      - gamix_network
     depends_on:
       - database
     links:
@@ -31,5 +33,5 @@ volumes:
   pg_data:
 
 networks:
-  backend_network:
+  gamix_network:
     driver: bridge
