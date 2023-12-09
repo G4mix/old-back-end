@@ -2,15 +2,13 @@ package com.gamix.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.parameters.posts.TooManyLinks;
 import com.gamix.models.Link;
 import com.gamix.models.Post;
 
-@Service
 public class LinkService {
-    public List<Link> createLinksForPost(Post post, List<String> linkStrings) {
+    public static List<Link> createLinksForPost(Post post, List<String> linkStrings) {
         List<Link> postLinks = new ArrayList<>();
         for (String linkString : linkStrings) {
             Link link = new Link();
@@ -22,7 +20,7 @@ public class LinkService {
         return postLinks;
     }
 
-    public List<Link> updateLinksForPost(Post post, List<String> linksStrings) throws ExceptionBase {
+    public static List<Link> updateLinksForPost(Post post, List<String> linksStrings) throws ExceptionBase {
         List<Link> postLinks = post.getLinks();
 
         if (linksStrings == null || linksStrings.isEmpty()) {

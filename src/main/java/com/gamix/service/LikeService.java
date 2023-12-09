@@ -5,21 +5,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.interfaces.services.LikeServiceInterface;
 import com.gamix.models.Comment;
 import com.gamix.models.Like;
 import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.repositories.LikeRepository;
+import com.gamix.utils.SortUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 @Service
-public class LikeService {
+public class LikeService implements LikeServiceInterface {
     @Autowired
     private LikeRepository likeRepository;
 
@@ -74,7 +75,7 @@ public class LikeService {
     }
 
     public List<Post> findAllLikesPageable(Post post, UserProfile userProfile, int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit, sortByUpdatedAtOrCreatedAt());
+        Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
         Page<Post> posts = likeRepository.findPostsByUserProfile(userProfile, page);
         return posts.getContent();
     }
@@ -90,12 +91,5 @@ public class LikeService {
     @Transactional
     public void deleteLikesByPost(Post post) {
         likeRepository.deleteByPost(post);
-    }
-
-    private Sort sortByUpdatedAtOrCreatedAt() {
-        return Sort.by(
-            Sort.Order.desc("updatedAt").nullsLast(),
-            Sort.Order.desc("createdAt")
-        );
     }
 }

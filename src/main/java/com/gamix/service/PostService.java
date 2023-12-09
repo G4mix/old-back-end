@@ -45,12 +45,6 @@ public class PostService implements PostServiceInterface {
     private UserService userService;
 
     @Autowired
-    private LinkService linkService;
-
-    @Autowired
-    private TagService tagService;
-
-    @Autowired
     private CommentService commentService;
 
     @Autowired
@@ -98,12 +92,12 @@ public class PostService implements PostServiceInterface {
             if (postInput.links().size() > 5) {
                 throw new TooManyLinks();
             }
-            List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
+            List<Link> links = LinkService.createLinksForPost(newPost, postInput.links());
             newPost.setLinks(links);
         }
         
         if (postInput.tags() != null && !postInput.tags().isEmpty()) {
-            List<Tag> tags = tagService.createTagsForPost(newPost, postInput.tags());
+            List<Tag> tags = TagService.createTagsForPost(newPost, postInput.tags());
             newPost.setTags(tags);
         }
 
@@ -168,10 +162,10 @@ public class PostService implements PostServiceInterface {
             post.setContent(postInput.content());
         }
         
-        List<Link> links = linkService.updateLinksForPost(post, postInput.links());
+        List<Link> links = LinkService.updateLinksForPost(post, postInput.links());
         post.setLinks(links);
         
-        List<Tag> tags = tagService.updateTagsForPost(post, postInput.tags());
+        List<Tag> tags = TagService.updateTagsForPost(post, postInput.tags());
         post.setTags(tags);
         
         List<Image> images = imageService.updateImagesForPost(post, partImages, postAuthor.getUser());

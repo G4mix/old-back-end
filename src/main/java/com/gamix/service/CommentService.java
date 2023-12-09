@@ -10,6 +10,7 @@ import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.comment.CommentIdNotFound;
 import com.gamix.exceptions.comment.EmptyComment;
 import com.gamix.exceptions.comment.TooLongContent;
+import com.gamix.interfaces.services.CommentServiceInterface;
 import com.gamix.models.Comment;
 import com.gamix.models.Post;
 import com.gamix.models.User;
@@ -19,7 +20,7 @@ import com.gamix.utils.SortUtils;
 import jakarta.transaction.Transactional;
 
 @Service
-public class CommentService {
+public class CommentService implements CommentServiceInterface {
     @Autowired
     private CommentRepository commentRepository;
     

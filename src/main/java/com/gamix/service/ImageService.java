@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.image.ErrorCreatingImage;
 import com.gamix.exceptions.parameters.posts.TooManyImages;
+import com.gamix.interfaces.services.ImageServiceInterface;
 import com.gamix.models.Image;
 import com.gamix.models.Post;
 import com.gamix.models.User;
@@ -23,7 +24,7 @@ import com.gamix.utils.SingleMultipartFile;
 import jakarta.servlet.http.Part;
 
 @Service
-public class ImageService {
+public class ImageService implements ImageServiceInterface {
 
     private final Integer MAX_SIZE = 1048576;
     

@@ -1,6 +1,7 @@
 package com.gamix.service;
 
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.interfaces.services.ViewServiceInterface;
 import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
@@ -13,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ViewService {
+public class ViewService implements ViewServiceInterface {
     @Autowired
     private ViewRepository viewRepository;
 
