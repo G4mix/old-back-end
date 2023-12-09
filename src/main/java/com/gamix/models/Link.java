@@ -14,6 +14,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Entity
 public class Link {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

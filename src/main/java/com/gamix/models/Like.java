@@ -15,6 +15,7 @@ import lombok.experimental.Accessors;
 @Entity
 @Table(name = "like_entity")
 public class Like {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
