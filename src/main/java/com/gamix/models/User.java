@@ -1,5 +1,6 @@
 package com.gamix.models;
 
+import javax.validation.constraints.Pattern;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,13 +23,12 @@ public class User {
     private Integer id;
 
     @Column(unique = true, nullable = false, length = 50)
+    @Pattern(regexp = "^[a-zA-Z0-9_]{3,50}$", message = "{invalid.username}")
     private String username;
 
     @Column(unique = true, nullable = false, length = 320)
+    @Pattern(regexp = "^\\w+@gmail\\.com$", message = "{invalid.email}")
     private String email;
-
-    @Column(nullable = true, length = 120)
-    private String icon;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private PasswordUser passwordUser;

@@ -23,5 +23,5 @@ public interface PasswordUserServiceInterface {
 
     public void unbanUser(PasswordUser userToUnban);
 
-    public PasswordUser createPasswordUser(User user, String password);
+    public PasswordUser createPasswordUser(User user, String password) throws ExceptionBase;
 }

@@ -28,8 +28,7 @@ public class CreatePasswordUserTest {
     public void createPasswordUser() throws ExceptionBase {
         String username = "testuser";
         String email = "test@example.com";
-        String icon = "default.png";
-        User user = new User().setUsername(username).setEmail(email).setIcon(icon);
+        User user = new User().setUsername(username).setEmail(email);
 
         String password = "testpassword";
         String encodedPassword = new BCryptPasswordEncoder().encode(password);

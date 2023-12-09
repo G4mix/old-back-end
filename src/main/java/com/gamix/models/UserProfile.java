@@ -31,7 +31,11 @@ public class UserProfile {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false)
     private String displayName;
+
+    @Column(nullable = true, length = 120)
+    private String icon;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();

@@ -14,29 +14,10 @@ public enum ExceptionMessage {
     PASSWORDUSER_NOT_FOUND(HttpStatus.NOT_FOUND, "Usuário de senha não encontrado."),
     PASSWORDUSER_ALREADY_EXISTS(HttpStatus.CONFLICT, "Usuário de senha já existe."),
 
-    USERNAME_EMPTY(HttpStatus.BAD_REQUEST, "Nome de usuário não pode ser vazio."),
-    USERNAME_NULL(HttpStatus.BAD_REQUEST, "Nome de usuário não pode ser nulo."),
-    USERNAME_TOO_LONG(HttpStatus.BAD_REQUEST, "Nome de usuário muito longo (comprimento máximo e 50 caracteres)."),
-    USERNAME_TOO_SHORT(HttpStatus.BAD_REQUEST, "Nome de usuário muito curto (comprimento máximo e 3 caracteres)."),
-    USERNAME_INVALID_FORMAT(HttpStatus.BAD_REQUEST, 
-            "Nome de usuário tem um formato inválido. Deve conter apenas caracteres alfanuméricos."),
-
-    EMAIL_EMPTY(HttpStatus.BAD_REQUEST, "Email não pode ser vazio."),
-    EMAIL_NULL(HttpStatus.BAD_REQUEST, "Email não pode ser nulo."),
-    EMAIL_TOO_SHORT(HttpStatus.BAD_REQUEST, "Email muito curto."),
-    EMAIL_TOO_LONG(HttpStatus.BAD_REQUEST, "Email muito longo (comprimento máximo e 320 caracteres)."),
-    EMAIL_INVALID_FORMAT(HttpStatus.BAD_REQUEST,
-            "Email tem um formato inválido. Deve estar no formato 'nome@gmail.com'."),
-    EMAIL_ALREADY_VERIFIED(HttpStatus.BAD_REQUEST, "Email já está verificado."),
-
-    PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "Senha incorreta."),
-    PASSWORD_NULL(HttpStatus.BAD_REQUEST, "Senha nula."),
-    PASSWORD_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "Formato de senha inválido"),
-    PASSWORD_TOO_SHORT(HttpStatus.BAD_REQUEST, "Senha muito curta (comprimento mínimo e 8 caracteres)."),
-    PASSWORD_TOO_LONG(HttpStatus.BAD_REQUEST, "Senha muito longa (comprimento máximo e 128 caracteres)."),
-    PASSWORD_MISSING_SPECIAL_CHAR(HttpStatus.BAD_REQUEST, "Senha deve conter caractere(s) especial(is)."),
-    PASSWORD_MISSING_NUMBER(HttpStatus.BAD_REQUEST, "Senha deve conter número(s)."),
-    PASSWORD_MISSING_UPPERCASE(HttpStatus.BAD_REQUEST, "Senha deve conter letra(s) maiúscula(s)."),
+    USERNAME_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "Nome de usuário inválido."),
+    EMAIL_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "Email inválido."),
+    PASSWORD_INVALID_FORMAT(HttpStatus.BAD_REQUEST, "Senha inválida."),
+    PASSWORD_WRONG(HttpStatus.BAD_REQUEST, "Você errou a senha."),
 
     USER_ALREADY_EXISTS_WITH_THIS_USERNAME(HttpStatus.CONFLICT, "Usuário com esse nome de usuário já existe."),
     USER_ALREADY_EXISTS_WITH_THIS_EMAIL(HttpStatus.CONFLICT, "Usuário com esse email já existe."), 
@@ -62,6 +43,7 @@ public enum ExceptionMessage {
     COMMENT_EMPTY(HttpStatus.BAD_REQUEST, "Comentário não pode ser vazio"),
     TOO_LONG_COMMENT(HttpStatus.BAD_REQUEST, "Comentário muito longo (comprimento máximo é 200 caracteres)"),
 
+    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido."),
     INVALID_ID(HttpStatus.BAD_REQUEST, "ID Inválido.");
 
     private final HttpStatus httpStatus;

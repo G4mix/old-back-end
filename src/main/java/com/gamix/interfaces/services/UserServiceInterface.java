@@ -20,5 +20,5 @@ public interface UserServiceInterface {
 
     public boolean deleteAccount(String accessToken) throws ExceptionBase;
 
-    public User createUser(String username, String email, String icon);
+    public User createUser(String username, String email) throws ExceptionBase;
 }

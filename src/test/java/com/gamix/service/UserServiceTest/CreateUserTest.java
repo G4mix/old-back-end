@@ -27,14 +27,13 @@ public class CreateUserTest {
         // Arrange
         String username = "testuser";
         String email = "test@example.com";
-        String icon = "default.png";
-        User user = new User().setUsername(username).setEmail(email).setIcon(icon);
+        User user = new User().setUsername(username).setEmail(email);
 
         // Configurando o mock para retornar o usuário criado
         when(userRepository.save(any(User.class))).thenReturn(user);
 
         // Act
-        User createdUser = userService.createUser(username, email, icon);
+        User createdUser = userService.createUser(username, email);
 
         // Assert
         assertEquals(user, createdUser);

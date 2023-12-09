@@ -1,4 +1,4 @@
-package com.gamix.exceptions.parameters.email;
+package com.gamix.exceptions.parameters;
 
 import com.gamix.enums.ExceptionMessage;
 import com.gamix.exceptions.ExceptionBase;

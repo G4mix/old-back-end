@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.authentication.InvalidRefreshToken;
 import com.gamix.exceptions.authentication.NullJwtTokens;
+import com.gamix.exceptions.parameters.EmailInvalidFormat;
+import com.gamix.exceptions.parameters.UsernameInvalidFormat;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
 import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
@@ -47,11 +50,10 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     private UserProfileService userProfileService;
 
     @Override
-    public JwtTokens signUpPasswordUser(SignUpPasswordUserInput signUpPasswordUserInput)
-            throws ExceptionBase {
-        ParameterValidator.validateUsername(signUpPasswordUserInput.username());
+    public JwtTokens signUpPasswordUser(
+        SignUpPasswordUserInput signUpPasswordUserInput
+    ) throws ExceptionBase {
         ParameterValidator.validatePassword(signUpPasswordUserInput.password());
-        ParameterValidator.validateEmail(signUpPasswordUserInput.email());
 
         Optional<User> userWithSameUsername =
                 userRepository.findByUsername(signUpPasswordUserInput.username());
@@ -64,8 +66,10 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             throw new UserAlreadyExistsWithThisEmail();
         }
 
-        User user = userService.createUser(signUpPasswordUserInput.username(),
-                signUpPasswordUserInput.email(), null);
+        User user = userService.createUser(
+            signUpPasswordUserInput.username(),
+            signUpPasswordUserInput.email()
+        );
         userProfileService.createUserProfile(user);
         String encodedPassword =
                 new BCryptPasswordEncoder().encode(signUpPasswordUserInput.password());
@@ -148,11 +152,21 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     }
 
     @Override
-    public PasswordUser createPasswordUser(User user, String password) {
-        PasswordUser passwordUser =
-                new PasswordUser().setUser(user).setPassword(password).setVerifiedEmail(false);
-
-        return passwordUserRepository.save(passwordUser);
+    public PasswordUser createPasswordUser(User user, String password) throws ExceptionBase {
+        try {
+            PasswordUser passwordUser =
+                    new PasswordUser().setUser(user).setPassword(password).setVerifiedEmail(false);
+    
+            return passwordUserRepository.save(passwordUser);
+        } catch (ConstraintViolationException ex) {
+            System.out.println(ex.getMessage());
+            if (ex.getMessage().equals("username")) {
+                throw new UsernameInvalidFormat();
+            } else if (ex.getMessage().equals("email")) {
+                throw new EmailInvalidFormat();
+            }
+            throw new UnknownError();
+        }
     }
 
     private void handleFailedLoginAttempt(PasswordUser passwordUser) {
