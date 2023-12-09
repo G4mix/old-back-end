@@ -2,7 +2,6 @@ package com.gamix.service;
 
 import java.util.List;
 import java.util.Optional;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,9 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
-import com.gamix.exceptions.general.UnknownError;
-import com.gamix.exceptions.parameters.EmailInvalidFormat;
-import com.gamix.exceptions.parameters.UsernameInvalidFormat;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
 import com.gamix.exceptions.user.UserNotFoundByEmail;
 import com.gamix.exceptions.user.UserNotFoundById;
@@ -100,18 +96,8 @@ public class UserService implements UserServiceInterface {
     }
 
     @Override
-    public User createUser(String username, String email) throws ExceptionBase {
-        try {
-            User user = new User().setUsername(username).setEmail(email);
-            return userRepository.save(user);
-        } catch (ConstraintViolationException ex) {
-            System.out.println(ex.getMessage());
-            if (ex.getMessage().equals("username")) {
-                throw new UsernameInvalidFormat();
-            } else if (ex.getMessage().equals("email")) {
-                throw new EmailInvalidFormat();
-            }
-            throw new UnknownError();
-        }
+    public User createUser(String username, String email) {
+        User user = new User().setUsername(username).setEmail(email);
+        return userRepository.save(user);
     }
 }

@@ -93,27 +93,27 @@ public class SignUpTest {
     public void testSignUpWithInvalidUsername() {
         assertThrows(UsernameInvalidFormat.class, () -> {
             passwordUserService.signUpPasswordUser(
-                    new SignUpPasswordUserInput(null, "password123", "email@gmail.com"));
+                    new SignUpPasswordUserInput(null, "password123@gmail.com", "Password123!"));
         });
 
         assertThrows(UsernameInvalidFormat.class, () -> {
             passwordUserService.signUpPasswordUser(
-                    new SignUpPasswordUserInput("", "password123", "email@gmail.com"));
+                    new SignUpPasswordUserInput("", "password123@gmail.com", "Password123!"));
         });
 
         assertThrows(UsernameInvalidFormat.class, () -> {
             passwordUserService.signUpPasswordUser(
-                    new SignUpPasswordUserInput("ab", "password123", "email@gmail.com"));
+                    new SignUpPasswordUserInput("ab", "password123@gmail.com", "Password123!"));
         });
 
         assertThrows(UsernameInvalidFormat.class, () -> {
             passwordUserService.signUpPasswordUser(
-                    new SignUpPasswordUserInput("a".repeat(80), "password123", "email@gmail.com"));
+                    new SignUpPasswordUserInput("a".repeat(80), "password123@gmail.com", "Password123!"));
         });
 
         assertThrows(UsernameInvalidFormat.class, () -> {
             passwordUserService.signUpPasswordUser(
-                    new SignUpPasswordUserInput("user@name", "password123", "email@gmail.com"));
+                    new SignUpPasswordUserInput("user@name", "password123@gmail.com", "Password123!"));
         });
     }
 
