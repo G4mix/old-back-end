@@ -4,7 +4,6 @@ type User {
     id: Int!
     username: String!
     email: String!
-    icon: String
     passwordUser: PasswordUser
     userProfile: UserProfile
 }
@@ -70,6 +69,7 @@ type UserProfile {
     id: Int!
     user: User!
     displayName: String
+    icon: String
     posts: [Post]
 }
 
