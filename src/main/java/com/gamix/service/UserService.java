@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class UserService implements UserServiceInterface {
     private final UserRepository userRepository;
-    private final JwtManager jwtManager;
 
     @Override
     public List<User> findAllUsers(int skip, int limit) {
@@ -38,7 +37,7 @@ public class UserService implements UserServiceInterface {
 
     @Override
     public User findUserByToken(String accessToken) throws ExceptionBase {
-        Claims claims = jwtManager.getTokenClaims(accessToken);
+        Claims claims = JwtManager.getTokenClaims(accessToken);
         Optional<User> optionalUser =
                 userRepository.findById(Integer.parseInt(claims.getSubject()));
         return optionalUser.orElseThrow(() -> new UserNotFoundByToken());
@@ -81,14 +80,20 @@ public class UserService implements UserServiceInterface {
     @Override
     @Transactional
     public boolean deleteAccount(String accessToken) throws ExceptionBase {
-        if (!jwtManager.validate(accessToken))
+        Claims claims = JwtManager.getTokenClaims(accessToken);
+        Integer id = Integer.parseInt(claims.getSubject());
+        User user = null;
+
+        try {
+            user = findUserById(id);
+        } catch(ExceptionBase ex) {
+            return true;
+        }
+
+        if (!JwtManager.validate(accessToken, user))
             throw new InvalidAccessToken();
 
-        Claims claims = jwtManager.getTokenClaims(accessToken);
-        Integer id = Integer.parseInt(claims.getSubject());
-
-        if (userRepository.existsById(id))
-            userRepository.deleteById(id);
+        userRepository.deleteById(id);
 
         return true;
     }

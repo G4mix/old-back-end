@@ -33,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class PasswordUserService implements PasswordUserServiceInterface {
     private final PasswordUserRepository passwordUserRepository;
-    private final JwtManager jwtManager;
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserProfileService userProfileService;
@@ -61,7 +60,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         String encodedPassword = new BCryptPasswordEncoder().encode(signUpPasswordUserInput.password());
         createPasswordUser(user, encodedPassword);
 
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(user.getId(), encodedPassword, false);
+        JwtTokens jwtTokens = JwtManager.generateJwtTokens(user.getId(), encodedPassword, false);
 
         if (jwtTokens == null)
             throw new NullJwtTokens();
@@ -95,7 +94,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             throw new PasswordWrong();
         }
 
-        JwtTokens jwtTokens = jwtManager.generateJwtTokens(user.get().getId(),
+        JwtTokens jwtTokens = JwtManager.generateJwtTokens(user.get().getId(),
                 passwordUser.getPassword(), signInPasswordUserInput.rememberMe());
 
         if (jwtTokens == null)
@@ -109,15 +108,16 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
     @Override
     public JwtTokens refreshToken(String refreshToken) throws ExceptionBase {
-        if (!jwtManager.validate(refreshToken))
-            throw new InvalidRefreshToken();
-
-        Claims body = jwtManager.getTokenClaims(refreshToken);
+        Claims body = JwtManager.getTokenClaims(refreshToken);
         Integer id = Integer.parseInt(body.getSubject());
         boolean rememberMe = (boolean) body.get("rememberMe");
         User user = userService.findUserById(id);
 
-        return jwtManager.generateJwtTokens(id, user.getPasswordUser().getPassword(), rememberMe);
+        if (!JwtManager.validate(refreshToken, user))
+            throw new InvalidRefreshToken();
+
+
+        return JwtManager.generateJwtTokens(id, user.getPasswordUser().getPassword(), rememberMe);
     }
 
     @Override

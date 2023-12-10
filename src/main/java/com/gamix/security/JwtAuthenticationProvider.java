@@ -19,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
-    private final JwtManager jwtManager;
     private final UserService userService;
 
     @Override
@@ -35,14 +34,14 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             JwtAuthenticationToken jwtAuthenticationToken =
                     (JwtAuthenticationToken) usernamePasswordAuthenticationToken;
             String accessToken = jwtAuthenticationToken.getToken();
+
+            Claims body = JwtManager.getTokenClaims(accessToken);
+            User user = userService.findUserByToken(accessToken);
+            String role = (String) body.get("role");
             
-            if (!jwtManager.validate(accessToken))
+            if (!JwtManager.validate(accessToken, user))
                 throw new InvalidAccessToken();
 
-            Claims body = jwtManager.getTokenClaims(accessToken);
-            Integer id = Integer.parseInt(body.getSubject());
-            User user = userService.findUserById(id);
-            String role = (String) body.get("role");
 
             List<GrantedAuthority> grantedAuthorities =
                     AuthorityUtils.commaSeparatedStringToAuthorityList(role);

@@ -35,7 +35,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class PostService implements PostServiceInterface {
-    private final JwtManager jwtManager;
     private final PostRepository postRepository;
     private final UserService userService;
     private final CommentService commentService;
@@ -128,13 +127,14 @@ public class PostService implements PostServiceInterface {
     public Post updatePost(
         String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages
     ) throws ExceptionBase {
-        if (!jwtManager.validate(accessToken)) {
+        User userFromToken = userService.findUserByToken(accessToken);
+
+        if (!JwtManager.validate(accessToken, userFromToken)) {
             throw new InvalidAccessToken();
         }
 
         Post post = findPostById(id);
         UserProfile postAuthor = post.getAuthor();
-        User userFromToken = userService.findUserByToken(accessToken);
         UserProfile userProfileFromToken = userFromToken.getUserProfile();
         
         if (userProfileFromToken.getId() != postAuthor.getId()) {
@@ -164,11 +164,12 @@ public class PostService implements PostServiceInterface {
     @Override
     @Transactional
     public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
-        if (!jwtManager.validate(accessToken)) {
+        UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
+
+        if (!JwtManager.validate(accessToken, accessTokenOwner.getUser())) {
             throw new InvalidAccessToken();
         }
 
-        UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
         Post post = findPostById(id);
         UserProfile postAuthor = post.getAuthor();
 

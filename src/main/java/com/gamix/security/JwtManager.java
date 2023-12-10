@@ -1,27 +1,17 @@
 package com.gamix.security;
 
 import java.util.Date;
-import java.util.Optional;
-import org.springframework.stereotype.Component;
 import com.gamix.enums.ExpirationTime;
 import com.gamix.enums.Role;
 import com.gamix.exceptions.authentication.TokenClaimsException;
-import com.gamix.interfaces.security.JwtManagerInterface;
 import com.gamix.models.User;
 import com.gamix.records.returns.security.JwtTokens;
-import com.gamix.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-@Component
-public class JwtManager implements JwtManagerInterface {
-    private final UserRepository userRepository;
-
-    @Override
-    public Claims getTokenClaims(String token) throws TokenClaimsException {
+public class JwtManager {
+    public static Claims getTokenClaims(String token) throws TokenClaimsException {
         try {
             return Jwts.parser().setSigningKey(System.getenv("JWT_SIGNING_KEY_SECRET"))
                     .parseClaimsJws(token).getBody();
@@ -30,32 +20,23 @@ public class JwtManager implements JwtManagerInterface {
         }
     }
 
-    @Override
-    public boolean validate(String token) throws TokenClaimsException {
+    public static boolean validate(String token, User user) throws TokenClaimsException {
         Claims body = getTokenClaims(token);
 
         Date expirationDate = body.getExpiration();
         Date currentDate = new Date();
 
-        Optional<User> userOptional = userRepository.findById(Integer.parseInt(body.getSubject()));
-
         boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-        boolean invalidUser = !userOptional.isPresent();
-        boolean invalidPasswordUser = false;
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            invalidPasswordUser = user.getPasswordUser() != null && !body.get("password")
-                    .toString().equals(user.getPasswordUser().getPassword());
-        }
-
-        if (isExpired || invalidUser || invalidPasswordUser)
+        boolean invalidPasswordUser = user.getPasswordUser() != null && !body.get("password")
+                .toString().equals(user.getPasswordUser().getPassword());
+        
+        if (isExpired || invalidPasswordUser)
             return false;
 
         return true;
     }
 
-    @Override
-    public JwtTokens generateJwtTokens(Integer id, String password, boolean rememberMe) {
+    public static JwtTokens generateJwtTokens(Integer id, String password, boolean rememberMe) {
         String accessToken = generateToken(id, password, rememberMe, ExpirationTime.ACCESS_TOKEN);
         String refreshToken = generateToken(id, password, rememberMe,
                 rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN);
@@ -63,7 +44,7 @@ public class JwtManager implements JwtManagerInterface {
         return new JwtTokens(accessToken, refreshToken, rememberMe);
     }
 
-    private String generateToken(Integer id, String password, boolean rememberMe,
+    private static String generateToken(Integer id, String password, boolean rememberMe,
             ExpirationTime expirationTime) {
         Claims claims = Jwts.claims().setSubject(id.toString());
         claims.put("rememberMe", rememberMe);
