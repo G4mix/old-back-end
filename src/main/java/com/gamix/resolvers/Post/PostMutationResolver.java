@@ -1,7 +1,6 @@
 package com.gamix.resolvers.Post;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -12,14 +11,13 @@ import com.gamix.service.PostService;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Controller
 public class PostMutationResolver implements GraphQLMutationResolver {
-    @Autowired
-    private PostService postService;
-
-    @Autowired
-    private HttpServletRequest httpServletRequest;
+    private final HttpServletRequest httpServletRequest;
+    private final PostService postService;
 
     @PreAuthorize("hasAuthority('USER')")
     // @SendTo("/topic/feed")

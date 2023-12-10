@@ -1,7 +1,6 @@
 package com.gamix.resolvers.User;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,14 +10,13 @@ import com.gamix.models.User;
 import com.gamix.service.UserService;
 import graphql.kickstart.tools.GraphQLQueryResolver;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Controller
 public class UserQueryResolver implements GraphQLQueryResolver {
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private HttpServletRequest httpServletRequest;
+    private final UserService userService;
+    private final HttpServletRequest httpServletRequest;
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping

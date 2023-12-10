@@ -1,7 +1,6 @@
 package com.gamix.config;
 
 import java.util.Collections;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,12 +15,13 @@ import com.gamix.security.CorsFilter;
 import com.gamix.security.JwtAuthenticationProvider;
 import com.gamix.security.JwtAuthenticationTokenFilter;
 import com.gamix.security.JwtSuccessHandler;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
 @Configuration
 public class JwtSecurityConfig {
-    @Autowired
-    private JwtAuthenticationProvider authenticationProvider;
+    private final JwtAuthenticationProvider authenticationProvider;
 
     @Bean
     CorsFilter corsFilter() {

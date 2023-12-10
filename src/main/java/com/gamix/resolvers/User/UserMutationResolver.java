@@ -1,6 +1,5 @@
 package com.gamix.resolvers.User;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,14 +10,13 @@ import com.gamix.records.inputs.UserController.PartialUserInput;
 import com.gamix.service.UserService;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Controller
 public class UserMutationResolver implements GraphQLMutationResolver {
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private HttpServletRequest httpServletRequest;
+    private final UserService userService;
+    private final HttpServletRequest httpServletRequest;
 
     @PreAuthorize("hasAuthority('USER')")
     @MutationMapping

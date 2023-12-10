@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
@@ -28,23 +27,16 @@ import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
 import com.gamix.utils.ThreadPool;
 import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class PasswordUserService implements PasswordUserServiceInterface {
-    @Autowired
-    private PasswordUserRepository passwordUserRepository;
-
-    @Autowired
-    private JwtManager jwtManager;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserProfileService userProfileService;
+    private final PasswordUserRepository passwordUserRepository;
+    private final JwtManager jwtManager;
+    private final UserRepository userRepository;
+    private final UserService userService;
+    private final UserProfileService userProfileService;
 
     @Override
     public JwtTokens signUpPasswordUser(

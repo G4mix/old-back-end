@@ -4,17 +4,17 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.gamix.models.PasswordUser;
 import com.gamix.service.PasswordUserService;
 import com.gamix.utils.ThreadPool;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class SystemStartupService {
-    @Autowired
-    private PasswordUserService passwordUserService;
+    private final PasswordUserService passwordUserService;
 
     @PostConstruct
     public void initialize() {

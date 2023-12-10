@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.gamix.exceptions.ExceptionBase;
@@ -22,16 +21,15 @@ import com.gamix.models.User;
 import com.gamix.repositories.ImageRepository;
 import com.gamix.utils.SingleMultipartFile;
 import jakarta.servlet.http.Part;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class ImageService implements ImageServiceInterface {
+    private final static Integer MAX_SIZE = 1048576;
+    private final static List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
 
-    private final Integer MAX_SIZE = 1048576;
-    
-    private final List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
-
-    @Autowired
-    private ImageRepository imageRepository;
+    private final ImageRepository imageRepository;
 
     public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
         String imagesFolderPath = "/images/posts/"+user.getId()+"/";

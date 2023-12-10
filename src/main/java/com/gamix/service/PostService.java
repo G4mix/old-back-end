@@ -2,7 +2,6 @@ package com.gamix.service;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,30 +30,18 @@ import com.gamix.security.JwtManager;
 import com.gamix.utils.SortUtils;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class PostService implements PostServiceInterface {
-
-    @Autowired
-    private JwtManager jwtManager;
-
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private ImageService imageService;
-
-    @Autowired
-    private LikeService likeService;
-
-    @Autowired
-    private UserProfileRepository userProfileRepository;
+    private final JwtManager jwtManager;
+    private final PostRepository postRepository;
+    private final UserService userService;
+    private final CommentService commentService;
+    private final ImageService imageService;
+    private final LikeService likeService;
+    private final UserProfileRepository userProfileRepository;
 
     @Override
     public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)

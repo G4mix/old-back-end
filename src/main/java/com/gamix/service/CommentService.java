@@ -1,7 +1,6 @@
 package com.gamix.service;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,17 +17,14 @@ import com.gamix.models.UserProfile;
 import com.gamix.repositories.CommentRepository;
 import com.gamix.utils.SortUtils;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class CommentService implements CommentServiceInterface {
-    @Autowired
-    private CommentRepository commentRepository;
-    
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private LikeService likeService;
+    private final CommentRepository commentRepository;
+    private final UserService userService;
+    private final LikeService likeService;
 
     public Comment commentPost(
         String accessToken, Post post, String content

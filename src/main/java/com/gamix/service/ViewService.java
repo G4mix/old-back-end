@@ -7,19 +7,17 @@ import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.models.View;
 import com.gamix.repositories.ViewRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class ViewService implements ViewServiceInterface {
-    @Autowired
-    private ViewRepository viewRepository;
-
-    @Autowired
-    private UserService userService;
+    private final ViewRepository viewRepository;
+    private final UserService userService;
 
     public boolean viewPost(String accessToken, Post post) throws ExceptionBase {
         User user = userService.findUserByToken(accessToken);

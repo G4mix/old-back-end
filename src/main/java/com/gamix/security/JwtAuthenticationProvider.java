@@ -1,7 +1,6 @@
 package com.gamix.security;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
@@ -15,14 +14,13 @@ import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.models.User;
 import com.gamix.service.UserService;
 import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Component
 public class JwtAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
-    @Autowired
-    private JwtManager jwtManager;
-
-    @Autowired
-    private UserService userService;
+    private final JwtManager jwtManager;
+    private final UserService userService;
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,

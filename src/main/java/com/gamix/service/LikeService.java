@@ -1,7 +1,6 @@
 package com.gamix.service;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +17,13 @@ import com.gamix.utils.SortUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class LikeService implements LikeServiceInterface {
-    @Autowired
-    private LikeRepository likeRepository;
-
-    @Autowired
-    private UserService userService;
+    private final LikeRepository likeRepository;
+    private final UserService userService;
 
     @PersistenceContext
     private EntityManager entityManager;

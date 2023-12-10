@@ -2,7 +2,6 @@ package com.gamix.service;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,14 +20,13 @@ import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import io.jsonwebtoken.Claims;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class UserService implements UserServiceInterface {
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtManager jwtManager;
+    private final UserRepository userRepository;
+    private final JwtManager jwtManager;
 
     @Override
     public List<User> findAllUsers(int skip, int limit) {

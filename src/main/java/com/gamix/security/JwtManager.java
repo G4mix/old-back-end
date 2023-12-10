@@ -2,7 +2,6 @@ package com.gamix.security;
 
 import java.util.Date;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.gamix.enums.ExpirationTime;
 import com.gamix.enums.Role;
@@ -14,12 +13,12 @@ import com.gamix.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Component
 public class JwtManager implements JwtManagerInterface {
-
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Claims getTokenClaims(String token) throws TokenClaimsException {

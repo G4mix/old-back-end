@@ -2,7 +2,6 @@ package com.gamix.controller;
 
 import static com.gamix.utils.ControllerUtils.throwError;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,11 +17,12 @@ import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.PasswordUserService;
 import com.gamix.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 public class PasswordUserController {
-    @Autowired
-    private PasswordUserService passwordUserService;
+    private final PasswordUserService passwordUserService;
 
     @PostMapping("/auth/signup")
     public ResponseEntity<Object> signUpPasswordUser(

@@ -1,18 +1,18 @@
 package com.gamix.resolvers.Comment;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import com.gamix.models.Comment;
 import com.gamix.service.CommentService;
 import graphql.kickstart.tools.GraphQLQueryResolver;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Controller
 public class CommentQueryResolver implements GraphQLQueryResolver {
-    @Autowired
-    private CommentService commentService;
+    private final CommentService commentService;
 
     @PreAuthorize("hasAuthority('USER')")
     List<Comment> findAllCommentsOfAPost(
