@@ -41,8 +41,6 @@ public class FindUserByUsernameTest {
     public void testFindUserByUsernameNotFound() throws ExceptionBase {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
         
-        assertThrows(UserNotFoundByUsername.class, () -> {
-            userService.findUserByUsername("nonexistentuser");
-        });
+        assertThrows(UserNotFoundByUsername.class, () -> userService.findUserByUsername("nonexistentuser"));
     }
 }

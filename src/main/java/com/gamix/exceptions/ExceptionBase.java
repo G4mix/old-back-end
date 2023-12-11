@@ -1,6 +1,8 @@
 package com.gamix.exceptions;
 
 import java.util.List;
+
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import com.gamix.enums.ExceptionMessage;
@@ -10,6 +12,7 @@ import graphql.language.SourceLocation;
 
 public class ExceptionBase extends RuntimeException implements GraphQLError {
     private final HttpStatus status;
+    @Getter
     private final String error, message;
 
     public ExceptionBase(ExceptionMessage e) {
@@ -21,10 +24,6 @@ public class ExceptionBase extends RuntimeException implements GraphQLError {
     @Override
     public String getMessage() {
         return message;
-    }
-
-    public String getError() {
-        return error;
     }
 
     public HttpStatusCode getStatus() {

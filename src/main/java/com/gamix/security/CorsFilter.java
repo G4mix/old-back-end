@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 public class CorsFilter implements Filter {
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
 
     }
 
@@ -27,8 +27,4 @@ public class CorsFilter implements Filter {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-    @Override
-    public void destroy() {
-
-    }
 }

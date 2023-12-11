@@ -32,7 +32,7 @@ public class CommentService implements CommentServiceInterface {
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
 
-        if (content == "") {
+        if (content.isEmpty()) {
             throw new EmptyComment();
         }
         
@@ -54,7 +54,7 @@ public class CommentService implements CommentServiceInterface {
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
         Comment parentComment = commentRepository.findCommentById(commentId)
-            .orElseThrow(() -> new CommentIdNotFound());
+            .orElseThrow(CommentIdNotFound::new);
 
         Comment newReply = new Comment()
             .setParentComment(parentComment)
@@ -68,7 +68,7 @@ public class CommentService implements CommentServiceInterface {
     }
 
     public Comment findCommentById(Integer commentId) throws ExceptionBase {
-        return commentRepository.findCommentById(commentId).orElseThrow(() -> new CommentIdNotFound());
+        return commentRepository.findCommentById(commentId).orElseThrow(CommentIdNotFound::new);
     }
 
     public List<Comment> findAllCommentsOfAPost(int postId, int skip, int limit) {

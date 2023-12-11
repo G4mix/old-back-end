@@ -47,8 +47,8 @@ public class PostService implements PostServiceInterface {
             throws ExceptionBase {
         
         if (
-            postInput.content() == "" &&
-            postInput.title() == "" &&
+            postInput.content().isEmpty() &&
+            postInput.title().isEmpty() &&
             (postInput.links() == null || postInput.links().isEmpty()) &&
             (partImages == null)
             
@@ -67,7 +67,7 @@ public class PostService implements PostServiceInterface {
         User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
         if (author == null)
-            new UserProfileNotFound();
+            throw new UserProfileNotFound();
 
         Post newPost = new Post();
         newPost.setAuthor(author);
@@ -111,7 +111,7 @@ public class PostService implements PostServiceInterface {
         if (post.isEmpty()) {
             throw new PostNotFoundById();
         }
-        return post.orElseThrow(() -> new PostNotFoundById());
+        return post.orElseThrow(PostNotFoundById::new);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class PostService implements PostServiceInterface {
         if (post.isEmpty()) {
             throw new PostNotFoundByTitle();
         }
-        return post.orElseThrow(() -> new PostNotFoundByTitle());
+        return post.orElseThrow(PostNotFoundByTitle::new);
     }
 
     @Override
@@ -137,7 +137,7 @@ public class PostService implements PostServiceInterface {
         UserProfile postAuthor = post.getAuthor();
         UserProfile userProfileFromToken = userFromToken.getUserProfile();
         
-        if (userProfileFromToken.getId() != postAuthor.getId()) {
+        if (!userProfileFromToken.getId().equals(postAuthor.getId())) {
             throw new InvalidAccessToken();
         }
         
@@ -173,7 +173,7 @@ public class PostService implements PostServiceInterface {
         Post post = findPostById(id);
         UserProfile postAuthor = post.getAuthor();
 
-        if (accessTokenOwner.getId() != postAuthor.getId()) return false;
+        if (!accessTokenOwner.getId().equals(postAuthor.getId())) return false;
         
         imageService.deleteImages(post);
         commentService.deleteCommentsByPost(post);

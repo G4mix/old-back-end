@@ -17,6 +17,7 @@ public class SingleMultipartFile implements MultipartFile {
         this.part = part;
     }
 
+    @org.jetbrains.annotations.NotNull
     @NotNull
     @Override
     public String getName() {
@@ -43,12 +44,14 @@ public class SingleMultipartFile implements MultipartFile {
         return this.part.getSize();
     }
 
+    @org.jetbrains.annotations.NotNull
     @NotNull
     @Override
     public byte[] getBytes() throws IOException {
         return FileCopyUtils.copyToByteArray(this.part.getInputStream());
     }
 
+    @org.jetbrains.annotations.NotNull
     @NotNull
     @Override
     public InputStream getInputStream() throws IOException {
@@ -64,7 +67,7 @@ public class SingleMultipartFile implements MultipartFile {
     }
 
     @Override
-    public void transferTo(Path dest) throws IOException, IllegalStateException {
+    public void transferTo(@org.jetbrains.annotations.NotNull Path dest) throws IOException, IllegalStateException {
         FileCopyUtils.copy(this.part.getInputStream(), Files.newOutputStream(dest));
     }
 }

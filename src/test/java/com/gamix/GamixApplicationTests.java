@@ -45,7 +45,8 @@ class GamixApplicationTests {
 		String accessTokenCookie = jsonNode.get("accessToken").asText();
 		String refreshTokenCookie = jsonNode.get("refreshToken").asText();
 		String accessToken = extractTokenValue(accessTokenCookie, "accessToken");
-		String refreshToken = extractTokenValue(refreshTokenCookie, "refreshToken");
+        extractTokenValue(refreshTokenCookie, "refreshToken");
+        String refreshToken;
 
 		// Executar o findAll com o AccessToken no header
 
@@ -104,9 +105,9 @@ class GamixApplicationTests {
 		accessTokenCookie = jsonNode.get("accessToken").asText();
 		refreshTokenCookie = jsonNode.get("refreshToken").asText();
 		accessToken = extractTokenValue(accessTokenCookie, "accessToken");
-		refreshToken = extractTokenValue(refreshTokenCookie, "refreshToken");
+        extractTokenValue(refreshTokenCookie, "refreshToken");
 
-		// Executar o findAll com o novo AccessToken no header
+        // Executar o findAll com o novo AccessToken no header
 		mockMvc.perform(post("/graphql").contentType("application/json")
 				.content(objectMapper.writeValueAsString(findAllRequestBody))
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))

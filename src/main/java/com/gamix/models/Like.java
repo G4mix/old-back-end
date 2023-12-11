@@ -20,7 +20,7 @@ public class Like {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(optional = true)
+    @ManyToOne()
     @JoinColumn(name = "post_id")
     private Post post;
 

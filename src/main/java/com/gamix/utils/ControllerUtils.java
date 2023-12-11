@@ -21,7 +21,7 @@ public class ControllerUtils {
     public static GraphQLError throwGraphQLError(ExceptionBase ex) {
         return GraphQLError.newError()
             .errorType(ErrorClassification
-                    .errorClassification(((ExceptionBase) ex).getStatus().toString()))
+                    .errorClassification(ex.getStatus().toString()))
             .message(ex.getMessage())
            .build();
     }

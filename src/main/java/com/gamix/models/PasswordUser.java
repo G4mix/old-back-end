@@ -32,6 +32,6 @@ public class PasswordUser {
     @Column(nullable = false)
     private Integer loginAttempts = 0;
     
-    @Column(nullable = true)
+    @Column()
     private LocalDateTime blockedUntil;
 }

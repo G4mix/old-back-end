@@ -17,8 +17,7 @@ public class GraphQLExceptionHandler implements GraphQLErrorHandler {
     }
 
     private GraphQLError getNested(GraphQLError error) {
-        if (error instanceof ExceptionWhileDataFetching) {
-            ExceptionWhileDataFetching exceptionError = (ExceptionWhileDataFetching) error;
+        if (error instanceof ExceptionWhileDataFetching exceptionError) {
             if (exceptionError.getException() instanceof GraphQLError) {
                 return (GraphQLError) exceptionError.getException();
             } else if (exceptionError.getException() instanceof ExceptionBase) {

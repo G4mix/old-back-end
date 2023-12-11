@@ -41,8 +41,6 @@ public class FindUserByEmailTest {
     public void testFindUserByEmailNotFound() throws ExceptionBase {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundByEmail.class, () -> {
-            userService.findUserByEmail("nonexistent@example.com");
-        });
+        assertThrows(UserNotFoundByEmail.class, () -> userService.findUserByEmail("nonexistent@example.com"));
     }
 }

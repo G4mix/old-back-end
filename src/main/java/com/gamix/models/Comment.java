@@ -60,7 +60,7 @@ public class Comment {
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    @Column(nullable = true)
+    @Column()
     private LocalDateTime updatedAt;
 
     @PrePersist

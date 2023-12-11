@@ -39,9 +39,7 @@ public class SystemStartupService {
             long timeUntilUnban = duration.getSeconds();
 
             if (timeUntilUnban > 0) {
-                ThreadPool.schedule(() -> {
-                    passwordUserService.unbanUser(passwordUser);
-                }, timeUntilUnban, TimeUnit.SECONDS);
+                ThreadPool.schedule(() -> passwordUserService.unbanUser(passwordUser), timeUntilUnban, TimeUnit.SECONDS);
             }
         }
     }

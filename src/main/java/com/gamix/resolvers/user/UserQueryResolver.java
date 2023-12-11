@@ -26,7 +26,7 @@ public class UserQueryResolver implements GraphQLQueryResolver {
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
-    User findUserByToken() throws Exception {
+    User findUserByToken() {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         String accessToken = authorizationHeader.substring(7);
         return userService.findUserByToken(accessToken);

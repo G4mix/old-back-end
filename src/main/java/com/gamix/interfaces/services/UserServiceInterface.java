@@ -18,7 +18,7 @@ public interface UserServiceInterface {
 
     User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase;
 
-    boolean deleteAccount(String accessToken) throws ExceptionBase;
+    boolean deleteAccount(String accessToken);
 
     User createUser(String username, String email);
 }

@@ -28,9 +28,15 @@ public class LikeService implements LikeServiceInterface {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Override
     @Transactional
-    public boolean likePost(String accessToken, Post post, boolean isLiked) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
+    public boolean likePost(String accessToken, Post post, boolean isLiked) {
+        User user;
+        try {
+            user = userService.findUserByToken(accessToken);
+        } catch (ExceptionBase ex) {
+            return false;
+        }
         UserProfile userProfile = user.getUserProfile();
         if (isLiked) {
             if (userHasLikedPost(post, userProfile)) return true;
@@ -50,9 +56,15 @@ public class LikeService implements LikeServiceInterface {
         return true;
     }
 
+    @Override
     @Transactional
     public boolean likeComment(String accessToken, Comment comment, boolean isLiked) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
+        User user;
+        try {
+            user = userService.findUserByToken(accessToken);
+        } catch (ExceptionBase ex) {
+            return false;
+        }
         UserProfile userProfile = user.getUserProfile();
         if (isLiked) {
             if (userHasLikedComment(comment, userProfile)) return true;
@@ -72,20 +84,24 @@ public class LikeService implements LikeServiceInterface {
         return true;
     }
 
+    @Override
     public List<Post> findAllLikesPageable(Post post, UserProfile userProfile, int skip, int limit) {
         Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
         Page<Post> posts = likeRepository.findPostsByUserProfile(userProfile, page);
         return posts.getContent();
     }
 
+    @Override
     public boolean userHasLikedPost(Post post, UserProfile userProfile) {
         return likeRepository.existsByPostAndUserProfile(post, userProfile);
     }
 
+    @Override
     public boolean userHasLikedComment(Comment comment, UserProfile userProfile) {
         return likeRepository.existsByCommentAndUserProfile(comment, userProfile);
     }
 
+    @Override
     @Transactional
     public void deleteLikesByPost(Post post) {
         likeRepository.deleteByPost(post);

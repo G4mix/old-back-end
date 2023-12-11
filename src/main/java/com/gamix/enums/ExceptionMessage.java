@@ -1,7 +1,9 @@
 package com.gamix.enums;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public enum ExceptionMessage {
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "Token de acesso inválido."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "Token de atualização inválido."),
@@ -53,11 +55,4 @@ public enum ExceptionMessage {
         this.message = message;
     }
 
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
-    }
-
-    public String getMessage() {
-        return message;
-    }
 }

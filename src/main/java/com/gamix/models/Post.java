@@ -34,7 +34,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(optional = true)
+    @ManyToOne()
     @JoinColumn(name = "user_profile_id")
     private UserProfile author;
 
@@ -69,7 +69,7 @@ public class Post {
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
-    @Column(nullable = true)
+    @Column()
     private LocalDateTime updatedAt;
     
     @PrePersist

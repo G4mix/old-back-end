@@ -2,9 +2,12 @@ package com.gamix.security;
 
 import java.util.Collection;
 import java.util.List;
+
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Getter
 public class JwtUserDetails implements UserDetails {
     private final String username;
     private final String accessToken;
@@ -17,22 +20,6 @@ public class JwtUserDetails implements UserDetails {
         this.username = username;
         this.accessToken = accessToken;
         this.authorities = grantedAuthorities;
-    }
-
-    public String getAccessToken() {
-        return this.accessToken;
-    }
-
-    public String getPassword() {
-        return this.password;
-    }
-
-    public String getUsername() {
-        return this.username;
-    }
-
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.authorities;
     }
 
     @Override

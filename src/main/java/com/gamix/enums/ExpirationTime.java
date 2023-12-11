@@ -1,5 +1,8 @@
 package com.gamix.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ExpirationTime {
     ACCESS_TOKEN(3600000), REFRESH_TOKEN(86400000), REMEMBER_ME(2592000000L);
 
@@ -9,7 +12,4 @@ public enum ExpirationTime {
         this.value = value;
     }
 
-    public long getValue() {
-        return value;
-    }
 }

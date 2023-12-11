@@ -1,6 +1,8 @@
 package com.gamix.repositories;
 
 import java.util.Optional;
+
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +15,6 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     Optional<Post> findPostByTitle(String title);
 
-    Page<Post> findAll(Pageable page);
+    @NotNull
+    Page<Post> findAll(@NotNull Pageable page);
 }

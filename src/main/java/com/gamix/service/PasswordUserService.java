@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.authentication.InvalidRefreshToken;
-import com.gamix.exceptions.authentication.NullJwtTokens;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
 import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
@@ -60,12 +59,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         String encodedPassword = new BCryptPasswordEncoder().encode(signUpPasswordUserInput.password());
         createPasswordUser(user, encodedPassword);
 
-        JwtTokens jwtTokens = JwtManager.generateJwtTokens(user.getId(), encodedPassword, false);
-
-        if (jwtTokens == null)
-            throw new NullJwtTokens();
-
-        return jwtTokens;
+        return JwtManager.generateJwtTokens(user.getId(), encodedPassword, false);
     }
 
     @Override
@@ -74,7 +68,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         Optional<User> user = signInPasswordUserInput.email() != null
                 ? userRepository.findByEmail(signInPasswordUserInput.email())
                 : userRepository.findByUsername(signInPasswordUserInput.username());
-        if (!user.isPresent())
+        if (user.isEmpty())
             throw new UserNotFound();
 
         PasswordUser passwordUser = user.get().getPasswordUser();
@@ -96,9 +90,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
         JwtTokens jwtTokens = JwtManager.generateJwtTokens(user.get().getId(),
                 passwordUser.getPassword(), signInPasswordUserInput.rememberMe());
-
-        if (jwtTokens == null)
-            throw new NullJwtTokens();
 
         passwordUser.setLoginAttempts(0).setBlockedUntil(null);
         passwordUserRepository.save(passwordUser);
@@ -152,9 +143,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             int banTime = 30;
             passwordUser.setBlockedUntil(LocalDateTime.now().plusMinutes(banTime));
 
-            ThreadPool.schedule(() -> {
-                unbanUser(passwordUser);
-            }, banTime, TimeUnit.MINUTES);
+            ThreadPool.schedule(() -> unbanUser(passwordUser), banTime, TimeUnit.MINUTES);
         }
 
         passwordUserRepository.save(passwordUser);

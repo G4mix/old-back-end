@@ -40,26 +40,26 @@ public class UserService implements UserServiceInterface {
         Claims claims = JwtManager.getTokenClaims(accessToken);
         Optional<User> optionalUser =
                 userRepository.findById(Integer.parseInt(claims.getSubject()));
-        return optionalUser.orElseThrow(() -> new UserNotFoundByToken());
+        return optionalUser.orElseThrow(UserNotFoundByToken::new);
     }
 
     @Override
     public User findUserById(Integer id) throws ExceptionBase {
         Optional<User> optionalUser = userRepository.findById(id);
-        return optionalUser.orElseThrow(() -> new UserNotFoundById());
+        return optionalUser.orElseThrow(UserNotFoundById::new);
     }
 
     @Override
     public User findUserByEmail(String email) throws ExceptionBase {
         Optional<User> optionalUser = userRepository.findByEmail(email);
-        return optionalUser.orElseThrow(() -> new UserNotFoundByEmail());
+        return optionalUser.orElseThrow(UserNotFoundByEmail::new);
     }
 
 
     @Override
     public User findUserByUsername(String username) throws ExceptionBase {
         Optional<User> optionalUser = userRepository.findByUsername(username);
-        return optionalUser.orElseThrow(() -> new UserNotFoundByUsername());
+        return optionalUser.orElseThrow(UserNotFoundByUsername::new);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class UserService implements UserServiceInterface {
     public boolean deleteAccount(String accessToken) throws ExceptionBase {
         Claims claims = JwtManager.getTokenClaims(accessToken);
         Integer id = Integer.parseInt(claims.getSubject());
-        User user = null;
+        User user;
 
         try {
             user = findUserById(id);

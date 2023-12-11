@@ -34,7 +34,7 @@ public class UserProfile {
     @Column(nullable = false)
     private String displayName;
 
-    @Column(nullable = true, length = 120)
+    @Column(length = 120)
     private String icon;
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
