@@ -39,7 +39,7 @@ public class JwtAuthenticationProvider extends AbstractUserDetailsAuthentication
             User user = userService.findUserByToken(accessToken);
             String role = (String) body.get("role");
             
-            if (!JwtManager.validate(accessToken, user))
+            if (JwtManager.isInvalid(accessToken, user))
                 throw new InvalidAccessToken();
 
 

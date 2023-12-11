@@ -6,9 +6,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class JwtUserDetails implements UserDetails {
-    private String username, accessToken, password = null;
+    private final String username;
+    private final String accessToken;
+    private final String password = null;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public JwtUserDetails(String username, String accessToken,
             List<GrantedAuthority> grantedAuthorities) {

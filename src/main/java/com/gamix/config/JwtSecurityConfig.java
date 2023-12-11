@@ -25,8 +25,7 @@ public class JwtSecurityConfig {
 
     @Bean
     CorsFilter corsFilter() {
-        CorsFilter filter = new CorsFilter();
-        return filter;
+        return new CorsFilter();
     }
 
     protected void configure(HttpSecurity http) throws Exception {

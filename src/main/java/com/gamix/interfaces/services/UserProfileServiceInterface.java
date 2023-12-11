@@ -4,5 +4,5 @@ import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 
 public interface UserProfileServiceInterface {
-    public UserProfile createUserProfile(User user);
+    UserProfile createUserProfile(User user);
 }

@@ -1,4 +1,4 @@
-package com.gamix.resolvers.Comment;
+package com.gamix.resolvers.comment;
 
 import java.util.List;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -20,7 +20,6 @@ public class CommentQueryResolver implements GraphQLQueryResolver {
         @Argument("skip") int skip,
         @Argument("limit") int limit
     ) {
-        List<Comment> posts = commentService.findAllCommentsOfAPost(postId, skip, limit);
-        return posts;
+        return commentService.findAllCommentsOfAPost(postId, skip, limit);
     }
 }

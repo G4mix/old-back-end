@@ -1,4 +1,4 @@
-package com.gamix.service.PasswordUserServiceTest;
+package com.gamix.service.passwordUserServiceTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;

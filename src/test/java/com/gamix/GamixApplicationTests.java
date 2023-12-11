@@ -13,11 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
+import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
+import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
 
 @SpringBootTest(classes = GamixApplication.class)
 @AutoConfigureMockMvc
@@ -29,10 +28,7 @@ class GamixApplicationTests {
 	private ObjectMapper objectMapper;
 
 	@Test
-	void contextLoads() {}
-
-	@Test
-	void integrationTestFlow() throws JsonProcessingException, Exception {
+	void integrationTestFlow() throws Exception {
 		// Registrando o usuário
 
 		SignUpPasswordUserInput signUpPasswordUserInput =

@@ -20,7 +20,7 @@ public class JwtManager {
         }
     }
 
-    public static boolean validate(String token, User user) throws TokenClaimsException {
+    public static boolean isInvalid(String token, User user) throws TokenClaimsException {
         Claims body = getTokenClaims(token);
 
         Date expirationDate = body.getExpiration();
@@ -29,11 +29,8 @@ public class JwtManager {
         boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
         boolean invalidPasswordUser = user.getPasswordUser() != null && !body.get("password")
                 .toString().equals(user.getPasswordUser().getPassword());
-        
-        if (isExpired || invalidPasswordUser)
-            return false;
 
-        return true;
+        return isExpired || invalidPasswordUser;
     }
 
     public static JwtTokens generateJwtTokens(Integer id, String password, boolean rememberMe) {

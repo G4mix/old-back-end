@@ -1,4 +1,4 @@
-package com.gamix.resolvers.Post;
+package com.gamix.resolvers.post;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;

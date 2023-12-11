@@ -1,4 +1,4 @@
-package com.gamix.service.UserServiceTest;
+package com.gamix.service.userServiceTest;
 
 
 import static org.junit.Assert.assertEquals;

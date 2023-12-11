@@ -1,4 +1,4 @@
-package com.gamix.resolvers.Comment;
+package com.gamix.resolvers.comment;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import com.gamix.exceptions.ExceptionBase;

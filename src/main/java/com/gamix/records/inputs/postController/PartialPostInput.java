@@ -1,4 +1,4 @@
-package com.gamix.records.inputs.PostController;
+package com.gamix.records.inputs.postController;
 
 import java.util.List;
 

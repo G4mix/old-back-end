@@ -18,8 +18,8 @@ import com.gamix.exceptions.user.UserNotFound;
 import com.gamix.interfaces.services.PasswordUserServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
+import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
+import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
@@ -113,7 +113,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         boolean rememberMe = (boolean) body.get("rememberMe");
         User user = userService.findUserById(id);
 
-        if (!JwtManager.validate(refreshToken, user))
+        if (JwtManager.isInvalid(refreshToken, user))
             throw new InvalidRefreshToken();
 
 

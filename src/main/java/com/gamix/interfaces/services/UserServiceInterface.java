@@ -3,22 +3,22 @@ package com.gamix.interfaces.services;
 import java.util.List;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.User;
-import com.gamix.records.inputs.UserController.PartialUserInput;
+import com.gamix.records.inputs.userController.PartialUserInput;
 
 public interface UserServiceInterface {
-    public List<User> findAllUsers(int skip, int limit);
+    List<User> findAllUsers(int skip, int limit);
 
-    public User findUserByToken(String accessToken) throws ExceptionBase;
+    User findUserByToken(String accessToken) throws ExceptionBase;
 
-    public User findUserById(Integer id) throws ExceptionBase;
+    User findUserById(Integer id) throws ExceptionBase;
 
-    public User findUserByEmail(String email) throws ExceptionBase;
+    User findUserByEmail(String email) throws ExceptionBase;
 
-    public User findUserByUsername(String username) throws ExceptionBase;
+    User findUserByUsername(String username) throws ExceptionBase;
 
-    public User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase;
+    User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase;
 
-    public boolean deleteAccount(String accessToken) throws ExceptionBase;
+    boolean deleteAccount(String accessToken) throws ExceptionBase;
 
-    public User createUser(String username, String email);
+    User createUser(String username, String email);
 }

@@ -37,19 +37,18 @@ public enum ExceptionMessage {
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "Muitas imagens no post (máximo 8)."),
 
     ERROR_CREATING_IMAGE(HttpStatus.BAD_REQUEST, "Erro ao criar a imagem"),
+    ERROR_UPDATING_IMAGE(HttpStatus.BAD_REQUEST, "Erro ao atualizar as imagens"),
     HANDLE_IMAGE_ERROR(HttpStatus.BAD_REQUEST, "Dados da imagem inválidos."),
 
     COMMENT_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "Comentário não encontrado por ID"),
     COMMENT_EMPTY(HttpStatus.BAD_REQUEST, "Comentário não pode ser vazio"),
     TOO_LONG_COMMENT(HttpStatus.BAD_REQUEST, "Comentário muito longo (comprimento máximo é 200 caracteres)"),
 
-    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido."),
-    INVALID_ID(HttpStatus.BAD_REQUEST, "ID Inválido.");
-
+    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido.");
     private final HttpStatus httpStatus;
     private final String message;
 
-    private ExceptionMessage(HttpStatus httpStatus, String message) {
+    ExceptionMessage(HttpStatus httpStatus, String message) {
         this.httpStatus = httpStatus;
         this.message = message;
     }

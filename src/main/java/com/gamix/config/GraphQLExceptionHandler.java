@@ -22,8 +22,7 @@ public class GraphQLExceptionHandler implements GraphQLErrorHandler {
             if (exceptionError.getException() instanceof GraphQLError) {
                 return (GraphQLError) exceptionError.getException();
             } else if (exceptionError.getException() instanceof ExceptionBase) {
-                ExceptionBase customException = (ExceptionBase) exceptionError.getException();
-                return customException;
+                return (ExceptionBase) exceptionError.getException();
             }
         }
         return error;

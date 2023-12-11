@@ -1,4 +1,4 @@
-package com.gamix.resolvers.User;
+package com.gamix.resolvers.user;
 
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.User;
-import com.gamix.records.inputs.UserController.PartialUserInput;
+import com.gamix.records.inputs.userController.PartialUserInput;
 import com.gamix.service.UserService;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,8 +23,7 @@ public class UserMutationResolver implements GraphQLMutationResolver {
     User updateUser(@Argument("input") PartialUserInput userInput) throws ExceptionBase {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         String accessToken = authorizationHeader.substring(7);
-        User updatedUser = userService.updateUser(accessToken, userInput);
-        return updatedUser;
+        return userService.updateUser(accessToken, userInput);
     }
 
     @PreAuthorize("hasAuthority('USER')")

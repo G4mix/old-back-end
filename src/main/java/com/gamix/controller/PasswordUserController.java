@@ -4,14 +4,12 @@ import static com.gamix.utils.ControllerUtils.throwError;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.records.inputs.PasswordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.PasswordUserController.SignUpPasswordUserInput;
+import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
+import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
 import com.gamix.records.options.CookieOptions;
 import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.PasswordUserService;
@@ -80,14 +78,6 @@ public class PasswordUserController {
 
             return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
         } catch (ExceptionBase ex) {
-            return throwError(ex);
-        }
-    }
-
-    @ControllerAdvice
-    public class GlobalExceptionHandler {
-        @ExceptionHandler(ExceptionBase.class)
-        public ResponseEntity<Object> handleJwtAuthenticationException(ExceptionBase ex) {
             return throwError(ex);
         }
     }

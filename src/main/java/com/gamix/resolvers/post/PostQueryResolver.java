@@ -1,4 +1,4 @@
-package com.gamix.resolvers.Post;
+package com.gamix.resolvers.post;
 
 import java.util.List;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -17,19 +17,16 @@ public class PostQueryResolver implements GraphQLQueryResolver {
 
     @PreAuthorize("hasAuthority('USER')")
     List<Post> findAllPosts(@Argument("skip") int skip, @Argument("limit") int limit) {
-        List<Post> posts = postService.findAll(skip, limit);
-        return posts;
+        return postService.findAll(skip, limit);
     }
 
     @PreAuthorize("hasAuthority('USER')")
     Post findPostById(@Argument Integer id) throws ExceptionBase {
-        Post post = postService.findPostById(id);
-        return post;
+        return postService.findPostById(id);
     }
 
     @PreAuthorize("hasAuthority('USER')")
     Post findPostByTitle(@Argument String title) throws ExceptionBase {
-        Post post = postService.findPostByTitle(title);
-        return post;
+        return postService.findPostByTitle(title);
     }
 }

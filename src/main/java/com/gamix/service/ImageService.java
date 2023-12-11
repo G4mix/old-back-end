@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
+
+import com.gamix.exceptions.image.ErrorUpdatingImage;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.gamix.exceptions.ExceptionBase;
@@ -147,7 +149,7 @@ public class ImageService implements ImageServiceInterface {
             postImages.addAll(imagesToAdd);
         
         } catch (IOException e) {
-            
+            throw new ErrorUpdatingImage();
         }
         return postImages;
     }

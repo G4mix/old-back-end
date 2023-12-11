@@ -6,10 +6,10 @@ import com.gamix.models.Comment;
 import com.gamix.models.Post;
 
 public interface CommentServiceInterface {
-    public Comment commentPost(String accessToken, Post post, String content) throws ExceptionBase;
-    public Comment replyComment(String accessToken, Integer commentId, String content) throws ExceptionBase;
-    public Comment findCommentById(Integer commentId) throws ExceptionBase;
-    public List<Comment> findAllCommentsOfAPost(int postId, int skip, int limit);
-    public boolean getIsLiked(String accessToken, Comment comment) throws ExceptionBase;
-    public void deleteCommentsByPost(Post post);
+    Comment commentPost(String accessToken, Post post, String content) throws ExceptionBase;
+    Comment replyComment(String accessToken, Integer commentId, String content) throws ExceptionBase;
+    Comment findCommentById(Integer commentId) throws ExceptionBase;
+    List<Comment> findAllCommentsOfAPost(int postId, int skip, int limit);
+    boolean getIsLiked(String accessToken, Comment comment) throws ExceptionBase;
+    void deleteCommentsByPost(Post post);
 }

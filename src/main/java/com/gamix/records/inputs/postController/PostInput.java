@@ -1,4 +1,4 @@
-package com.gamix.records.inputs.PostController;
+package com.gamix.records.inputs.postController;
 
 public record PostInput(Integer authorId, String title, String content) {
     public PostInput(PostInput postInput) {

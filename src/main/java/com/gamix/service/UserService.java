@@ -15,7 +15,7 @@ import com.gamix.exceptions.user.UserNotFoundByToken;
 import com.gamix.exceptions.user.UserNotFoundByUsername;
 import com.gamix.interfaces.services.UserServiceInterface;
 import com.gamix.models.User;
-import com.gamix.records.inputs.UserController.PartialUserInput;
+import com.gamix.records.inputs.userController.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import io.jsonwebtoken.Claims;
@@ -67,7 +67,7 @@ public class UserService implements UserServiceInterface {
         User userToUpdate = findUserByToken(accessToken);
         
         if (userInput.username() != null) {
-            if (userRepository.findByUsername(userInput.username()) != null) {
+            if (userRepository.findByUsername(userInput.username()).isPresent()) {
                 throw new UserAlreadyExistsWithThisUsername();
             }
             
@@ -90,7 +90,7 @@ public class UserService implements UserServiceInterface {
             return true;
         }
 
-        if (!JwtManager.validate(accessToken, user))
+        if (JwtManager.isInvalid(accessToken, user))
             throw new InvalidAccessToken();
 
         userRepository.deleteById(id);

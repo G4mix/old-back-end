@@ -23,7 +23,7 @@ import com.gamix.models.Post;
 import com.gamix.models.Tag;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
-import com.gamix.records.inputs.PostController.PartialPostInput;
+import com.gamix.records.inputs.postController.PartialPostInput;
 import com.gamix.repositories.PostRepository;
 import com.gamix.repositories.UserProfileRepository;
 import com.gamix.security.JwtManager;
@@ -108,7 +108,7 @@ public class PostService implements PostServiceInterface {
     @Override
     public Post findPostById(Integer id) throws ExceptionBase {
         Optional<Post> post = postRepository.findById(id);
-        if (post == null) {
+        if (post.isEmpty()) {
             throw new PostNotFoundById();
         }
         return post.orElseThrow(() -> new PostNotFoundById());
@@ -117,7 +117,7 @@ public class PostService implements PostServiceInterface {
     @Override
     public Post findPostByTitle(String title) throws ExceptionBase {
         Optional<Post> post = postRepository.findPostByTitle(title);
-        if (post == null) {
+        if (post.isEmpty()) {
             throw new PostNotFoundByTitle();
         }
         return post.orElseThrow(() -> new PostNotFoundByTitle());
@@ -129,7 +129,7 @@ public class PostService implements PostServiceInterface {
     ) throws ExceptionBase {
         User userFromToken = userService.findUserByToken(accessToken);
 
-        if (!JwtManager.validate(accessToken, userFromToken)) {
+        if (JwtManager.isInvalid(accessToken, userFromToken)) {
             throw new InvalidAccessToken();
         }
 
@@ -166,7 +166,7 @@ public class PostService implements PostServiceInterface {
     public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
         UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
 
-        if (!JwtManager.validate(accessToken, accessTokenOwner.getUser())) {
+        if (JwtManager.isInvalid(accessToken, accessTokenOwner.getUser())) {
             throw new InvalidAccessToken();
         }
 

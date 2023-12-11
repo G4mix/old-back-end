@@ -1,4 +1,4 @@
-package com.gamix.resolvers.User;
+package com.gamix.resolvers.user;
 
 import java.util.List;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -21,8 +21,7 @@ public class UserQueryResolver implements GraphQLQueryResolver {
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     List<User> findAllUsers(@Argument("skip") int skip, @Argument("limit") int limit) {
-        List<User> users = userService.findAllUsers(skip, limit);
-        return users;
+        return userService.findAllUsers(skip, limit);
     }
 
     @PreAuthorize("hasAuthority('USER')")
@@ -30,22 +29,19 @@ public class UserQueryResolver implements GraphQLQueryResolver {
     User findUserByToken() throws Exception {
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         String accessToken = authorizationHeader.substring(7);
-        User user = userService.findUserByToken(accessToken);
-        return user;
+        return userService.findUserByToken(accessToken);
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByUsername(@Argument String username) throws ExceptionBase {
-        User user = userService.findUserByUsername(username);
-        return user;
+        return userService.findUserByUsername(username);
     }
 
     @PreAuthorize("hasAuthority('USER')")
     @QueryMapping
     User findUserByEmail(@Argument String email) throws ExceptionBase {
-        User user = userService.findUserByEmail(email);
-        return user;
+        return userService.findUserByEmail(email);
     }
 
 }
