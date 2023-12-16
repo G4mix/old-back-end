@@ -2,7 +2,6 @@ package com.gamix.controller;
 
 import static com.gamix.utils.ControllerUtils.throwError;
 import java.util.Map;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,10 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
 import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
-import com.gamix.records.options.CookieOptions;
-import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.service.PasswordUserService;
-import com.gamix.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -32,12 +28,10 @@ public class PasswordUserController {
                     requestBody.get("email"),
                     requestBody.get("password"));
 
-            JwtTokens jwtTokens = passwordUserService.signUpPasswordUser(signUpPasswordUserInput);
-
-            Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                    jwtTokens, new CookieOptions(false, req.isSecure()));
-
-            return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + passwordUserService
+                            .signUpPasswordUser(signUpPasswordUserInput))
+                    .build();
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -54,29 +48,10 @@ public class PasswordUserController {
                     requestBody.get("password"),
                     Boolean.parseBoolean(requestBody.get("rememberMe")));
 
-            JwtTokens jwtTokens = passwordUserService.signInPasswordUser(
-                    signInPasswordUserInput);
-
-            Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                    jwtTokens, new CookieOptions(signInPasswordUserInput.rememberMe(), req.isSecure()));
-
-            return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
-        } catch (ExceptionBase ex) {
-            return throwError(ex);
-        }
-    }
-
-    @PostMapping("/auth/refreshtoken")
-    public ResponseEntity<Object> refreshTokenPasswodUser(
-            @RequestBody Map<String, String> requestBody,
-            HttpServletRequest req) throws ExceptionBase {
-        try {
-            JwtTokens refreshedTokens = passwordUserService.refreshToken(requestBody.get("refreshToken"));
-
-            Map<String, String> cookieStrings = CookieUtils.generateCookies(
-                    refreshedTokens, new CookieOptions(refreshedTokens.rememberMe(), req.isSecure()));
-
-            return ResponseEntity.status(HttpStatus.OK).body(cookieStrings);
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + passwordUserService
+                            .signInPasswordUser(signInPasswordUserInput))
+                    .build();
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }

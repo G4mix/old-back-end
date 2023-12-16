@@ -8,7 +8,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
-import com.gamix.exceptions.authentication.InvalidRefreshToken;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
 import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
@@ -19,13 +18,11 @@ import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
 import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
-import com.gamix.records.returns.security.JwtTokens;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
 import com.gamix.utils.ThreadPool;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -35,10 +32,10 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserProfileService userProfileService;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
-    public JwtTokens signUpPasswordUser(
+    public String signUpPasswordUser(
         SignUpPasswordUserInput signUpPasswordUserInput
     ) throws ExceptionBase {
         ParameterValidator.validateUsername(signUpPasswordUserInput.username());
@@ -60,11 +57,11 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         String encodedPassword = passwordEncoder.encode(signUpPasswordUserInput.password());
         createPasswordUser(user, encodedPassword);
 
-        return JwtManager.generateJwtTokens(user.getId(), encodedPassword, false);
+        return JwtManager.generateToken(user.getId(), encodedPassword, false);
     }
 
     @Override
-    public JwtTokens signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput)
+    public String signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput)
             throws ExceptionBase {
         Optional<User> user = signInPasswordUserInput.email() != null
                 ? userRepository.findByEmail(signInPasswordUserInput.email())
@@ -88,27 +85,11 @@ public class PasswordUserService implements PasswordUserServiceInterface {
             throw new PasswordWrong();
         }
 
-        JwtTokens jwtTokens = JwtManager.generateJwtTokens(user.get().getId(),
-                passwordUser.getPassword(), signInPasswordUserInput.rememberMe());
-
         passwordUser.setLoginAttempts(0).setBlockedUntil(null);
         passwordUserRepository.save(passwordUser);
 
-        return jwtTokens;
-    }
-
-    @Override
-    public JwtTokens refreshToken(String refreshToken) throws ExceptionBase {
-        Claims body = JwtManager.getTokenClaims(refreshToken);
-        Integer id = Integer.parseInt(body.getSubject());
-        boolean rememberMe = (boolean) body.get("rememberMe");
-        PasswordUser passwordUser = userService.findUserById(id).getPasswordUser();
-
-        if (JwtManager.isInvalid(refreshToken, passwordUser))
-            throw new InvalidRefreshToken();
-
-
-        return JwtManager.generateJwtTokens(id, passwordUser.getPassword(), rememberMe);
+        return JwtManager.generateToken(user.get().getId(),
+                passwordUser.getPassword(), signInPasswordUserInput.rememberMe());
     }
 
     @Override

@@ -26,7 +26,6 @@ import com.gamix.models.UserProfile;
 import com.gamix.records.inputs.postController.PartialPostInput;
 import com.gamix.repositories.PostRepository;
 import com.gamix.repositories.UserProfileRepository;
-import com.gamix.security.JwtManager;
 import com.gamix.utils.SortUtils;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
@@ -127,15 +126,9 @@ public class PostService implements PostServiceInterface {
     public Post updatePost(
         String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages
     ) throws ExceptionBase {
-        User userFromToken = userService.findUserByToken(accessToken);
-
-        if (JwtManager.isInvalid(accessToken, userFromToken.getPasswordUser())) {
-            throw new InvalidAccessToken();
-        }
-
         Post post = findPostById(id);
         UserProfile postAuthor = post.getAuthor();
-        UserProfile userProfileFromToken = userFromToken.getUserProfile();
+        UserProfile userProfileFromToken = userService.findUserByToken(accessToken).getUserProfile();
         
         if (!userProfileFromToken.getId().equals(postAuthor.getId())) {
             throw new InvalidAccessToken();
@@ -164,16 +157,11 @@ public class PostService implements PostServiceInterface {
     @Override
     @Transactional
     public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
-        User accessTokenOwner = userService.findUserByToken(accessToken);
-
-        if (JwtManager.isInvalid(accessToken, accessTokenOwner.getPasswordUser())) {
-            throw new InvalidAccessToken();
-        }
-
+        UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
         Post post = findPostById(id);
         UserProfile postAuthor = post.getAuthor();
 
-        if (!accessTokenOwner.getUserProfile().getId().equals(postAuthor.getId())) return false;
+        if (!accessTokenOwner.getId().equals(postAuthor.getId())) return false;
         
         imageService.deleteImages(post);
         commentService.deleteCommentsByPost(post);

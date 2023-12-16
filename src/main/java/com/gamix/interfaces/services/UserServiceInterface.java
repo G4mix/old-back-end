@@ -8,7 +8,7 @@ import com.gamix.records.inputs.userController.PartialUserInput;
 public interface UserServiceInterface {
     List<User> findAllUsers(int skip, int limit);
 
-    User findUserByToken(String accessToken) throws ExceptionBase;
+    User findUserByToken(String token) throws ExceptionBase;
 
     User findUserById(Integer id) throws ExceptionBase;
 
@@ -16,9 +16,9 @@ public interface UserServiceInterface {
 
     User findUserByUsername(String username) throws ExceptionBase;
 
-    User updateUser(String accessToken, PartialUserInput userInput) throws ExceptionBase;
+    User updateUser(String token, PartialUserInput userInput) throws ExceptionBase;
 
-    boolean deleteAccount(String accessToken);
+    boolean deleteAccount(String token);
 
     User createUser(String username, String email);
 }

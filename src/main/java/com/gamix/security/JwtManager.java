@@ -1,55 +1,80 @@
 package com.gamix.security;
 
-import java.util.Date;
 import com.gamix.enums.ExpirationTime;
-import com.gamix.enums.Role;
-import com.gamix.exceptions.authentication.TokenClaimsException;
 import com.gamix.models.PasswordUser;
-import com.gamix.records.returns.security.JwtTokens;
+import com.gamix.models.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import java.util.Date;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.function.Function;
+
 public class JwtManager {
-    public static Claims getTokenClaims(String token) throws TokenClaimsException {
-        try {
-            return Jwts.parser().setSigningKey(System.getenv("JWT_SIGNING_KEY_SECRET"))
-                    .parseClaimsJws(token).getBody();
-        } catch (Exception e) {
-            throw new TokenClaimsException();
-        }
+    private static final String secret = System.getenv("JWT_SIGNING_KEY_SECRET");
+
+    public static boolean isValid(String token, User user) {
+        PasswordUser passwordUser = user.getPasswordUser();
+        boolean isValidId = user.getId().equals(getIdFromToken(token));
+        boolean isValidPasswordUser = passwordUser != null && getPasswordFromToken(token).equals(passwordUser.getPassword());
+        return !isTokenExpired(token) && isValidId && isValidPasswordUser;
     }
 
-    public static boolean isInvalid(String token, PasswordUser passwordUser) throws TokenClaimsException {
-        Claims body = getTokenClaims(token);
-
-        Date expirationDate = body.getExpiration();
-        Date currentDate = new Date();
-
-        boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-        boolean invalidPasswordUser = passwordUser != null && !body.get("password").toString().equals(passwordUser.getPassword());
-
-        return isExpired || invalidPasswordUser;
+    public static String refreshToken(String token) {
+        return generateToken(getIdFromToken(token), getPasswordFromToken(token), getRememberMeFromToken(token));
     }
 
-    public static JwtTokens generateJwtTokens(Integer id, String password, boolean rememberMe) {
-        String accessToken = generateToken(id, password, rememberMe, ExpirationTime.ACCESS_TOKEN);
-        String refreshToken = generateToken(id, password, rememberMe,
-                rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN);
-
-        return new JwtTokens(accessToken, refreshToken, rememberMe);
-    }
-
-    private static String generateToken(Integer id, String password, boolean rememberMe,
-            ExpirationTime expirationTime) {
+    public static String generateToken(Integer id, String password, boolean rememberMe) {
         Claims claims = Jwts.claims().setSubject(id.toString());
         claims.put("rememberMe", rememberMe);
-        claims.put("role", Role.USER.toString());
         claims.put("password", password);
-
+        ExpirationTime expirationTime = rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.ACCESS_TOKEN;
         Date expirationDate = new Date(System.currentTimeMillis() + expirationTime.getValue());
 
-        return Jwts.builder().setClaims(claims).setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS512, System.getenv("JWT_SIGNING_KEY_SECRET")).compact();
+        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(expirationDate)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public static Integer getIdFromToken(String token) {
+        return Integer.parseInt(getClaimFromToken(token, Claims::getSubject));
+    }
+
+    public static String getPasswordFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("password", String.class));
+    }
+
+    public static Boolean getRememberMeFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("rememberMe", Boolean.class));
+    }
+
+    private static Boolean isTokenExpired(String token) {
+        final Date expiration = getExpirationDateFromToken(token);
+        return expiration.before(new Date());
+    }
+
+    public static Date getExpirationDateFromToken(String token) {
+        return getClaimFromToken(token, Claims::getExpiration);
+    }
+
+    public static <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = getAllClaimsFromToken(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private static Claims getAllClaimsFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
