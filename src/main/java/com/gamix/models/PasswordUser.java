@@ -1,15 +1,10 @@
 package com.gamix.models;
 
-import java.time.LocalDateTime;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.time.LocalDateTime;
 
 @Data
 @Accessors(chain = true)
@@ -31,7 +26,7 @@ public class PasswordUser {
 
     @Column(nullable = false)
     private Integer loginAttempts = 0;
-    
+
     @Column()
     private LocalDateTime blockedUntil;
 }

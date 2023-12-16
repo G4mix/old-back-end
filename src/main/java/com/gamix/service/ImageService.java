@@ -1,5 +1,20 @@
 package com.gamix.service;
 
+import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.image.ErrorCreatingImage;
+import com.gamix.exceptions.image.ErrorUpdatingImage;
+import com.gamix.exceptions.parameters.posts.TooManyImages;
+import com.gamix.models.Image;
+import com.gamix.models.Post;
+import com.gamix.models.User;
+import com.gamix.repositories.ImageRepository;
+import com.gamix.utils.SingleMultipartFile;
+import jakarta.servlet.http.Part;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,33 +23,17 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.imageio.ImageIO;
-
-import com.gamix.exceptions.image.ErrorUpdatingImage;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import com.gamix.exceptions.ExceptionBase;
-import com.gamix.exceptions.image.ErrorCreatingImage;
-import com.gamix.exceptions.parameters.posts.TooManyImages;
-import com.gamix.interfaces.services.ImageServiceInterface;
-import com.gamix.models.Image;
-import com.gamix.models.Post;
-import com.gamix.models.User;
-import com.gamix.repositories.ImageRepository;
-import com.gamix.utils.SingleMultipartFile;
-import jakarta.servlet.http.Part;
-import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-public class ImageService implements ImageServiceInterface {
+public class ImageService {
     private final static Integer MAX_SIZE = 1048576;
     private final static List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
 
     private final ImageRepository imageRepository;
 
     public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
-        String imagesFolderPath = "/images/posts/"+user.getId()+"/";
+        String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
 
         List<Image> images = new ArrayList<>();
@@ -43,27 +42,27 @@ public class ImageService implements ImageServiceInterface {
                 MultipartFile file = new SingleMultipartFile(partFile);
                 String fileName = file.getOriginalFilename();
                 InputStream fileContent = file.getInputStream();
-                
+
                 if (file.getSize() > MAX_SIZE) continue;
 
                 String fileExtension = getFileExtension(fileName);
                 if (!allowedExtensions.contains(fileExtension)) continue;
-                
+
                 String src = imagesFolderPath + fileName;
-                
+
                 File imageFile = new File(src);
                 saveFile(fileContent, imageFile);
-    
+
                 BufferedImage bufferedImage = ImageIO.read(imageFile);
                 int width = bufferedImage.getWidth();
                 int height = bufferedImage.getHeight();
-    
+
                 Image image = new Image()
-                    .setName(fileName)
-                    .setSrc(src)
-                    .setWidth(width)
-                    .setHeight(height)
-                    .setPost(post);
+                        .setName(fileName)
+                        .setSrc(src)
+                        .setWidth(width)
+                        .setHeight(height)
+                        .setPost(post);
 
                 images.add(image);
 
@@ -77,7 +76,7 @@ public class ImageService implements ImageServiceInterface {
     public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
         String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
-    
+
         List<Image> postImages = post.getImages();
 
         if (files == null || files.isEmpty()) {
@@ -97,11 +96,11 @@ public class ImageService implements ImageServiceInterface {
                 MultipartFile file = new SingleMultipartFile(partFile);
                 String fileName = file.getOriginalFilename();
                 InputStream fileContent = file.getInputStream();
-                
+
                 String src = imagesFolderPath + fileName;
-                
+
                 boolean imageExists = false;
-                
+
                 for (Image postImage : postImages) {
                     if (postImage.getName().equals(fileName)) {
                         imagesToAdd.add(postImage);
@@ -109,28 +108,28 @@ public class ImageService implements ImageServiceInterface {
                         break;
                     }
                 }
-                
+
                 if (imageExists && file.getSize() == 0) continue;
                 String fileExtension = getFileExtension(fileName);
                 if (!allowedExtensions.contains(fileExtension)) continue;
-    
+
                 File imageFile = new File(src);
                 saveFile(fileContent, imageFile);
-            
+
                 BufferedImage bufferedImage = ImageIO.read(imageFile);
                 int width = bufferedImage.getWidth();
                 int height = bufferedImage.getHeight();
-            
+
                 Image newImage = new Image()
-                    .setName(fileName)
-                    .setSrc(src)
-                    .setWidth(width)
-                    .setHeight(height)
-                    .setPost(post);
-            
+                        .setName(fileName)
+                        .setSrc(src)
+                        .setWidth(width)
+                        .setHeight(height)
+                        .setPost(post);
+
                 imagesToAdd.add(newImage);
             }
-        
+
             for (Image postImage : postImages) {
                 boolean found = false;
                 for (Image newImage : imagesToAdd) {
@@ -144,10 +143,10 @@ public class ImageService implements ImageServiceInterface {
                     imagesToRemove.add(postImage);
                 }
             }
-        
+
             postImages.removeAll(imagesToRemove);
             postImages.addAll(imagesToAdd);
-        
+
         } catch (IOException e) {
             throw new ErrorUpdatingImage();
         }
@@ -156,7 +155,7 @@ public class ImageService implements ImageServiceInterface {
 
     public void deleteImage(Image image) {
         if (!imageIsReferencedByOtherPosts(image)) {
-            System.out.println("Deletando "+image.getSrc());
+            System.out.println("Deletando " + image.getSrc());
             deleteImageFromDisk(image.getSrc());
         }
     }

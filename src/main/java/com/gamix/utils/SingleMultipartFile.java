@@ -1,14 +1,15 @@
 package com.gamix.utils;
 
+import jakarta.servlet.http.Part;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import javax.validation.constraints.NotNull;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.multipart.MultipartFile;
-import jakarta.servlet.http.Part;
 
 public class SingleMultipartFile implements MultipartFile {
     private final Part part;

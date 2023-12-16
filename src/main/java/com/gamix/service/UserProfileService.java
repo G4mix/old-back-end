@@ -1,21 +1,19 @@
 package com.gamix.service;
 
-import org.springframework.stereotype.Service;
-import com.gamix.interfaces.services.UserProfileServiceInterface;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.repositories.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class UserProfileService implements UserProfileServiceInterface {
+public class UserProfileService {
     private final UserProfileRepository userProfileRepository;
 
-    @Override
-    public UserProfile createUserProfile(User user) {
+    public void createUserProfile(User user) {
         UserProfile userProfile = new UserProfile().setUser(user).setDisplayName(user.getUsername());
 
-        return userProfileRepository.save(userProfile);
+        userProfileRepository.save(userProfile);
     }
 }

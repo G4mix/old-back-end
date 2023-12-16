@@ -1,9 +1,10 @@
 package com.gamix.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.gamix.models.Post;
 import com.gamix.models.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TagService {
 
@@ -21,7 +22,7 @@ public class TagService {
 
     public static List<Tag> updateTagsForPost(Post post, List<String> tagsStrings) {
         List<Tag> postTags = post.getTags();
-        
+
         if (tagsStrings == null || tagsStrings.isEmpty()) {
             postTags.clear();
             return postTags;

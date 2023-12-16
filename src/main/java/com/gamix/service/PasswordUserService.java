@@ -1,11 +1,5 @@
 package com.gamix.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
@@ -13,7 +7,6 @@ import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
 import com.gamix.exceptions.user.UserNotFound;
-import com.gamix.interfaces.services.PasswordUserServiceInterface;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
@@ -24,19 +17,25 @@ import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
 import com.gamix.utils.ThreadPool;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
-public class PasswordUserService implements PasswordUserServiceInterface {
+public class PasswordUserService {
     private final PasswordUserRepository passwordUserRepository;
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserProfileService userProfileService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @Override
     public String signUpPasswordUser(
-        SignUpPasswordUserInput signUpPasswordUserInput
+            SignUpPasswordUserInput signUpPasswordUserInput
     ) throws ExceptionBase {
         ParameterValidator.validateUsername(signUpPasswordUserInput.username());
         ParameterValidator.validatePassword(signUpPasswordUserInput.password());
@@ -60,7 +59,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         return JwtManager.generateToken(user.getId(), encodedPassword, false);
     }
 
-    @Override
     public String signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput)
             throws ExceptionBase {
         Optional<User> user = signInPasswordUserInput.email() != null
@@ -92,24 +90,20 @@ public class PasswordUserService implements PasswordUserServiceInterface {
                 passwordUser.getPassword(), signInPasswordUserInput.rememberMe());
     }
 
-    @Override
     public List<PasswordUser> findUsersToUnbanNow() {
         return passwordUserRepository.findUsersToUnbanNow();
     }
 
-    @Override
     public List<PasswordUser> findUsersToUnbanSoon() {
         return passwordUserRepository.findUsersToUnbanSoon();
     }
 
-    @Override
     public void unbanUser(PasswordUser userToUnban) {
         userToUnban.setBlockedUntil(null);
         userToUnban.setLoginAttempts(0);
         passwordUserRepository.save(userToUnban);
     }
 
-    @Override
     public PasswordUser createPasswordUser(User user, String password) throws ExceptionBase {
         PasswordUser passwordUser =
                 new PasswordUser().setUser(user).setPassword(password).setVerifiedEmail(false);

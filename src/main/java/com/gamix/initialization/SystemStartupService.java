@@ -1,15 +1,16 @@
 package com.gamix.initialization;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import org.springframework.stereotype.Service;
 import com.gamix.models.PasswordUser;
 import com.gamix.service.PasswordUserService;
 import com.gamix.utils.ThreadPool;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service

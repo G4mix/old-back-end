@@ -14,20 +14,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
         String resourcePath = "file:/images/";
 
         registry
-            .addResourceHandler("/images/**")
-            .addResourceLocations(resourcePath)
-            .setCachePeriod(3600)
-            .resourceChain(true)
-            .addResolver(new PathResourceResolver());
+                .addResourceHandler("/images/**")
+                .addResourceLocations(resourcePath)
+                .setCachePeriod(3600)
+                .resourceChain(true)
+                .addResolver(new PathResourceResolver());
     }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins(System.getenv("FRONT_END_BASE_URL"))
-            .allowedMethods("POST", "OPTIONS")
-            .allowedHeaders("*")
-            .exposedHeaders("Authorization")
-            .allowCredentials(true);
+                .allowedOrigins(System.getenv("FRONT_END_BASE_URL"))
+                .allowedMethods("POST", "OPTIONS")
+                .allowedHeaders("*")
+                .exposedHeaders("Authorization")
+                .allowCredentials(true);
     }
 }

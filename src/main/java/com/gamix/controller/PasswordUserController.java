@@ -1,17 +1,19 @@
 package com.gamix.controller;
 
-import static com.gamix.utils.ControllerUtils.throwError;
-import java.util.Map;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
 import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
 import com.gamix.service.PasswordUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+
+import static com.gamix.utils.ControllerUtils.throwError;
 
 @RequiredArgsConstructor
 @RestController

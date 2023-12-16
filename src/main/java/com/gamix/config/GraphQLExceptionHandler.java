@@ -1,12 +1,13 @@
 package com.gamix.config;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Component;
 import com.gamix.exceptions.ExceptionBase;
 import graphql.ExceptionWhileDataFetching;
 import graphql.GraphQLError;
 import graphql.kickstart.execution.error.GraphQLErrorHandler;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class GraphQLExceptionHandler implements GraphQLErrorHandler {

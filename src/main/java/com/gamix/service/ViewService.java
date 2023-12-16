@@ -1,7 +1,6 @@
 package com.gamix.service;
 
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.interfaces.services.ViewServiceInterface;
 import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class ViewService implements ViewServiceInterface {
+public class ViewService {
     private final ViewRepository viewRepository;
     private final UserService userService;
 

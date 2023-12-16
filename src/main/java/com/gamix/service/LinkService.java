@@ -1,11 +1,12 @@
 package com.gamix.service;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.parameters.posts.TooManyLinks;
 import com.gamix.models.Link;
 import com.gamix.models.Post;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LinkService {
     public static List<Link> createLinksForPost(Post post, List<String> linkStrings) {

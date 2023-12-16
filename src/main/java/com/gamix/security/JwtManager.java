@@ -4,14 +4,14 @@ import com.gamix.enums.ExpirationTime;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
-import java.util.Date;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Date;
 import java.util.function.Function;
 
 public class JwtManager {

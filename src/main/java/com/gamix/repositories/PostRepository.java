@@ -1,17 +1,16 @@
 package com.gamix.repositories;
 
-import java.util.Optional;
-
+import com.gamix.models.Post;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.gamix.models.Post;
+
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
-    Optional<Post> findPostById(Integer id);
 
     Optional<Post> findPostByTitle(String title);
 
