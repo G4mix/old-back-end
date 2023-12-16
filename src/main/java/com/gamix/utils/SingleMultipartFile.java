@@ -45,17 +45,15 @@ public class SingleMultipartFile implements MultipartFile {
         return this.part.getSize();
     }
 
-    @org.jetbrains.annotations.NotNull
     @NotNull
     @Override
-    public byte[] getBytes() throws IOException {
+    public byte @org.jetbrains.annotations.NotNull [] getBytes() throws IOException {
         return FileCopyUtils.copyToByteArray(this.part.getInputStream());
     }
 
-    @org.jetbrains.annotations.NotNull
     @NotNull
     @Override
-    public InputStream getInputStream() throws IOException {
+    public @org.jetbrains.annotations.NotNull InputStream getInputStream() throws IOException {
         return this.part.getInputStream();
     }
 
