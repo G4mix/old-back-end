@@ -32,7 +32,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserProfileService userProfileService;
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public String signUpPasswordUser(

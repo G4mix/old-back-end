@@ -25,7 +25,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/postgres
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=root
-      - JWT_SIGNING_KEY_SECRET=Graphql
+      - JWT_SIGNING_KEY_SECRET=32f9799e0e890686629813253cd5c032369e2fd1a57f0bdd3f4c89b556481839
       - FRONT_END_BASE_URL=http://localhost:3000
     volumes:
       - ./src:/app/src
