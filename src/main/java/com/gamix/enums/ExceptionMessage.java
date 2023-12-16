@@ -2,6 +2,7 @@ package com.gamix.enums;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ExceptionMessage {
@@ -47,10 +48,10 @@ public enum ExceptionMessage {
     TOO_LONG_COMMENT(HttpStatus.BAD_REQUEST, "Comentário muito longo (comprimento máximo é 200 caracteres)"),
 
     UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido.");
-    private final HttpStatus httpStatus;
+    private final HttpStatusCode httpStatus;
     private final String message;
 
-    ExceptionMessage(HttpStatus httpStatus, String message) {
+    ExceptionMessage(HttpStatusCode httpStatus, String message) {
         this.httpStatus = httpStatus;
         this.message = message;
     }

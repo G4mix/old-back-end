@@ -90,7 +90,7 @@ public class UserService implements UserServiceInterface {
             return true;
         }
 
-        if (JwtManager.isInvalid(accessToken, user))
+        if (JwtManager.isInvalid(accessToken, user.getPasswordUser()))
             throw new InvalidAccessToken();
 
         userRepository.deleteById(id);

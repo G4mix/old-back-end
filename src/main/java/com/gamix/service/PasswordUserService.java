@@ -35,6 +35,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
     private final UserRepository userRepository;
     private final UserService userService;
     private final UserProfileService userProfileService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public JwtTokens signUpPasswordUser(
@@ -56,7 +57,7 @@ public class PasswordUserService implements PasswordUserServiceInterface {
 
         User user = userService.createUser(signUpPasswordUserInput.username(), signUpPasswordUserInput.email());
         userProfileService.createUserProfile(user);
-        String encodedPassword = new BCryptPasswordEncoder().encode(signUpPasswordUserInput.password());
+        String encodedPassword = passwordEncoder.encode(signUpPasswordUserInput.password());
         createPasswordUser(user, encodedPassword);
 
         return JwtManager.generateJwtTokens(user.getId(), encodedPassword, false);
@@ -81,7 +82,6 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         if (attempsGreaterOrEqualsThree && blockedByTime)
             throw new ExcessiveFailedLoginAttempts();
 
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(signInPasswordUserInput.password(),
                 passwordUser.getPassword())) {
             handleFailedLoginAttempt(passwordUser);
@@ -102,13 +102,13 @@ public class PasswordUserService implements PasswordUserServiceInterface {
         Claims body = JwtManager.getTokenClaims(refreshToken);
         Integer id = Integer.parseInt(body.getSubject());
         boolean rememberMe = (boolean) body.get("rememberMe");
-        User user = userService.findUserById(id);
+        PasswordUser passwordUser = userService.findUserById(id).getPasswordUser();
 
-        if (JwtManager.isInvalid(refreshToken, user))
+        if (JwtManager.isInvalid(refreshToken, passwordUser))
             throw new InvalidRefreshToken();
 
 
-        return JwtManager.generateJwtTokens(id, user.getPasswordUser().getPassword(), rememberMe);
+        return JwtManager.generateJwtTokens(id, passwordUser.getPassword(), rememberMe);
     }
 
     @Override

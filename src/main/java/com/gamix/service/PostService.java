@@ -129,7 +129,7 @@ public class PostService implements PostServiceInterface {
     ) throws ExceptionBase {
         User userFromToken = userService.findUserByToken(accessToken);
 
-        if (JwtManager.isInvalid(accessToken, userFromToken)) {
+        if (JwtManager.isInvalid(accessToken, userFromToken.getPasswordUser())) {
             throw new InvalidAccessToken();
         }
 
@@ -164,16 +164,16 @@ public class PostService implements PostServiceInterface {
     @Override
     @Transactional
     public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
-        UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
+        User accessTokenOwner = userService.findUserByToken(accessToken);
 
-        if (JwtManager.isInvalid(accessToken, accessTokenOwner.getUser())) {
+        if (JwtManager.isInvalid(accessToken, accessTokenOwner.getPasswordUser())) {
             throw new InvalidAccessToken();
         }
 
         Post post = findPostById(id);
         UserProfile postAuthor = post.getAuthor();
 
-        if (!accessTokenOwner.getId().equals(postAuthor.getId())) return false;
+        if (!accessTokenOwner.getUserProfile().getId().equals(postAuthor.getId())) return false;
         
         imageService.deleteImages(post);
         commentService.deleteCommentsByPost(post);

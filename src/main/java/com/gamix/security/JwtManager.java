@@ -4,7 +4,7 @@ import java.util.Date;
 import com.gamix.enums.ExpirationTime;
 import com.gamix.enums.Role;
 import com.gamix.exceptions.authentication.TokenClaimsException;
-import com.gamix.models.User;
+import com.gamix.models.PasswordUser;
 import com.gamix.records.returns.security.JwtTokens;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,15 +20,14 @@ public class JwtManager {
         }
     }
 
-    public static boolean isInvalid(String token, User user) throws TokenClaimsException {
+    public static boolean isInvalid(String token, PasswordUser passwordUser) throws TokenClaimsException {
         Claims body = getTokenClaims(token);
 
         Date expirationDate = body.getExpiration();
         Date currentDate = new Date();
 
         boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-        boolean invalidPasswordUser = user.getPasswordUser() != null && !body.get("password")
-                .toString().equals(user.getPasswordUser().getPassword());
+        boolean invalidPasswordUser = passwordUser != null && !body.get("password").toString().equals(passwordUser.getPassword());
 
         return isExpired || invalidPasswordUser;
     }
