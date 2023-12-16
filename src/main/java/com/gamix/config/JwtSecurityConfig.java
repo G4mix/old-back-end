@@ -10,13 +10,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.session.SessionManagementFilter;
-import com.gamix.security.CorsFilter;
 import com.gamix.security.JwtAuthenticationProvider;
 import com.gamix.security.JwtAuthenticationTokenFilter;
-import com.gamix.security.JwtSuccessHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @EnableMethodSecurity()
@@ -24,26 +21,16 @@ import lombok.RequiredArgsConstructor;
 public class JwtSecurityConfig {
     private final JwtAuthenticationProvider authenticationProvider;
 
-    @Bean
-    CorsFilter corsFilter() {
-        return new CorsFilter();
-    }
-
     protected void configure(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(
-                    (authorize) -> authorize.requestMatchers(HttpMethod.POST, "/graphql")
-                            .anonymous().anyRequest().denyAll()
-                            .requestMatchers(HttpMethod.POST, "/auth/signin", "/auth/signup",
-                                    "/auth/refreshtoken")
-                            .permitAll())
+                .addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .authorizeHttpRequests(
+                    (authorize) -> authorize
+                            .requestMatchers(HttpMethod.POST, "/auth/signin", "/auth/signup", "/auth/refreshtoken").permitAll()
+                            .requestMatchers(HttpMethod.POST, "/graphql").anonymous().anyRequest().denyAll())
             .sessionManagement((sessionManagement) -> sessionManagement
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        http.addFilterBefore(authenticationTokenFilter(),
-                UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(corsFilter(), SessionManagementFilter.class);
     }
 
     @Bean
@@ -55,7 +42,6 @@ public class JwtSecurityConfig {
     public JwtAuthenticationTokenFilter authenticationTokenFilter() {
         JwtAuthenticationTokenFilter filter = new JwtAuthenticationTokenFilter();
         filter.setAuthenticationManager(authenticationManager());
-        filter.setAuthenticationSuccessHandler(new JwtSuccessHandler());
         return filter;
     }
 }
