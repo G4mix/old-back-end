@@ -39,7 +39,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Date now = new Date();
             long diffInMillies = Math.abs(expirationDate.getTime() - now.getTime());
             long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
-
             if (diff <= 20) {
                 response.setHeader("Authorization", "Bearer " + JwtManager.refreshToken(token));
             }
