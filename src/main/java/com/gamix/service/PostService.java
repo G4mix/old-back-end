@@ -9,7 +9,6 @@ import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.models.*;
 import com.gamix.records.inputs.postController.PartialPostInput;
 import com.gamix.repositories.PostRepository;
-import com.gamix.repositories.UserProfileRepository;
 import com.gamix.utils.SortUtils;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
@@ -27,19 +26,17 @@ import java.util.Optional;
 public class PostService {
     private final PostRepository postRepository;
     private final UserService userService;
-    private final CommentService commentService;
     private final ImageService imageService;
     private final LikeService likeService;
-    private final UserProfileRepository userProfileRepository;
 
     public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
             throws ExceptionBase {
 
         if (
-                postInput.content().isEmpty() &&
-                        postInput.title().isEmpty() &&
-                        (postInput.links() == null || postInput.links().isEmpty()) &&
-                        (partImages == null)
+            postInput.content().isEmpty() &&
+            postInput.title().isEmpty() &&
+            (postInput.links() == null || postInput.links().isEmpty()) &&
+            (partImages == null)
 
         ) {
             throw new CompletelyEmptyPost();

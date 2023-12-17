@@ -3,17 +3,11 @@ package com.gamix.service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.*;
 import com.gamix.repositories.LikeRepository;
-import com.gamix.utils.SortUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -78,22 +72,11 @@ public class LikeService {
         return true;
     }
 
-    public List<Post> findAllLikesPageable(Post post, UserProfile userProfile, int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-        Page<Post> posts = likeRepository.findPostsByUserProfile(userProfile, page);
-        return posts.getContent();
-    }
-
     public boolean userHasLikedPost(Post post, UserProfile userProfile) {
         return likeRepository.existsByPostAndUserProfile(post, userProfile);
     }
 
     public boolean userHasLikedComment(Comment comment, UserProfile userProfile) {
         return likeRepository.existsByCommentAndUserProfile(comment, userProfile);
-    }
-
-    @Transactional
-    public void deleteLikesByPost(Post post) {
-        likeRepository.deleteByPost(post);
     }
 }
