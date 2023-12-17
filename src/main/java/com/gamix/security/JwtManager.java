@@ -21,7 +21,7 @@ public class JwtManager {
         PasswordUser passwordUser = user.getPasswordUser();
         boolean isValidId = user.getId().equals(getIdFromToken(token));
         boolean isValidPasswordUser = passwordUser != null && getPasswordFromToken(token).equals(passwordUser.getPassword());
-        return !isTokenExpired(token) && isValidId && isValidPasswordUser;
+        return isTokenNotExpired(token) && isValidId && isValidPasswordUser;
     }
 
     public static String refreshToken(String token) {
@@ -55,9 +55,9 @@ public class JwtManager {
         return getClaimFromToken(token, claims -> claims.get("rememberMe", Boolean.class));
     }
 
-    private static Boolean isTokenExpired(String token) {
+    private static Boolean isTokenNotExpired(String token) {
         final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
+        return !expiration.before(new Date());
     }
 
     public static Date getExpirationDateFromToken(String token) {
@@ -74,7 +74,7 @@ public class JwtManager {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(token.substring(7))
                 .getBody();
     }
 }

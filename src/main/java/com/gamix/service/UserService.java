@@ -39,7 +39,6 @@ public class UserService {
         return userRepository.findByEmail(email).orElseThrow(UserNotFoundByEmail::new);
     }
 
-
     public User findUserByUsername(String username) throws ExceptionBase {
         return userRepository.findByUsername(username).orElseThrow(UserNotFoundByUsername::new);
     }

@@ -14,7 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -25,16 +24,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) {
-        String header = request.getHeader("Authorization");
-
-        if (header == null || !header.startsWith("Bearer ")) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
             filterChain(request, response, filterChain);
             return;
         }
-        String token = header.substring(7);
-        User user = userService.findUserByToken(token);
 
-        if (JwtManager.isValid(token, user)) {
+        User user = userService.findUserByToken(token);
+        if (user != null && JwtManager.isValid(token, user)) {
             Date expirationDate = JwtManager.getExpirationDateFromToken(token);
             Date now = new Date();
             long diffInMillies = Math.abs(expirationDate.getTime() - now.getTime());
@@ -42,11 +39,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (diff <= 20) {
                 response.setHeader("Authorization", "Bearer " + JwtManager.refreshToken(token));
             }
-
-            SecurityContextHolder
-                    .getContext()
-                    .setAuthentication(
-                            new UsernamePasswordAuthenticationToken(user.getId(), null, new ArrayList<>()));
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(user.getId().toString(), null);
+            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
         }
         filterChain(request, response, filterChain);
     }
