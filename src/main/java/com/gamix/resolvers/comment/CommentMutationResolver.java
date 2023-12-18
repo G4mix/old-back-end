@@ -24,11 +24,9 @@ public class CommentMutationResolver implements GraphQLMutationResolver {
             @Argument("postId") Integer postId,
             @Argument("content") String content
     ) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
+        String token = httpServletRequest.getHeader("Authorization");
         Post post = postService.findPostById(postId);
-
-        return commentService.commentPost(accessToken, post, content);
+        return commentService.commentPost(token, post, content);
     }
 
     @MutationMapping
@@ -36,9 +34,7 @@ public class CommentMutationResolver implements GraphQLMutationResolver {
             @Argument("commentId") Integer commentId,
             @Argument("content") String content
     ) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
-
-        return commentService.replyComment(accessToken, commentId, content);
+        String token = httpServletRequest.getHeader("Authorization");
+        return commentService.replyComment(token, commentId, content);
     }
 }

@@ -156,4 +156,40 @@ public class PostService {
         UserProfile author = user.getUserProfile();
         return likeService.userHasLikedPost(post, author);
     }
+
+    public List<View> getViews(Post post) {
+        return postRepository.findAllViewsByPost(post);
+    }
+
+    public List<Like> getLikes(Post post) {
+        return postRepository.findAllLikesByPost(post);
+    }
+
+    public List<Comment> getComments(Post post) {
+        return postRepository.findAllCommentsByPost(post);
+    }
+
+    public List<Image> getImages(Post post) {
+        return postRepository.findAllImagesByPost(post);
+    }
+
+    public List<Link> getLinks(Post post) {
+        return postRepository.findAllLinksByPost(post);
+    }
+
+    public List<Tag> getTags(Post post) {
+        return postRepository.findAllTagsByPost(post);
+    }
+
+    public int getLikesCount(Post post) {
+        return postRepository.countLikesByPost(post);
+    }
+
+    public int getCommentsCount(Post post) {
+        return postRepository.countCommentsByPost(post);
+    }
+
+    public int getViewsCount(Post post) {
+        return postRepository.countViewsByPost(post);
+    }
 }

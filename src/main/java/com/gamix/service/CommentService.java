@@ -4,10 +4,7 @@ import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.comment.CommentIdNotFound;
 import com.gamix.exceptions.comment.EmptyComment;
 import com.gamix.exceptions.comment.TooLongContent;
-import com.gamix.models.Comment;
-import com.gamix.models.Post;
-import com.gamix.models.User;
-import com.gamix.models.UserProfile;
+import com.gamix.models.*;
 import com.gamix.repositories.CommentRepository;
 import com.gamix.utils.SortUtils;
 import lombok.RequiredArgsConstructor;
@@ -81,4 +78,17 @@ public class CommentService {
         UserProfile author = user.getUserProfile();
         return likeService.userHasLikedComment(comment, author);
     }
+
+    public int getLikesCount(Comment comment) {
+        return commentRepository.countLikesByPost(comment);
+    }
+
+    public List<Like> getLikes(Comment comment) {
+        return commentRepository.findAllLikesByComment(comment);
+    }
+
+    public List<Comment> getReplies(Comment comment) {
+        return commentRepository.findAllRepliesByComments(comment);
+    }
+
 }

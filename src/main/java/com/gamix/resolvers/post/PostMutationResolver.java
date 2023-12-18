@@ -23,24 +23,20 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     // @SendTo("/topic/feed")
     @MutationMapping
     Post createPost(@Argument("input") PartialPostInput postInput, List<Part> images) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
-        return postService.createPost(accessToken, postInput, images);
+        String token = httpServletRequest.getHeader("Authorization");
+        return postService.createPost(token, postInput, images);
     }
 
     @MutationMapping
     Post updatePost(@Argument("postId") Integer id,
                     @Argument("input") PartialPostInput partialPostInput, List<Part> images) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
-        return postService.updatePost(accessToken, id, partialPostInput, images);
+        String token = httpServletRequest.getHeader("Authorization");
+        return postService.updatePost(token, id, partialPostInput, images);
     }
 
     @MutationMapping
     boolean deletePost(@Argument("postId") Integer id) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
-
-        return postService.deletePost(accessToken, id);
+        String token = httpServletRequest.getHeader("Authorization");
+        return postService.deletePost(token, id);
     }
 }

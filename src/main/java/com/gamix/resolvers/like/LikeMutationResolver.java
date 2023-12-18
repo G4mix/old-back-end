@@ -23,19 +23,17 @@ public class LikeMutationResolver implements GraphQLMutationResolver {
 
     @MutationMapping
     boolean likePost(@Argument("postId") int postId, @Argument("isLiked") boolean isLiked) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
+        String token = httpServletRequest.getHeader("Authorization");
         Post post = postService.findPostById(postId);
 
-        return likeService.likePost(accessToken, post, isLiked);
+        return likeService.likePost(token, post, isLiked);
     }
 
     @MutationMapping
     boolean likeComment(@Argument("commentId") int commentId, @Argument("isLiked") boolean isLiked) throws ExceptionBase {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
-        String accessToken = authorizationHeader.substring(7);
+        String token = httpServletRequest.getHeader("Authorization");
         Comment comment = commentService.findCommentById(commentId);
-        return likeService.likeComment(accessToken, comment, isLiked);
+        return likeService.likeComment(token, comment, isLiked);
     }
 
 }
