@@ -1,4 +1,4 @@
-package com.gamix.records.inputs.userController;
+package com.gamix.records.userController;
 
 public record PartialUserInput(String username, String icon) {
     public PartialUserInput(PartialUserInput partialUserInput) {

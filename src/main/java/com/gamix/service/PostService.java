@@ -7,7 +7,7 @@ import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.models.*;
-import com.gamix.records.inputs.postController.PartialPostInput;
+import com.gamix.records.postController.PartialPostInput;
 import com.gamix.repositories.PostRepository;
 import com.gamix.utils.SortUtils;
 import jakarta.servlet.http.Part;

@@ -15,8 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
+import com.gamix.records.passwordUserController.SignInPasswordUserInput;
+import com.gamix.records.passwordUserController.SignUpPasswordUserInput;
 
 @SpringBootTest(classes = GamixApplication.class)
 @AutoConfigureMockMvc

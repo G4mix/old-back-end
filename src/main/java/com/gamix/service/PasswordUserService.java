@@ -9,8 +9,9 @@ import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
 import com.gamix.exceptions.user.UserNotFound;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
-import com.gamix.records.inputs.passwordUserController.SignInPasswordUserInput;
-import com.gamix.records.inputs.passwordUserController.SignUpPasswordUserInput;
+import com.gamix.records.passwordUserController.SessionReturn;
+import com.gamix.records.passwordUserController.SignInPasswordUserInput;
+import com.gamix.records.passwordUserController.SignUpPasswordUserInput;
 import com.gamix.repositories.PasswordUserRepository;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
@@ -34,7 +35,7 @@ public class PasswordUserService {
     private final UserProfileService userProfileService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public String signUpPasswordUser(
+    public SessionReturn signUpPasswordUser(
             SignUpPasswordUserInput signUpPasswordUserInput
     ) throws ExceptionBase {
         ParameterValidator.validateUsername(signUpPasswordUserInput.username());
@@ -56,10 +57,11 @@ public class PasswordUserService {
         String encodedPassword = passwordEncoder.encode(signUpPasswordUserInput.password());
         createPasswordUser(user, encodedPassword);
 
-        return JwtManager.generateToken(user.getId(), encodedPassword, false);
+        String token = JwtManager.generateToken(user.getId(), encodedPassword, false);
+        return new SessionReturn(user.getUsername(), user.getUserProfile().getIcon(), token);
     }
 
-    public String signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput)
+    public SessionReturn signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput)
             throws ExceptionBase {
         Optional<User> user = signInPasswordUserInput.email() != null
                 ? userRepository.findByEmail(signInPasswordUserInput.email())
@@ -84,10 +86,12 @@ public class PasswordUserService {
         }
 
         passwordUser.setLoginAttempts(0).setBlockedUntil(null);
-        passwordUserRepository.save(passwordUser);
+        passwordUser = passwordUserRepository.save(passwordUser);
 
-        return JwtManager.generateToken(user.get().getId(),
+        String token = JwtManager.generateToken(user.get().getId(),
                 passwordUser.getPassword(), signInPasswordUserInput.rememberMe());
+
+        return new SessionReturn(user.get().getUsername(), user.get().getUserProfile().getIcon(), token);
     }
 
     public List<PasswordUser> findUsersToUnbanNow() {

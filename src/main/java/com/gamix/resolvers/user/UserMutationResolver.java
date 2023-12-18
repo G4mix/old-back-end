@@ -2,7 +2,7 @@ package com.gamix.resolvers.user;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.User;
-import com.gamix.records.inputs.userController.PartialUserInput;
+import com.gamix.records.userController.PartialUserInput;
 import com.gamix.service.UserService;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import jakarta.servlet.http.HttpServletRequest;
