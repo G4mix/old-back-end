@@ -68,9 +68,4 @@ public class UserService {
         userRepository.deleteById(id);
         return true;
     }
-
-    public User createUser(String username, String email) {
-        User user = new User().setUsername(username).setEmail(email);
-        return userRepository.save(user);
-    }
 }

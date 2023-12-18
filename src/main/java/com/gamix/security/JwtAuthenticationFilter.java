@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -39,9 +40,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (diff <= 20) {
                 response.setHeader("Authorization", "Bearer " + JwtManager.refreshToken(token));
             }
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(user.getId().toString(), null);
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    user.getId(), null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
         filterChain(request, response, filterChain);
     }

@@ -9,6 +9,7 @@ import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
 import com.gamix.exceptions.user.UserNotFound;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
+import com.gamix.models.UserProfile;
 import com.gamix.records.passwordUserController.SessionReturn;
 import com.gamix.records.passwordUserController.SignInPasswordUserInput;
 import com.gamix.records.passwordUserController.SignUpPasswordUserInput;
@@ -17,6 +18,7 @@ import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
 import com.gamix.utils.ThreadPool;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,10 +33,9 @@ import java.util.concurrent.TimeUnit;
 public class PasswordUserService {
     private final PasswordUserRepository passwordUserRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
-    private final UserProfileService userProfileService;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @Transactional
     public SessionReturn signUpPasswordUser(
             SignUpPasswordUserInput signUpPasswordUserInput
     ) throws ExceptionBase {
@@ -52,11 +53,8 @@ public class PasswordUserService {
             throw new UserAlreadyExistsWithThisEmail();
         }
 
-        User user = userService.createUser(signUpPasswordUserInput.username(), signUpPasswordUserInput.email());
-        userProfileService.createUserProfile(user);
         String encodedPassword = passwordEncoder.encode(signUpPasswordUserInput.password());
-        createPasswordUser(user, encodedPassword);
-
+        User user = createUser(signUpPasswordUserInput.username(), signUpPasswordUserInput.email(), encodedPassword);
         String token = JwtManager.generateToken(user.getId(), encodedPassword, false);
         return new SessionReturn(user.getUsername(), user.getUserProfile().getIcon(), token);
     }
@@ -108,11 +106,20 @@ public class PasswordUserService {
         passwordUserRepository.save(userToUnban);
     }
 
+    @Transactional
+    public User createUser(String username, String email, String encodedPassword) {
+        User user = new User().setUsername(username).setEmail(email);
+        user.setUserProfile(createUserProfile(user));
+        PasswordUser passwordUser = createPasswordUser(user, encodedPassword);
+        user.setPasswordUser(passwordUser);
+        return userRepository.save(user);
+    }
     public PasswordUser createPasswordUser(User user, String password) throws ExceptionBase {
-        PasswordUser passwordUser =
-                new PasswordUser().setUser(user).setPassword(password).setVerifiedEmail(false);
+        return new PasswordUser().setUser(user).setPassword(password).setVerifiedEmail(false);
+    }
 
-        return passwordUserRepository.save(passwordUser);
+    public UserProfile createUserProfile(User user) {
+        return new UserProfile().setUser(user).setDisplayName(user.getUsername());
     }
 
     private void handleFailedLoginAttempt(PasswordUser passwordUser) {
