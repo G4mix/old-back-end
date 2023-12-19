@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static com.gamix.utils.ControllerUtils.throwError;
 
 @RequiredArgsConstructor
@@ -26,25 +23,14 @@ public class PasswordUserController {
 
     @PostMapping("/signup")
     public ResponseEntity<Object> signUpPasswordUser(
-            @RequestBody Map<String, String> requestBody,
-            HttpServletRequest req) throws ExceptionBase {
+        @RequestBody SignUpPasswordUserInput signUpPasswordUserInput
+    ) throws ExceptionBase {
         try {
-            SignUpPasswordUserInput signUpPasswordUserInput = new SignUpPasswordUserInput(
-                    requestBody.get("username"),
-                    requestBody.get("email"),
-                    requestBody.get("password")
-            );
-
-            SessionReturn session = passwordUserService
-                    .signUpPasswordUser(signUpPasswordUserInput);
-
-            Map<String, String> sessionResponse = new HashMap<>();
-            sessionResponse.put("username", session.username());
-            sessionResponse.put("icon", session.icon());
+            SessionReturn session = passwordUserService.signUpPasswordUser(signUpPasswordUserInput);
 
             return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + session.token())
-                .body(sessionResponse);
+                .header("Authorization", "Bearer " + session.getToken())
+                .body(session);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -52,24 +38,14 @@ public class PasswordUserController {
 
     @PostMapping("/signin")
     public ResponseEntity<Object> signInPasswordUser(
-            @RequestBody Map<String, String> requestBody,
+            @RequestBody SignInPasswordUserInput signInPasswordUserInput,
             HttpServletRequest req) throws ExceptionBase {
         try {
-            SignInPasswordUserInput signInPasswordUserInput = new SignInPasswordUserInput(
-                requestBody.get("username"),
-                requestBody.get("email"),
-                requestBody.get("password"),
-                Boolean.parseBoolean(requestBody.get("rememberMe"))
-            );
-
             SessionReturn session = passwordUserService.signInPasswordUser(signInPasswordUserInput);
-            Map<String, String> sessionResponse = new HashMap<>();
-            sessionResponse.put("username", session.username());
-            sessionResponse.put("icon", session.icon());
 
             return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + session.token())
-                .body(sessionResponse);
+                .header("Authorization", "Bearer " + session.getToken())
+                .body(session);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }

@@ -1,6 +1,8 @@
 package com.gamix.resolvers.user;
 
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.user.UserNotFoundByEmail;
+import com.gamix.exceptions.user.UserNotFoundByUsername;
 import com.gamix.models.User;
 import com.gamix.service.UserService;
 import graphql.kickstart.tools.GraphQLQueryResolver;
@@ -31,12 +33,12 @@ public class UserQueryResolver implements GraphQLQueryResolver {
 
     @QueryMapping
     User findUserByUsername(@Argument String username) throws ExceptionBase {
-        return userService.findUserByUsername(username);
+        return userService.findByUsername(username).orElseThrow(UserNotFoundByUsername::new);
     }
 
     @QueryMapping
     User findUserByEmail(@Argument String email) throws ExceptionBase {
-        return userService.findUserByEmail(email);
+        return userService.findByEmail(email).orElseThrow(UserNotFoundByEmail::new);
     }
 
 }

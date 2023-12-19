@@ -2,10 +2,10 @@ package com.gamix.service;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
-import com.gamix.exceptions.user.UserNotFoundByEmail;
 import com.gamix.exceptions.user.UserNotFoundById;
-import com.gamix.exceptions.user.UserNotFoundByUsername;
+import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
+import com.gamix.models.UserProfile;
 import com.gamix.records.userController.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -35,12 +36,12 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(UserNotFoundById::new);
     }
 
-    public User findUserByEmail(String email) throws ExceptionBase {
-        return userRepository.findByEmail(email).orElseThrow(UserNotFoundByEmail::new);
+    public Optional<User> findByEmail(String email) throws ExceptionBase {
+        return userRepository.findByEmail(email);
     }
 
-    public User findUserByUsername(String username) throws ExceptionBase {
-        return userRepository.findByUsername(username).orElseThrow(UserNotFoundByUsername::new);
+    public Optional<User> findByUsername(String username) throws ExceptionBase {
+        return userRepository.findByUsername(username);
     }
 
     public User updateUser(String token, PartialUserInput userInput) throws ExceptionBase {
@@ -50,7 +51,6 @@ public class UserService {
             if (userRepository.findByUsername(userInput.username()).isPresent()) {
                 throw new UserAlreadyExistsWithThisUsername();
             }
-
             userToUpdate.setUsername(userInput.username());
         }
 
@@ -67,5 +67,21 @@ public class UserService {
         }
         userRepository.deleteById(id);
         return true;
+    }
+
+    @Transactional
+    public User createUser(String username, String email, String encodedPassword) {
+        User user = new User().setUsername(username).setEmail(email);
+        user.setUserProfile(createUserProfile(user));
+        PasswordUser passwordUser = createPasswordUser(user, encodedPassword);
+        user.setPasswordUser(passwordUser);
+        return userRepository.save(user);
+    }
+    public PasswordUser createPasswordUser(User user, String password) {
+        return new PasswordUser().setUser(user).setPassword(password).setVerifiedEmail(false);
+    }
+
+    public UserProfile createUserProfile(User user) {
+        return new UserProfile().setUser(user).setDisplayName(user.getUsername());
     }
 }
