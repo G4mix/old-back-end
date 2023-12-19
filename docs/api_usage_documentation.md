@@ -9,21 +9,20 @@
   - [2. Autenticação](#2-autenticação)
     - [2.1 SignUp (Cadastro)](#21-signup-cadastro)
     - [2.2 SignIn (Login)](#22-signin-login)
-    - [2.3 SignOut (Logout)](#23-signout-logout)
-    - [2.4 RefreshToken](#24-refreshtoken)
-  - [3. Usuários](#3-usuários)
-    - [3.1 Listar Usuários](#31-listar-usuários)
-    - [3.2 Encontrar Usuário por Nome de Usuário](#32-encontrar-usuário-por-nome-de-usuário)
-    - [3.3 Encontrar Usuário por E-mail](#33-encontrar-usuário-por-e-mail)
-    - [3.4 Atualizar Usuário](#34-atualizar-usuário)
-    - [3.5 Excluir Conta](#35-excluir-conta)
-  - [4. Posts](#4-posts)
-    - [4.1 Criar postagem](#41-criar-postagem)
-    - [4.2 Listar posts](#42-listar-posts)
-    - [4.3 Encontrar post por id](#43-encontrar-post-por-id)
-    - [4.4 Encontrar post por título](#44-encontrar-post-por-título)
-    - [4.5 Atualizar postagem](#45-atualizar-postagem)
-    - [4.6 Excluir postagem](#46-excluir-postagem)
+  - [3. Utilizando o sistema](#3-utilizando-o-sistema)
+  - [4. Usuários](#4-usuários)
+    - [4.1 Listar Usuários](#41-listar-usuários)
+    - [4.2 Encontrar Usuário por Nome de Usuário](#42-encontrar-usuário-por-nome-de-usuário)
+    - [4.3 Encontrar Usuário por E-mail](#43-encontrar-usuário-por-e-mail)
+    - [4.4 Atualizar Usuário](#44-atualizar-usuário)
+    - [4.5 Excluir Conta](#45-excluir-conta)
+  - [5. Posts](#5-posts)
+    - [5.1 Criar Postagem](#51-criar-postagem)
+    - [5.2 Listar posts](#52-listar-posts)
+    - [5.3 Encontrar post por Id](#53-encontrar-post-por-id)
+    - [5.4 Encontrar post por título](#54-encontrar-post-por-título)
+    - [5.5 Atualizar postagem](#55-atualizar-postagem)
+    - [5.6 Excluir postagem](#56-excluir-postagem)
   - [Contato](#contato)
 
 ---
@@ -35,6 +34,7 @@ Este documento descreve os endpoints disponíveis na API do sistema, juntamente 
 ### 1.1 Atenção!
 
 Existem métodos que precisam do header Authorization: "Bearer accessToken", fique atento!
+Esse Header é retornado em todos os métodos uma vez que está logado, caso faltem 20 minutos para expirar o token, o novo token é retornado no header.
 ![Header demo](images/imnsonia_header_demonstration.png)
 ![Header demo 2](images/imnsonia_header_demonstration2.png)
 ![Header demo 3](images/imnsonia_header_demonstration3.png)
@@ -52,8 +52,7 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
   - `email` (String, obrigatório): Endereço de e-mail do novo usuário.
   - `password` (String, obrigatório): Senha do novo usuário.
 - **Retorno**:
-  - `accessToken` (String): Token de acesso JWT.
-  - `refreshToken` (String): Token de atualização JWT.
+  - `Header "Authorization: Bearer accessToken"` (String): Token de acesso JWT.
 
 ```json
 {
@@ -74,8 +73,7 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
   - `password` (String, obrigatório): Senha do usuário.
   - `rememberMe` (Boolean, obrigatório): Define se o usuário deseja permanecer logado.
 - **Retorno**:
-  - `accessToken` (String): Token de acesso JWT.
-  - `refreshToken` (String): Token de atualização JWT.
+  - `Header "Authorization: Bearer accessToken"` (String): Token de acesso JWT.
 
 ```json
 {
@@ -85,56 +83,24 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 2.3 SignOut (Logout)
+## 3. Utilizando o sistema
 
-- **Endpoint**: `/auth/signout`
-- **Método**: `POST`
-- **Descrição**: Invalida os tokens de acesso e atualização do usuário.
-- **Parâmetros**:
-  - `accessToken` (String, obrigatório): Token de acesso JWT.
-  - `refreshToken` (String, obrigatório): Token de atualização JWT.
-- **Retorno**:
-  - `success` (Boolean): Indica se o logout foi bem-sucedido.
-
-```json
-{
-  "accessToken": "your_access_token_here",
-  "refreshToken": "your_refresh_token_here"
-}
-```
-
-### 2.4 RefreshToken
-
-- **Endpoint**: `/auth/refreshtoken`
-- **Método**: `POST`
-- **Descrição**: Atualiza o token de acesso expirado do usuário.
-- **Parâmetros**:
-  - `refreshToken` (String, obrigatório): Token de atualização JWT.
-- **Retorno**:
-  - `accessToken` (String): Novo token de acesso JWT.
-  - `refreshToken` (String): Novo token de atualização JWT.
-
-```json
-{
-  "refreshToken": "your_refresh_token_here"
-}
-```
-
-## 3. Usuários
-
-### 3.1 Listar Usuários
-
+O restante do sistema é GraphQL, e temos algumas coisas em comum para todas as funcionalidades do GraphQL:
 - **Endpoint**: `/graphql`
 - **Método**: `POST`
-- **Descrição**: Lista os usuários cadastrados no sistema.
 - **Requisitos do Header**:
   - `Authorization` (String, obrigatório): Token de acesso JWT.
+  
+## 4. Usuários
+
+### 4.1 Listar Usuários
+
+- **Descrição**: Lista os usuários cadastrados no sistema.
 - **Parâmetros**:
   - `skip` (Int): Número de registros a serem ignorados (opcional).
   - `limit` (Int): Número máximo de registros a serem retornados (opcional).
 - **Retorno**:
   - `users` (Array de Objetos User): Lista de usuários.
-  
 ```json
 {
   "query": "query FindAllUsers($skip: Int, $limit: Int) { findAllUsers(skip: $skip, limit: $limit) { id username email icon passwordUser { id verifiedEmail } } }",
@@ -145,13 +111,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 3.2 Encontrar Usuário por Nome de Usuário
+### 4.2 Encontrar Usuário por Nome de Usuário
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Encontra um usuário pelo nome de usuário.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `username` (String, obrigatório): Nome de usuário do usuário.
 - **Retorno**:
@@ -166,13 +128,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 3.3 Encontrar Usuário por E-mail
+### 4.3 Encontrar Usuário por E-mail
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Encontra um usuário pelo endereço de e-mail.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `email` (String, obrigatório): Endereço de e-mail do usuário.
 - **Retorno**:
@@ -187,13 +145,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 3.4 Atualizar Usuário
+### 4.4 Atualizar Usuário
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Atualiza as informações de um usuário existente.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `input` (Objeto PartialUserInput: (username: String), (icon: String)): Objeto contendo os campos a serem atualizados (opcional).
 - **Retorno**:
@@ -211,13 +165,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 3.5 Excluir Conta
+### 4.5 Excluir Conta
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Exclui a conta de um usuário.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Retorno**:
   - `success` (Boolean): Indica se a conta foi excluída com sucesso.
 
@@ -227,15 +177,11 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-## 4. Posts
+## 5. Posts
 
-### 4.1 Criar Postagem
+### 5.1 Criar Postagem
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Cria uma nova postagem.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**: (Objeto PartialPostInput: (authorId: Int!), (title: String), (content: String)): Objeto contendo os campos a serem atualizados (opcional).
 - **Retorno**:
   - `sucess` (Objeto Post): Post criado.
@@ -253,13 +199,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 4.2 Listar posts
+### 5.2 Listar posts
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Lista todas postagens.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `skip` (Int): Número de registros a serem ignorados (opcional).
   - `limit` (Int): Número máximo de registros a serem retornados (opcional).
@@ -276,13 +218,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 4.3 Encontrar post por Id
+### 5.3 Encontrar post por Id
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Lista todas postagens.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `id` (Int): Id do post a ser recuperado.
 - **Retorno**:
@@ -297,14 +235,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 4.4 Encontrar post por título
+### 5.4 Encontrar post por título
 
-
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Lista todas postagens.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `title` (String): Título do post a ser recuperado.
 - **Retorno**:
@@ -319,13 +252,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 4.5 Atualizar postagem
+### 5.5 Atualizar postagem
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Lista todas postagens.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `postId` (Int, obrigatório): Id do post a ser atualizado.
   - `input`: (Objeto PartialPostInput): Indica os campos e valores que deverão ser atualizados. 
@@ -345,13 +274,9 @@ Existem métodos que precisam do header Authorization: "Bearer accessToken", fiq
 }
 ```
 
-### 4.6 Excluir postagem
+### 5.6 Excluir postagem
 
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
 - **Descrição**: Lista todas postagens.
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
 - **Parâmetros**:
   - `postId` (Int, obrigatório): Id do post a ser excluído.
 - **Retorno**:
