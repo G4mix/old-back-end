@@ -1,4 +1,4 @@
-package com.gamix.records.postController;
+package com.gamix.communication.postController;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.gamix.records.passwordUserController;
+package com.gamix.communication.passwordUserController;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
