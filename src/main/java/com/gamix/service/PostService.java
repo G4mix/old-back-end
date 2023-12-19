@@ -7,7 +7,7 @@ import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.models.*;
-import com.gamix.records.postController.PartialPostInput;
+import com.gamix.communication.postController.PartialPostInput;
 import com.gamix.repositories.PostRepository;
 import com.gamix.utils.SortUtils;
 import jakarta.servlet.http.Part;
@@ -110,6 +110,7 @@ public class PostService {
             String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages
     ) throws ExceptionBase {
         Post post = findPostById(id);
+        post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));
         UserProfile postAuthor = post.getAuthor();
         UserProfile userProfileFromToken = userService.findUserByToken(accessToken).getUserProfile();
 
@@ -145,7 +146,7 @@ public class PostService {
 
         if (!accessTokenOwner.getId().equals(postAuthor.getId())) return false;
 
-        imageService.deleteImages(post);
+        imageService.deleteImages(getImages(post));
         postRepository.delete(post);
 
         return true;

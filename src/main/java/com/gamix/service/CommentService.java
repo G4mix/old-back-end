@@ -41,9 +41,7 @@ public class CommentService {
         newComment.setPost(post);
         newComment.setContent(content);
 
-        commentRepository.save(newComment);
-
-        return newComment;
+        return commentRepository.save(newComment);
     }
 
     public Comment replyComment(String accessToken, Integer commentId, String content) throws ExceptionBase {
@@ -58,9 +56,7 @@ public class CommentService {
                 .setContent(content)
                 .setPost(parentComment.getPost());
 
-        parentComment.getReplies().add(newReply);
-        commentRepository.save(newReply);
-        return newReply;
+        return commentRepository.save(newReply);
     }
 
     public Comment findCommentById(Integer commentId) throws ExceptionBase {

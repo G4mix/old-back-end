@@ -1,9 +1,9 @@
 package com.gamix.controller;
 
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.records.passwordUserController.SessionReturn;
-import com.gamix.records.passwordUserController.SignInPasswordUserInput;
-import com.gamix.records.passwordUserController.SignUpPasswordUserInput;
+import com.gamix.communication.passwordUserController.SessionReturn;
+import com.gamix.communication.passwordUserController.SignInPasswordUserInput;
+import com.gamix.communication.passwordUserController.SignUpPasswordUserInput;
 import com.gamix.service.PasswordUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

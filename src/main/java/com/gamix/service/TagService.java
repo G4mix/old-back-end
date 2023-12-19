@@ -22,7 +22,6 @@ public class TagService {
 
     public static List<Tag> updateTagsForPost(Post post, List<String> tagsStrings) {
         List<Tag> postTags = post.getTags();
-
         if (tagsStrings == null || tagsStrings.isEmpty()) {
             postTags.clear();
             return postTags;

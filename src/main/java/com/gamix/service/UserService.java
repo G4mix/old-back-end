@@ -6,7 +6,7 @@ import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import com.gamix.models.UserProfile;
-import com.gamix.records.userController.PartialUserInput;
+import com.gamix.communication.userController.PartialUserInput;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import jakarta.transaction.Transactional;

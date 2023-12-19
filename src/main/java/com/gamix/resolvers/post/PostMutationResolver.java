@@ -2,7 +2,7 @@ package com.gamix.resolvers.post;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Post;
-import com.gamix.records.postController.PartialPostInput;
+import com.gamix.communication.postController.PartialPostInput;
 import com.gamix.service.PostService;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import jakarta.servlet.http.HttpServletRequest;

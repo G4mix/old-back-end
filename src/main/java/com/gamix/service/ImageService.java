@@ -40,32 +40,10 @@ public class ImageService {
         try {
             for (Part partFile : files) {
                 MultipartFile file = new SingleMultipartFile(partFile);
-                String fileName = file.getOriginalFilename();
-                InputStream fileContent = file.getInputStream();
-
                 if (file.getSize() > MAX_SIZE) continue;
-
-                String fileExtension = getFileExtension(fileName);
-                if (!allowedExtensions.contains(fileExtension)) continue;
-
-                String src = imagesFolderPath + fileName;
-
-                File imageFile = new File(src);
-                saveFile(fileContent, imageFile);
-
-                BufferedImage bufferedImage = ImageIO.read(imageFile);
-                int width = bufferedImage.getWidth();
-                int height = bufferedImage.getHeight();
-
-                Image image = new Image()
-                        .setName(fileName)
-                        .setSrc(src)
-                        .setWidth(width)
-                        .setHeight(height)
-                        .setPost(post);
-
-                images.add(image);
-
+                String fileName = file.getOriginalFilename();
+                if (!allowedExtensions.contains(getFileExtension(fileName))) continue;
+                images.add(createImage(imagesFolderPath + fileName, file, post));
             }
         } catch (IOException e) {
             throw new ErrorCreatingImage();
@@ -80,8 +58,8 @@ public class ImageService {
         List<Image> postImages = post.getImages();
 
         if (files == null || files.isEmpty()) {
+            deleteImages(postImages);
             postImages.clear();
-            deleteImages(post);
             return postImages;
         }
 
@@ -95,9 +73,6 @@ public class ImageService {
             for (Part partFile : files) {
                 MultipartFile file = new SingleMultipartFile(partFile);
                 String fileName = file.getOriginalFilename();
-                InputStream fileContent = file.getInputStream();
-
-                String src = imagesFolderPath + fileName;
 
                 boolean imageExists = false;
 
@@ -108,26 +83,10 @@ public class ImageService {
                         break;
                     }
                 }
-
                 if (imageExists && file.getSize() == 0) continue;
-                String fileExtension = getFileExtension(fileName);
-                if (!allowedExtensions.contains(fileExtension)) continue;
+                if (!allowedExtensions.contains(getFileExtension(fileName))) continue;
 
-                File imageFile = new File(src);
-                saveFile(fileContent, imageFile);
-
-                BufferedImage bufferedImage = ImageIO.read(imageFile);
-                int width = bufferedImage.getWidth();
-                int height = bufferedImage.getHeight();
-
-                Image newImage = new Image()
-                        .setName(fileName)
-                        .setSrc(src)
-                        .setWidth(width)
-                        .setHeight(height)
-                        .setPost(post);
-
-                imagesToAdd.add(newImage);
+                imagesToAdd.add(createImage(imagesFolderPath + fileName, file, post));
             }
 
             for (Image postImage : postImages) {
@@ -160,10 +119,22 @@ public class ImageService {
         }
     }
 
-    public void deleteImages(Post post) {
-        for (Image image : post.getImages()) {
+    public void deleteImages(List<Image> images) {
+        for (Image image : images) {
             deleteImage(image);
         }
+    }
+
+    private Image createImage(String src, MultipartFile file, Post post) throws IOException {
+        File imageFile = new File(src);
+        saveFile(file.getInputStream(), imageFile);
+        BufferedImage bufferedImage = ImageIO.read(imageFile);
+        return new Image()
+                .setName(file.getOriginalFilename())
+                .setSrc(src)
+                .setWidth(bufferedImage.getWidth())
+                .setHeight(bufferedImage.getHeight())
+                .setPost(post);
     }
 
     private boolean imageIsReferencedByOtherPosts(Image image) {
