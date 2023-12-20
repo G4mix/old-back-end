@@ -23,6 +23,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     @Query("SELECT l FROM Like l WHERE l.post = :post")
     List<Like> findAllLikesByPost(Post post);
 
+    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Like l WHERE l.post = :post AND l.userProfile = :userProfile")
+    boolean existsLikeByPostAndUserProfile(Post post, UserProfile userProfile);
+
     @Query("SELECT c FROM Comment c WHERE c.post = :post")
     List<Comment> findAllCommentsByPost(Post post);
 

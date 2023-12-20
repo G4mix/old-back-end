@@ -3,6 +3,7 @@ package com.gamix.resolvers.post;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.*;
 import com.gamix.service.PostService;
+import com.gamix.service.UserService;
 import graphql.kickstart.tools.GraphQLResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,12 @@ import java.util.List;
 public class PostResolver implements GraphQLResolver<Post> {
     private final PostService postService;
     private final HttpServletRequest httpServletRequest;
+    private final UserService userService;
+
     @SchemaMapping(typeName = "Post", field = "isLiked")
     public boolean getIsLiked(@Lazy Post post) throws ExceptionBase {
         String token = httpServletRequest.getHeader("Authorization");
-        return postService.getIsLiked(token, post);
+        return postService.getIsLiked(post, userService.findUserByToken(token).getUserProfile());
     }
 
     @SchemaMapping(typeName = "Post", field = "views")

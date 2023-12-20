@@ -50,7 +50,7 @@ public class PasswordUserService {
         User user = userService.createUser(
             signUpPasswordUserInput.username(), signUpPasswordUserInput.email(), encodedPassword);
         String token = JwtManager.generateToken(user.getId(), encodedPassword, false);
-        return new SessionReturn(user.getUsername(), user.getUserProfile().getIcon(), token);
+        return new SessionReturn(user.getUsername(), null, token);
     }
 
     public SessionReturn signInPasswordUser(SignInPasswordUserInput signInPasswordUserInput) throws ExceptionBase {

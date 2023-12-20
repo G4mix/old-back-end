@@ -9,6 +9,7 @@ import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.models.*;
 import com.gamix.communication.postController.PartialPostInput;
 import com.gamix.repositories.PostRepository;
+import com.gamix.security.JwtManager;
 import com.gamix.utils.SortUtils;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
@@ -25,11 +26,9 @@ import java.util.Optional;
 @Service
 public class PostService {
     private final PostRepository postRepository;
-    private final UserService userService;
     private final ImageService imageService;
-    private final LikeService likeService;
 
-    public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
+    public Post createPost(User user, PartialPostInput postInput, List<Part> partImages)
             throws ExceptionBase {
 
         if (
@@ -50,7 +49,6 @@ public class PostService {
             throw new ContentTooLong();
         }
 
-        User user = userService.findUserByToken(accessToken);
         UserProfile author = user.getUserProfile();
         if (author == null)
             throw new UserProfileNotFound();
@@ -107,14 +105,13 @@ public class PostService {
     }
 
     public Post updatePost(
-            String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages
+        String token, Integer id, PartialPostInput postInput, List<Part> partImages
     ) throws ExceptionBase {
         Post post = findPostById(id);
         post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));
         UserProfile postAuthor = post.getAuthor();
-        UserProfile userProfileFromToken = userService.findUserByToken(accessToken).getUserProfile();
 
-        if (!userProfileFromToken.getId().equals(postAuthor.getId())) {
+        if (!JwtManager.getIdFromToken(token).equals(postAuthor.getUser().getId())) {
             throw new InvalidAccessToken();
         }
 
@@ -139,12 +136,11 @@ public class PostService {
     }
 
     @Transactional
-    public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
-        UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
+    public boolean deletePost(String token, Integer id) throws ExceptionBase {
         Post post = findPostById(id);
-        UserProfile postAuthor = post.getAuthor();
+        User postAuthor = post.getAuthor().getUser();
 
-        if (!accessTokenOwner.getId().equals(postAuthor.getId())) return false;
+        if (!JwtManager.getIdFromToken(token).equals(postAuthor.getId())) return false;
 
         imageService.deleteImages(getImages(post));
         postRepository.delete(post);
@@ -152,10 +148,8 @@ public class PostService {
         return true;
     }
 
-    public boolean getIsLiked(String accessToken, Post post) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile author = user.getUserProfile();
-        return likeService.userHasLikedPost(post, author);
+    public boolean getIsLiked(Post post, UserProfile author) throws ExceptionBase {
+        return postRepository.existsLikeByPostAndUserProfile(post, author);
     }
 
     public List<View> getViews(Post post) {

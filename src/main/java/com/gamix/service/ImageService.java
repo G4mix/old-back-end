@@ -27,9 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class ImageService {
-    private final static Integer MAX_SIZE = 1048576;
     private final static List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
-
     private final ImageRepository imageRepository;
 
     public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
@@ -37,10 +35,13 @@ public class ImageService {
         createDirectoryIfNotExists(imagesFolderPath);
 
         List<Image> images = new ArrayList<>();
+        if (files.size() > 8) {
+            throw new TooManyImages();
+        }
+
         try {
             for (Part partFile : files) {
                 MultipartFile file = new SingleMultipartFile(partFile);
-                if (file.getSize() > MAX_SIZE) continue;
                 String fileName = file.getOriginalFilename();
                 if (!allowedExtensions.contains(getFileExtension(fileName))) continue;
                 images.add(createImage(imagesFolderPath + fileName, file, post));
@@ -148,7 +149,7 @@ public class ImageService {
 
     private void saveFile(InputStream fileContent, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            byte[] buffer = new byte[MAX_SIZE];
+            byte[] buffer = new byte[1048576];
             int bytesRead;
             while ((bytesRead = fileContent.read(buffer)) != -1) {
                 fos.write(buffer, 0, bytesRead);
