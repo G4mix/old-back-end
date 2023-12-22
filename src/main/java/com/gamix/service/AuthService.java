@@ -6,7 +6,7 @@ import com.gamix.communication.userController.SignUpUserInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.parameters.password.PasswordWrong;
-import com.gamix.exceptions.passwordUser.PasswordUserNotFound;
+import com.gamix.exceptions.authentication.PasswordUserNotFound;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisEmail;
 import com.gamix.exceptions.user.UserAlreadyExistsWithThisUsername;
 import com.gamix.exceptions.user.UserNotFoundByEmail;
