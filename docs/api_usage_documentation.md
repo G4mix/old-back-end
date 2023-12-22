@@ -11,11 +11,9 @@
     - [2.2 SignIn (Login)](#22-signin-login)
   - [3. Utilizando o sistema](#3-utilizando-o-sistema)
   - [4. Usuários](#4-usuários)
-    - [4.1 Listar Usuários](#41-listar-usuários)
-    - [4.2 Encontrar Usuário por Nome de Usuário](#42-encontrar-usuário-por-nome-de-usuário)
-    - [4.3 Encontrar Usuário por E-mail](#43-encontrar-usuário-por-e-mail)
-    - [4.4 Atualizar Usuário](#44-atualizar-usuário)
-    - [4.5 Excluir Conta](#45-excluir-conta)
+    - [4.1 Encontrar Usuário por Nome de Usuário](#41-encontrar-usuário-por-nome-de-usuário)
+    - [4.2 Encontrar Usuário por E-mail](#42-encontrar-usuário-por-e-mail)
+    - [4.3 Excluir Conta](#43-excluir-conta)
   - [5. Posts](#5-posts)
     - [5.1 Criar Postagem](#51-criar-postagem)
     - [5.2 Listar posts](#52-listar-posts)
@@ -93,25 +91,7 @@ O restante do sistema é GraphQL, e temos algumas coisas em comum para todas as 
   
 ## 4. Usuários
 
-### 4.1 Listar Usuários
-
-- **Descrição**: Lista os usuários cadastrados no sistema.
-- **Parâmetros**:
-  - `skip` (Int): Número de registros a serem ignorados (opcional).
-  - `limit` (Int): Número máximo de registros a serem retornados (opcional).
-- **Retorno**:
-  - `users` (Array de Objetos User): Lista de usuários.
-```json
-{
-  "query": "query FindAllUsers($skip: Int, $limit: Int) { findAllUsers(skip: $skip, limit: $limit) { id username email icon passwordUser { id verifiedEmail } } }",
-  "variables": {
-    "skip": 0,
-    "limit": 10
-  }
-}
-```
-
-### 4.2 Encontrar Usuário por Nome de Usuário
+### 4.1 Encontrar Usuário por Nome de Usuário
 
 - **Descrição**: Encontra um usuário pelo nome de usuário.
 - **Parâmetros**:
@@ -128,7 +108,7 @@ O restante do sistema é GraphQL, e temos algumas coisas em comum para todas as 
 }
 ```
 
-### 4.3 Encontrar Usuário por E-mail
+### 4.2 Encontrar Usuário por E-mail
 
 - **Descrição**: Encontra um usuário pelo endereço de e-mail.
 - **Parâmetros**:
@@ -145,27 +125,7 @@ O restante do sistema é GraphQL, e temos algumas coisas em comum para todas as 
 }
 ```
 
-### 4.4 Atualizar Usuário
-
-- **Descrição**: Atualiza as informações de um usuário existente.
-- **Parâmetros**:
-  - `input` (Objeto PartialUserInput: (username: String), (icon: String)): Objeto contendo os campos a serem atualizados (opcional).
-- **Retorno**:
-  - `user` (Objeto User): Usuário atualizado.
-
-```json
-{
-  "query": "mutation UpdateUser($input: PartialUserInput!) { updateUser(input: $input) { id, username, email, icon } }",
-  "variables": {
-    "input": {
-      "username": "new_username",
-      "icon": "new_icon_url.png"
-    }
-  }
-}
-```
-
-### 4.5 Excluir Conta
+### 4.3 Excluir Conta
 
 - **Descrição**: Exclui a conta de um usuário.
 - **Retorno**:
