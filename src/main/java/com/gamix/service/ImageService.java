@@ -115,7 +115,6 @@ public class ImageService {
 
     public void deleteImage(Image image) {
         if (!imageIsReferencedByOtherPosts(image)) {
-            System.out.println("Deletando " + image.getSrc());
             deleteImageFromDisk(image.getSrc());
         }
     }

@@ -1,9 +1,13 @@
 package com.gamix.service;
 
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.comment.CommentIdNotFound;
+import com.gamix.exceptions.post.PostNotFoundById;
+import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.models.*;
 import com.gamix.repositories.LikeRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +23,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
 
     @Transactional
-    public void likePost(Integer userId, Integer postId, boolean isLiked) {
+    public void likePost(Integer userId, Integer postId, boolean isLiked) throws ExceptionBase {
         Optional<Like> likedPost = userHasLikedPost(postId, userId);
 
         if (isLiked) {
@@ -52,15 +56,27 @@ public class LikeService {
         return likeRepository.findByCommentIdAndUserProfileUserId(commentId, userId);
     }
 
-    private UserProfile getUserProfile(Integer userId) {
-        return entityManager.getReference(User.class, userId).getUserProfile();
+    private UserProfile getUserProfile(Integer userId) throws ExceptionBase {
+        try {
+            return entityManager.getReference(User.class, userId).getUserProfile();
+        } catch (EntityNotFoundException ex) {
+            throw new UserNotFoundById();
+        }
     }
 
-    private Post getPost(Integer postId) {
-        return entityManager.getReference(Post.class, postId);
+    private Post getPost(Integer postId) throws ExceptionBase {
+        try {
+            return entityManager.getReference(Post.class, postId);
+        } catch (EntityNotFoundException ex) {
+            throw new PostNotFoundById();
+        }
     }
 
-    private Comment getComment(Integer commentId) {
-        return entityManager.getReference(Comment.class, commentId);
+    private Comment getComment(Integer commentId) throws ExceptionBase {
+        try {
+            return entityManager.getReference(Comment.class, commentId);
+        } catch (EntityNotFoundException ex) {
+            throw new CommentIdNotFound();
+        }
     }
 }

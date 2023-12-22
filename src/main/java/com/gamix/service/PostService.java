@@ -6,10 +6,12 @@ import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.*;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
+import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.models.*;
 import com.gamix.repositories.PostRepository;
 import com.gamix.security.JwtManager;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
@@ -47,7 +49,7 @@ public class PostService {
         if (postInput.content().length() > 700) {
             throw new ContentTooLong();
         }
-        User user = entityManager.getReference(User.class, userId);
+        User user = getUser(userId);
 
         Post newPost = new Post()
                 .setAuthor(user.getUserProfile()).setTitle(postInput.title()).setContent(postInput.content());
@@ -162,5 +164,13 @@ public class PostService {
 
     public int getViewsCount(Post post) {
         return postRepository.countViewsByPost(post);
+    }
+
+    private User getUser(Integer userId) throws ExceptionBase {
+        try {
+            return entityManager.getReference(User.class, userId);
+        } catch (EntityNotFoundException ex) {
+            throw new UserNotFoundById();
+        }
     }
 }

@@ -28,8 +28,6 @@ public enum ExceptionMessage {
     USER_NOT_FOUND_BY_USERNAME(HttpStatus.NOT_FOUND, "Usuário não encontrado por nome de usuário."),
     USER_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "Usuário não encontrado por ID."),
 
-    USER_PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "Perfil de usuário não encontrado por ID."),
-
     POST_NOT_FOUND_BY_ID(HttpStatus.NOT_FOUND, "Post não encontrado por ID."),
     POST_NOT_FOUND_BY_TITLE(HttpStatus.NOT_FOUND, "Post não encontrado por Titulo."),
     COMPLETELY_EMPTY_POST(HttpStatus.BAD_REQUEST, "Você não pode enviar um post totalmente vazio."),
@@ -47,6 +45,7 @@ public enum ExceptionMessage {
     TOO_LONG_COMMENT(HttpStatus.BAD_REQUEST, "Comentário muito longo (comprimento máximo é 200 caracteres)."),
 
     UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido.");
+
     private final HttpStatusCode httpStatus;
     private final String message;
 

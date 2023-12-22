@@ -1,10 +1,11 @@
 package com.gamix.utils;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.gamix.exceptions.parameters.password.PasswordInvalidFormat;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import com.gamix.exceptions.parameters.password.PasswordInvalidFormat;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParameterValidatorTest {
