@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @Entity
-@Table(name = "like_entity")
+@Table(name = "likes")
 public class Like {
 
     @Id

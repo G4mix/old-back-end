@@ -9,74 +9,58 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class LikeService {
-    private final LikeRepository likeRepository;
-    private final UserService userService;
-
     @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
+    private final LikeRepository likeRepository;
 
     @Transactional
-    public boolean likePost(String accessToken, Post post, boolean isLiked) {
-        User user;
-        try {
-            user = userService.findUserByToken(accessToken);
-        } catch (ExceptionBase ex) {
-            return false;
-        }
-        UserProfile userProfile = user.getUserProfile();
-        if (isLiked) {
-            if (userHasLikedPost(post, userProfile)) return true;
-            Like like = new Like();
-            like.setPost(post);
-            like.setUserProfile(userProfile);
-            likeRepository.save(like);
-        } else {
-            Like like = likeRepository.findByPostAndUserProfile(post, userProfile);
-            if (like == null) return true;
+    public void likePost(Integer userId, Integer postId, boolean isLiked) {
+        Optional<Like> likedPost = userHasLikedPost(postId, userId);
 
-            entityManager.createQuery("DELETE FROM Like l WHERE l.post = :post AND l.userProfile = :userProfile")
-                    .setParameter("post", post)
-                    .setParameter("userProfile", userProfile)
-                    .executeUpdate();
+        if (isLiked) {
+            if (likedPost.isPresent()) return;
+            likeRepository.save(new Like().setPost(getPost(postId)).setUserProfile(getUserProfile(userId)));
+        } else {
+            if (likedPost.isEmpty()) return;
+            likeRepository.delete(likedPost.get());
         }
-        return true;
     }
 
     @Transactional
-    public boolean likeComment(String accessToken, Comment comment, boolean isLiked) throws ExceptionBase {
-        User user;
-        try {
-            user = userService.findUserByToken(accessToken);
-        } catch (ExceptionBase ex) {
-            return false;
-        }
-        UserProfile userProfile = user.getUserProfile();
+    public void likeComment(Integer userId, Integer commentId, boolean isLiked) throws ExceptionBase {
+        Optional<Like> likedComment = userHasLikedComment(commentId, userId);
+
         if (isLiked) {
-            if (userHasLikedComment(comment, userProfile)) return true;
-            Like like = new Like();
-            like.setComment(comment);
-            like.setUserProfile(userProfile);
-            likeRepository.save(like);
+            if (likedComment.isPresent()) return;
+            likeRepository.save(new Like().setUserProfile(getUserProfile(userId)).setComment(getComment(commentId)));
         } else {
-            Like like = likeRepository.findByCommentAndUserProfile(comment, userProfile);
-            if (like == null) return true;
-
-            entityManager.createQuery("DELETE FROM Like l WHERE l.comment = :comment AND l.userProfile = :userProfile")
-                    .setParameter("comment", comment)
-                    .setParameter("userProfile", userProfile)
-                    .executeUpdate();
+            if (likedComment.isEmpty()) return;
+            likeRepository.delete(likedComment.get());
         }
-        return true;
     }
 
-    public boolean userHasLikedPost(Post post, UserProfile userProfile) {
-        return likeRepository.existsByPostAndUserProfile(post, userProfile);
+    public Optional<Like> userHasLikedPost(Integer postId, Integer userId) {
+        return likeRepository.findByPostIdAndUserProfileUserId(postId, userId);
     }
 
-    public boolean userHasLikedComment(Comment comment, UserProfile userProfile) {
-        return likeRepository.existsByCommentAndUserProfile(comment, userProfile);
+    public Optional<Like> userHasLikedComment(Integer commentId, Integer userId) {
+        return likeRepository.findByCommentIdAndUserProfileUserId(commentId, userId);
+    }
+
+    private UserProfile getUserProfile(Integer userId) {
+        return entityManager.getReference(User.class, userId).getUserProfile();
+    }
+
+    private Post getPost(Integer postId) {
+        return entityManager.getReference(Post.class, postId);
+    }
+
+    private Comment getComment(Integer commentId) {
+        return entityManager.getReference(Comment.class, commentId);
     }
 }

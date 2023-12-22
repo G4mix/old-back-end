@@ -12,18 +12,11 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-
 @RequiredArgsConstructor
 @Controller
 public class UserQueryResolver implements GraphQLQueryResolver {
     private final UserService userService;
     private final HttpServletRequest httpServletRequest;
-
-    @QueryMapping
-    List<User> findAllUsers(@Argument("skip") int skip, @Argument("limit") int limit) {
-        return userService.findAllUsers(skip, limit);
-    }
 
     @QueryMapping
     User findUserByToken() {

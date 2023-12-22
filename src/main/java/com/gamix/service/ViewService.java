@@ -6,35 +6,32 @@ import com.gamix.models.User;
 import com.gamix.models.UserProfile;
 import com.gamix.models.View;
 import com.gamix.repositories.ViewRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class ViewService {
+    @PersistenceContext
+    private final EntityManager entityManager;
     private final ViewRepository viewRepository;
-    private final UserService userService;
 
-    public boolean viewPost(String accessToken, Post post) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile userProfile = user.getUserProfile();
-        if (postHasBeenViewed(post, userProfile)) return false;
-        View view = new View();
-        view.setPost(post);
-        view.setUserProfile(userProfile);
-        viewRepository.save(view);
-        return true;
+    public void viewPost(Integer postId, Integer userId) throws ExceptionBase {
+        if (postHasBeenViewed(postId, userId)) return;
+        viewRepository.save(new View().setUserProfile(getUserProfile(userId)).setPost(getPost(postId)));
     }
 
-    public Page<Post> findAllViewedPostsPageable(UserProfile userProfile, int skip, int limit) {
-        Pageable pageable = PageRequest.of(skip, limit);
-        return viewRepository.findViewedPostsByUserProfile(userProfile, pageable);
+    public boolean postHasBeenViewed(Integer postId, Integer userId) {
+        return viewRepository.existsByPostIdAndUserProfileUserId(postId, userId);
     }
 
-    public boolean postHasBeenViewed(Post post, UserProfile userProfile) {
-        return viewRepository.existsByPostAndUserProfile(post, userProfile);
+    private UserProfile getUserProfile(Integer userId) {
+        return entityManager.getReference(User.class, userId).getUserProfile();
+    }
+
+    private Post getPost(Integer postId) {
+        return entityManager.getReference(Post.class, postId);
     }
 }

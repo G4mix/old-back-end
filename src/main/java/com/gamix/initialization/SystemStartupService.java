@@ -1,7 +1,7 @@
 package com.gamix.initialization;
 
-import com.gamix.models.PasswordUser;
-import com.gamix.service.PasswordUserService;
+import com.gamix.models.User;
+import com.gamix.service.AuthService;
 import com.gamix.utils.ThreadPool;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Service
 public class SystemStartupService {
-    private final PasswordUserService passwordUserService;
+    private final AuthService authService;
 
     @PostConstruct
     public void initialize() {
@@ -24,23 +24,23 @@ public class SystemStartupService {
     }
 
     private void processUnbannedUsers() {
-        List<PasswordUser> unbannedUsers = passwordUserService.findUsersToUnbanNow();
+        List<User> unbannedUsers = authService.findUsersToUnbanNow();
 
-        for (PasswordUser unbannedUser : unbannedUsers) {
-            passwordUserService.unbanUser(unbannedUser);
+        for (User unbannedUser : unbannedUsers) {
+            authService.unbanUser(unbannedUser);
         }
     }
 
     private void scheduleUnbanTasksForRemainingBannedUsers() {
-        List<PasswordUser> remainingBannedUsers = passwordUserService.findUsersToUnbanSoon();
+        List<User> remainingBannedUsers = authService.findUsersToUnbanSoon();
 
-        for (PasswordUser passwordUser : remainingBannedUsers) {
+        for (User user : remainingBannedUsers) {
             LocalDateTime currentDateTime = LocalDateTime.now();
-            Duration duration = Duration.between(currentDateTime, passwordUser.getBlockedUntil());
+            Duration duration = Duration.between(currentDateTime, user.getBlockedUntil());
             long timeUntilUnban = duration.getSeconds();
 
             if (timeUntilUnban > 0) {
-                ThreadPool.schedule(() -> passwordUserService.unbanUser(passwordUser), timeUntilUnban, TimeUnit.SECONDS);
+                ThreadPool.schedule(() -> authService.unbanUser(user), timeUntilUnban, TimeUnit.SECONDS);
             }
         }
     }

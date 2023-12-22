@@ -2,7 +2,7 @@ package com.gamix.resolvers.comment;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Comment;
-import com.gamix.models.Like;
+import com.gamix.security.JwtManager;
 import com.gamix.service.CommentService;
 import graphql.kickstart.tools.GraphQLResolver;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +22,7 @@ public class CommentResolver implements GraphQLResolver<Comment> {
     @SchemaMapping(typeName = "Comment", field = "isLiked")
     public boolean getIsLiked(@Lazy Comment comment) throws ExceptionBase {
         String token = httpServletRequest.getHeader("Authorization");
-        return commentService.getIsLiked(token, comment);
+        return commentService.getIsLiked(comment, JwtManager.getIdFromToken(token));
     }
 
     @SchemaMapping(typeName = "Comment", field = "likesCount")
@@ -33,10 +33,5 @@ public class CommentResolver implements GraphQLResolver<Comment> {
     @SchemaMapping(typeName = "Comment", field = "replies")
     public List<Comment> getReplies(@Lazy Comment comment) {
         return commentService.getReplies(comment);
-    }
-
-    @SchemaMapping(typeName = "Comment", field = "likes")
-    public List<Like> getLikes(@Lazy Comment comment) {
-        return commentService.getLikes(comment);
     }
 }

@@ -14,17 +14,12 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
     Optional<Post> findPostByTitle(String title);
+
     @NotNull
     Page<Post> findAll(@NotNull Pageable page);
 
-    @Query("SELECT v FROM View v WHERE v.post = :post")
-    List<View> findAllViewsByPost(Post post);
-
-    @Query("SELECT l FROM Like l WHERE l.post = :post")
-    List<Like> findAllLikesByPost(Post post);
-
-    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Like l WHERE l.post = :post AND l.userProfile = :userProfile")
-    boolean existsLikeByPostAndUserProfile(Post post, UserProfile userProfile);
+    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Like l WHERE l.post = :post AND l.userProfile.user.id = :userId")
+    boolean existsLikeByPostAndUserId(Post post, Integer userId);
 
     @Query("SELECT c FROM Comment c WHERE c.post = :post")
     List<Comment> findAllCommentsByPost(Post post);

@@ -1,7 +1,6 @@
 package com.gamix.repositories;
 
 import com.gamix.models.Comment;
-import com.gamix.models.Like;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,8 +16,8 @@ public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
     Page<Comment> findAllByPostIdAndParentCommentIsNull(int postId, Pageable pageable);
 
-    @Query("SELECT l FROM Like l WHERE l.comment = :comment")
-    List<Like> findAllLikesByComment(Comment comment);
+    @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Like l WHERE l.comment = :comment AND l.userProfile.user.id = :userId")
+    boolean existsLikeByCommentAndUserId(Comment comment, Integer userId);
 
     @Query("SELECT r FROM Comment r WHERE r.parentComment = :comment")
     List<Comment> findAllRepliesByComments(Comment comment);

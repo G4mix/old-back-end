@@ -1,10 +1,10 @@
 package com.gamix.controller;
 
+import com.gamix.communication.userController.SessionReturn;
+import com.gamix.communication.userController.SignInUserInput;
+import com.gamix.communication.userController.SignUpUserInput;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.communication.passwordUserController.SessionReturn;
-import com.gamix.communication.passwordUserController.SignInPasswordUserInput;
-import com.gamix.communication.passwordUserController.SignUpPasswordUserInput;
-import com.gamix.service.PasswordUserService;
+import com.gamix.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,19 +18,19 @@ import static com.gamix.utils.ControllerUtils.throwError;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/auth")
-public class PasswordUserController {
-    private final PasswordUserService passwordUserService;
+public class AuthController {
+    private final AuthService authService;
 
     @PostMapping("/signup")
     public ResponseEntity<Object> signUpPasswordUser(
-        @RequestBody SignUpPasswordUserInput signUpPasswordUserInput
+            @RequestBody SignUpUserInput signUpUserInput
     ) throws ExceptionBase {
         try {
-            SessionReturn session = passwordUserService.signUpPasswordUser(signUpPasswordUserInput);
+            SessionReturn session = authService.signUpPasswordUser(signUpUserInput);
 
             return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + session.getToken())
-                .body(session);
+                    .header("Authorization", "Bearer " + session.getToken())
+                    .body(session);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -38,14 +38,14 @@ public class PasswordUserController {
 
     @PostMapping("/signin")
     public ResponseEntity<Object> signInPasswordUser(
-            @RequestBody SignInPasswordUserInput signInPasswordUserInput,
+            @RequestBody SignInUserInput signInUserInput,
             HttpServletRequest req) throws ExceptionBase {
         try {
-            SessionReturn session = passwordUserService.signInPasswordUser(signInPasswordUserInput);
+            SessionReturn session = authService.signInPasswordUser(signInUserInput);
 
             return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + session.getToken())
-                .body(session);
+                    .header("Authorization", "Bearer " + session.getToken())
+                    .body(session);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }

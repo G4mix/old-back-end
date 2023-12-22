@@ -1,7 +1,6 @@
 package com.gamix.security;
 
 import com.gamix.enums.ExpirationTime;
-import com.gamix.models.PasswordUser;
 import com.gamix.models.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,9 +17,8 @@ public class JwtManager {
     private static final String secret = System.getenv("JWT_SIGNING_KEY_SECRET");
 
     public static boolean isValid(String token, User user) {
-        PasswordUser passwordUser = user.getPasswordUser();
         boolean isValidId = user.getId().equals(getIdFromToken(token));
-        boolean isValidPasswordUser = passwordUser != null && getPasswordFromToken(token).equals(passwordUser.getPassword());
+        boolean isValidPasswordUser = getPasswordFromToken(token).equals(user.getPassword());
         return isTokenNotExpired(token) && isValidId && isValidPasswordUser;
     }
 

@@ -15,8 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamix.communication.passwordUserController.SignInPasswordUserInput;
-import com.gamix.communication.passwordUserController.SignUpPasswordUserInput;
+import com.gamix.communication.userController.SignInUserInput;
+import com.gamix.communication.userController.SignUpUserInput;
 
 @SpringBootTest(classes = GamixApplication.class)
 @AutoConfigureMockMvc
@@ -31,11 +31,11 @@ class GamixApplicationTests {
 	void integrationTestFlow() throws Exception {
 		// Registrando o usuário
 
-		SignUpPasswordUserInput signUpPasswordUserInput =
-				new SignUpPasswordUserInput("example_user", "example@gmail.com", "Password123!");
+		SignUpUserInput signUpUserInput =
+				new SignUpUserInput("example_user", "example@gmail.com", "Password123!");
 		MvcResult signUpResult = mockMvc
 				.perform(post("/auth/signup").contentType("application/json")
-						.content(objectMapper.writeValueAsString(signUpPasswordUserInput)))
+						.content(objectMapper.writeValueAsString(signUpUserInput)))
 				.andExpect(status().isOk()).andReturn();
 
 		String signUpResponseBody = signUpResult.getResponse().getContentAsString();
@@ -65,12 +65,12 @@ class GamixApplicationTests {
 				.andExpect(status().isOk());
 
 		// Fazendo o signIn
-		SignInPasswordUserInput signInPasswordUserInput =
-				new SignInPasswordUserInput(signUpPasswordUserInput.username(), null,
-						signUpPasswordUserInput.password(), false);
+		SignInUserInput signInUserInput =
+				new SignInUserInput(signUpUserInput.username(), null,
+						signUpUserInput.password(), false);
 		MvcResult signInResult = mockMvc
 				.perform(post("/auth/signin").contentType("application/json")
-						.content(objectMapper.writeValueAsString(signInPasswordUserInput)))
+						.content(objectMapper.writeValueAsString(signInUserInput)))
 				.andExpect(status().isOk()).andReturn();
 
 		String signInResponseBody = signInResult.getResponse().getContentAsString();

@@ -2,9 +2,8 @@ package com.gamix.resolvers.comment;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Comment;
-import com.gamix.models.Post;
+import com.gamix.security.JwtManager;
 import com.gamix.service.CommentService;
-import com.gamix.service.PostService;
 import graphql.kickstart.tools.GraphQLMutationResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Controller;
 public class CommentMutationResolver implements GraphQLMutationResolver {
     private final HttpServletRequest httpServletRequest;
     private final CommentService commentService;
-    private final PostService postService;
 
     @MutationMapping
     Comment commentPost(
@@ -25,8 +23,7 @@ public class CommentMutationResolver implements GraphQLMutationResolver {
             @Argument("content") String content
     ) throws ExceptionBase {
         String token = httpServletRequest.getHeader("Authorization");
-        Post post = postService.findPostById(postId);
-        return commentService.commentPost(token, post, content);
+        return commentService.commentPost(JwtManager.getIdFromToken(token), postId, content);
     }
 
     @MutationMapping
@@ -35,6 +32,6 @@ public class CommentMutationResolver implements GraphQLMutationResolver {
             @Argument("content") String content
     ) throws ExceptionBase {
         String token = httpServletRequest.getHeader("Authorization");
-        return commentService.replyComment(token, commentId, content);
+        return commentService.replyComment(JwtManager.getIdFromToken(token), commentId, content);
     }
 }

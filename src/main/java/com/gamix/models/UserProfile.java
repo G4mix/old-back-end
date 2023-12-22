@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 @Entity
-@Table(name = "userProfile")
+@Table(name = "user_profile")
 public class UserProfile {
 
     @Id

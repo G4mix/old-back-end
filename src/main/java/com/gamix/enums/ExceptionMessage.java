@@ -13,7 +13,6 @@ public enum ExceptionMessage {
     TOKEN_DO_NOT_MATCH_EXCEPTION(HttpStatus.UNAUTHORIZED, "Tokens não correspondem, envie os mesmos tokens."),
     EXCESSIVE_FAILED_LOGIN_ATTEMPTS(HttpStatus.TOO_MANY_REQUESTS, "Tentativas de login falhadas excessivamente."),
 
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "Usuário não encontrado."),
     PASSWORDUSER_NOT_FOUND(HttpStatus.NOT_FOUND, "Usuário de senha não encontrado."),
     PASSWORDUSER_ALREADY_EXISTS(HttpStatus.CONFLICT, "Usuário de senha já existe."),
 

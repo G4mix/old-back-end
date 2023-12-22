@@ -1,41 +1,40 @@
 package com.gamix.service;
 
+import com.gamix.communication.postController.PartialPostInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.*;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
-import com.gamix.exceptions.userProfile.UserProfileNotFound;
 import com.gamix.models.*;
-import com.gamix.communication.postController.PartialPostInput;
 import com.gamix.repositories.PostRepository;
 import com.gamix.security.JwtManager;
-import com.gamix.utils.SortUtils;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
 public class PostService {
+    @PersistenceContext
+    private final EntityManager entityManager;
     private final PostRepository postRepository;
     private final ImageService imageService;
 
-    public Post createPost(User user, PartialPostInput postInput, List<Part> partImages)
+    public Post createPost(Integer userId, PartialPostInput postInput, List<Part> partImages)
             throws ExceptionBase {
 
         if (
-            postInput.content().isEmpty() &&
-            postInput.title().isEmpty() &&
-            (postInput.links() == null || postInput.links().isEmpty()) &&
-            (partImages == null)
+                postInput.content().isEmpty() &&
+                        postInput.title().isEmpty() &&
+                        (postInput.links() == null || postInput.links().isEmpty()) &&
+                        (partImages == null)
 
         ) {
             throw new CompletelyEmptyPost();
@@ -48,15 +47,10 @@ public class PostService {
         if (postInput.content().length() > 700) {
             throw new ContentTooLong();
         }
+        User user = entityManager.getReference(User.class, userId);
 
-        UserProfile author = user.getUserProfile();
-        if (author == null)
-            throw new UserProfileNotFound();
-
-        Post newPost = new Post();
-        newPost.setAuthor(author);
-        newPost.setTitle(postInput.title());
-        newPost.setContent(postInput.content());
+        Post newPost = new Post()
+                .setAuthor(user.getUserProfile()).setTitle(postInput.title()).setContent(postInput.content());
 
         if (postInput.links() != null && !postInput.links().isEmpty()) {
             if (postInput.links().size() > 5) {
@@ -82,36 +76,14 @@ public class PostService {
         return postRepository.save(newPost);
     }
 
-    public List<Post> findAll(int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-        Page<Post> posts = postRepository.findAll(page);
-        return posts.getContent();
-    }
-
-    public Post findPostById(Integer id) throws ExceptionBase {
-        Optional<Post> post = postRepository.findById(id);
-        if (post.isEmpty()) {
-            throw new PostNotFoundById();
-        }
-        return post.orElseThrow(PostNotFoundById::new);
-    }
-
-    public Post findPostByTitle(String title) throws ExceptionBase {
-        Optional<Post> post = postRepository.findPostByTitle(title);
-        if (post.isEmpty()) {
-            throw new PostNotFoundByTitle();
-        }
-        return post.orElseThrow(PostNotFoundByTitle::new);
-    }
-
     public Post updatePost(
-        String token, Integer id, PartialPostInput postInput, List<Part> partImages
+            Integer userId, Integer id, PartialPostInput postInput, List<Part> partImages
     ) throws ExceptionBase {
         Post post = findPostById(id);
         post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));
         UserProfile postAuthor = post.getAuthor();
 
-        if (!JwtManager.getIdFromToken(token).equals(postAuthor.getUser().getId())) {
+        if (!userId.equals(postAuthor.getUser().getId())) {
             throw new InvalidAccessToken();
         }
 
@@ -135,6 +107,18 @@ public class PostService {
         return postRepository.save(post);
     }
 
+    public List<Post> findAll(Pageable page) {
+        return postRepository.findAll(page).getContent();
+    }
+
+    public Post findPostById(Integer id) throws ExceptionBase {
+        return postRepository.findById(id).orElseThrow(PostNotFoundById::new);
+    }
+
+    public Post findPostByTitle(String title) throws ExceptionBase {
+        return postRepository.findPostByTitle(title).orElseThrow(PostNotFoundByTitle::new);
+    }
+
     @Transactional
     public boolean deletePost(String token, Integer id) throws ExceptionBase {
         Post post = findPostById(id);
@@ -148,16 +132,8 @@ public class PostService {
         return true;
     }
 
-    public boolean getIsLiked(Post post, UserProfile author) throws ExceptionBase {
-        return postRepository.existsLikeByPostAndUserProfile(post, author);
-    }
-
-    public List<View> getViews(Post post) {
-        return postRepository.findAllViewsByPost(post);
-    }
-
-    public List<Like> getLikes(Post post) {
-        return postRepository.findAllLikesByPost(post);
+    public boolean getIsLiked(Post post, Integer userId) throws ExceptionBase {
+        return postRepository.existsLikeByPostAndUserId(post, userId);
     }
 
     public List<Comment> getComments(Post post) {
