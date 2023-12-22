@@ -4,16 +4,9 @@ import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.comment.CommentIdNotFound;
 import com.gamix.exceptions.comment.EmptyComment;
 import com.gamix.exceptions.comment.TooLongContent;
-import com.gamix.exceptions.post.PostNotFoundById;
-import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.models.Comment;
-import com.gamix.models.Post;
-import com.gamix.models.User;
-import com.gamix.models.UserProfile;
 import com.gamix.repositories.CommentRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.PersistenceContext;
+import com.gamix.utils.EntityManagerUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,8 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class CommentService {
-    @PersistenceContext
-    private final EntityManager entityManager;
+    private final EntityManagerUtils entityManagerUtils;
     private final CommentRepository commentRepository;
 
     public Comment commentPost(
@@ -34,7 +26,8 @@ public class CommentService {
         if (content.length() > 200) throw new TooLongContent();
 
         Comment newComment = new Comment()
-                .setAuthor(getUserProfile(userId)).setPost(getPost(postId)).setContent(content);
+                .setAuthor(entityManagerUtils.getUserProfile(userId))
+                .setPost(entityManagerUtils.getPost(postId)).setContent(content);
         return commentRepository.save(newComment);
     }
 
@@ -42,7 +35,7 @@ public class CommentService {
         Comment parentComment = commentRepository.findCommentById(commentId).orElseThrow(CommentIdNotFound::new);
 
         Comment newReply = new Comment()
-                .setParentComment(parentComment).setAuthor(getUserProfile(userId))
+                .setParentComment(parentComment).setAuthor(entityManagerUtils.getUserProfile(userId))
                 .setContent(content).setPost(parentComment.getPost());
 
         return commentRepository.save(newReply);
@@ -66,21 +59,5 @@ public class CommentService {
 
     public List<Comment> getReplies(Comment comment) {
         return commentRepository.findAllRepliesByComments(comment);
-    }
-
-    private UserProfile getUserProfile(Integer userId) throws ExceptionBase {
-        try {
-            return entityManager.getReference(User.class, userId).getUserProfile();
-        } catch (EntityNotFoundException ex) {
-            throw new UserNotFoundById();
-        }
-    }
-
-    private Post getPost(Integer postId) throws ExceptionBase {
-        try {
-            return entityManager.getReference(Post.class, postId);
-        } catch (EntityNotFoundException ex) {
-            throw new PostNotFoundById();
-        }
     }
 }

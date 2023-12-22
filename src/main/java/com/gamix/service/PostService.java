@@ -6,12 +6,9 @@ import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.*;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
-import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.models.*;
 import com.gamix.repositories.PostRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.PersistenceContext;
+import com.gamix.utils.EntityManagerUtils;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class PostService {
-    @PersistenceContext
-    private final EntityManager entityManager;
+    private final EntityManagerUtils entityManagerUtils;
     private final PostRepository postRepository;
     private final ImageService imageService;
 
@@ -48,7 +44,7 @@ public class PostService {
         if (postInput.content().length() > 700) {
             throw new ContentTooLong();
         }
-        User user = getUser(userId);
+        User user = entityManagerUtils.getUser(userId);
 
         Post newPost = new Post()
                 .setAuthor(user.getUserProfile()).setTitle(postInput.title()).setContent(postInput.content());
@@ -163,13 +159,5 @@ public class PostService {
 
     public int getViewsCount(Post post) {
         return postRepository.countViewsByPost(post);
-    }
-
-    private User getUser(Integer userId) throws ExceptionBase {
-        try {
-            return entityManager.getReference(User.class, userId);
-        } catch (EntityNotFoundException ex) {
-            throw new UserNotFoundById();
-        }
     }
 }
