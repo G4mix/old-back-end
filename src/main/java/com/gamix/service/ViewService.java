@@ -23,7 +23,8 @@ public class ViewService {
 
     public void viewPost(Integer postId, Integer userId) throws ExceptionBase {
         if (postHasBeenViewed(postId, userId)) return;
-        viewRepository.save(new View().setUserProfile(getUserProfile(userId)).setPost(getPost(postId)));
+        View view = new View().setUserProfile(getUserProfile(userId)).setPost(getPost(postId));
+        viewRepository.save(view);
     }
 
     public boolean postHasBeenViewed(Integer postId, Integer userId) {

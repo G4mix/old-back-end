@@ -38,6 +38,6 @@ public class PostMutationResolver implements GraphQLMutationResolver {
     @MutationMapping
     boolean deletePost(@Argument("postId") Integer id) throws ExceptionBase {
         String token = httpServletRequest.getHeader("Authorization");
-        return postService.deletePost(token, id);
+        return postService.deletePost(JwtManager.getIdFromToken(token), id);
     }
 }

@@ -9,7 +9,6 @@ import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.models.*;
 import com.gamix.repositories.PostRepository;
-import com.gamix.security.JwtManager;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
@@ -122,11 +121,11 @@ public class PostService {
     }
 
     @Transactional
-    public boolean deletePost(String token, Integer id) throws ExceptionBase {
-        Post post = findPostById(id);
+    public boolean deletePost(Integer userId, Integer postId) throws ExceptionBase {
+        Post post = findPostById(postId);
         User postAuthor = post.getAuthor().getUser();
 
-        if (!JwtManager.getIdFromToken(token).equals(postAuthor.getId())) return false;
+        if (!userId.equals(postAuthor.getId())) return false;
 
         imageService.deleteImages(getImages(post));
         postRepository.delete(post);

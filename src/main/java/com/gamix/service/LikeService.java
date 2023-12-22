@@ -28,7 +28,8 @@ public class LikeService {
 
         if (isLiked) {
             if (likedPost.isPresent()) return;
-            likeRepository.save(new Like().setPost(getPost(postId)).setUserProfile(getUserProfile(userId)));
+            Like like = new Like().setPost(getPost(postId)).setUserProfile(getUserProfile(userId));
+            likeRepository.save(like);
         } else {
             if (likedPost.isEmpty()) return;
             likeRepository.delete(likedPost.get());
@@ -41,7 +42,8 @@ public class LikeService {
 
         if (isLiked) {
             if (likedComment.isPresent()) return;
-            likeRepository.save(new Like().setUserProfile(getUserProfile(userId)).setComment(getComment(commentId)));
+            Like like = new Like().setUserProfile(getUserProfile(userId)).setComment(getComment(commentId));
+            likeRepository.save(like);
         } else {
             if (likedComment.isEmpty()) return;
             likeRepository.delete(likedComment.get());
