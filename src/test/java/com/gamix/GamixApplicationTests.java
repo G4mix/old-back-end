@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes = GamixApplication.class)
 @AutoConfigureMockMvc
@@ -38,7 +39,7 @@ class GamixApplicationTests {
                 .andExpect(status().isOk()).andReturn();
 
         String token = signUpResult.getResponse().getHeader("Authorization");
-        assert token != null;
+        assertNotNull(token);
 
         // Executar o findAll com o AccessToken no header
         // Criando o corpo da requisição
@@ -66,7 +67,7 @@ class GamixApplicationTests {
                 .andExpect(status().isOk()).andReturn();
 
         token = signInResult.getResponse().getHeader("Authorization");
-        assert token != null;
+        assertNotNull(token);
 
         // Executar o findAll com o novo AccessToken no header
         mockMvc.perform(post("/graphql").contentType("application/json")
