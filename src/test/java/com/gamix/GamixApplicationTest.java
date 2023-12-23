@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(classes = GamixApplication.class)
 @AutoConfigureMockMvc
-class GamixApplicationTests {
+class GamixApplicationTest {
     @Autowired
     private MockMvc mockMvc;
 
