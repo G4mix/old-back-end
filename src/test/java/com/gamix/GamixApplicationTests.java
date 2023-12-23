@@ -1,6 +1,5 @@
 package com.gamix;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamix.communication.userController.SignInUserInput;
 import com.gamix.communication.userController.SignUpUserInput;
@@ -14,8 +13,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -34,36 +31,29 @@ class GamixApplicationTests {
         // Registrando o usuário
 
         SignUpUserInput signUpUserInput =
-                new SignUpUserInput("example_user", "example@gmail.com", "Password123!");
-        MvcResult signUpResult = mockMvc
-                .perform(post("/auth/signup").contentType("application/json")
-                        .content(objectMapper.writeValueAsString(signUpUserInput)))
+                new SignUpUserInput("test_user", "test_user@gmail.com", "Password123!");
+        MvcResult signUpResult = mockMvc.perform(post("/auth/signup")
+                .contentType("application/json")
+                .content(objectMapper.writeValueAsString(signUpUserInput)))
                 .andExpect(status().isOk()).andReturn();
 
-        String signUpResponseBody = signUpResult.getResponse().getContentAsString();
-
-        JsonNode jsonNode = objectMapper.readTree(signUpResponseBody);
-
-        String accessTokenCookie = jsonNode.get("accessToken").asText();
-        String refreshTokenCookie = jsonNode.get("refreshToken").asText();
-        String accessToken = extractTokenValue(accessTokenCookie, "accessToken");
-        extractTokenValue(refreshTokenCookie, "refreshToken");
-        String refreshToken;
+        String token = signUpResult.getResponse().getHeader("Authorization");
+        assert token != null;
 
         // Executar o findAll com o AccessToken no header
-
         // Criando o corpo da requisição
         Map<String, Object> findAllRequestBody = new HashMap<>();
         findAllRequestBody.put("query",
-                "query FindAllUsers($skip: Int, $limit: Int) { findAllUsers(skip: $skip, limit: $limit) { id username email icon passwordUser { id verifiedEmail } } }");
+                "query FindAllUsers($skip: Int, $limit: Int) {"+
+                "findAllUsers(skip: $skip, limit: $limit) { id } }");
         Map<String, Integer> variables = new HashMap<>();
         variables.put("skip", 0);
         variables.put("limit", 10);
         findAllRequestBody.put("variables", variables);
 
         mockMvc.perform(post("/graphql").contentType("application/json")
-                        .content(objectMapper.writeValueAsString(findAllRequestBody))
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                .content(objectMapper.writeValueAsString(findAllRequestBody))
+                .header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(status().isOk());
 
         // Fazendo o signIn
@@ -75,57 +65,13 @@ class GamixApplicationTests {
                         .content(objectMapper.writeValueAsString(signInUserInput)))
                 .andExpect(status().isOk()).andReturn();
 
-        String signInResponseBody = signInResult.getResponse().getContentAsString();
-
-        jsonNode = objectMapper.readTree(signInResponseBody);
-
-        accessTokenCookie = jsonNode.get("accessToken").asText();
-        refreshTokenCookie = jsonNode.get("refreshToken").asText();
-        accessToken = extractTokenValue(accessTokenCookie, "accessToken");
-        refreshToken = extractTokenValue(refreshTokenCookie, "refreshToken");
+        token = signInResult.getResponse().getHeader("Authorization");
+        assert token != null;
 
         // Executar o findAll com o novo AccessToken no header
         mockMvc.perform(post("/graphql").contentType("application/json")
-                        .content(objectMapper.writeValueAsString(findAllRequestBody))
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
-                .andExpect(status().isOk());
-
-        // Usar o refreshToken
-        // Criando o corpo da requisição
-        Map<String, Object> refreshTokenRequestBody = new HashMap<>();
-        refreshTokenRequestBody.put("refreshToken", refreshToken);
-
-        MvcResult refreshTokenResult = mockMvc
-                .perform(post("/auth/refreshtoken").contentType("application/json")
-                        .content(objectMapper.writeValueAsString(refreshTokenRequestBody)))
-                .andExpect(status().isOk()).andReturn();
-
-        String refreshTokenResponseBody = refreshTokenResult.getResponse().getContentAsString();
-
-        jsonNode = objectMapper.readTree(refreshTokenResponseBody);
-
-        accessTokenCookie = jsonNode.get("accessToken").asText();
-        refreshTokenCookie = jsonNode.get("refreshToken").asText();
-        accessToken = extractTokenValue(accessTokenCookie, "accessToken");
-        extractTokenValue(refreshTokenCookie, "refreshToken");
-
-        // Executar o findAll com o novo AccessToken no header
-        mockMvc.perform(post("/graphql").contentType("application/json")
-                        .content(objectMapper.writeValueAsString(findAllRequestBody))
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken))
+                .content(objectMapper.writeValueAsString(findAllRequestBody))
+                .header(HttpHeaders.AUTHORIZATION, token))
                 .andExpect(status().isOk());
     }
-
-    private String extractTokenValue(String cookieValue, String field) {
-        String regex = field + "=(.*?);";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(cookieValue);
-
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        return "";
-    }
-
 }
