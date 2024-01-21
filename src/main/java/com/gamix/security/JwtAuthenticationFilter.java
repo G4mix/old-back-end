@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = req.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
             res.header("Set-Cookie", "token=undefined; path=/; max-age=0; SameSite=Lax");
-            res.setHeader("Location", System.getEnv("FRONT_END_BASE_URL")+"/auth/signin");
+            res.setHeader("Location", System.getenv("FRONT_END_BASE_URL")+"/auth/signin");
             filterChain(req, res, filterChain);
             return;
         }
