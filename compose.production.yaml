@@ -1,18 +1,5 @@
 version: "3.3"
 services:
-  database:
-    build:
-      context: .
-      dockerfile: database.Dockerfile
-    image: lordluch/gamix-database
-    container_name: database
-    restart: always
-    volumes:
-      - pg_data:/var/lib/postgres/data
-    ports:
-      - 5432:5432
-    networks:
-      - gamix_network
   backend:
     build:
       context: .
@@ -28,9 +15,6 @@ services:
       - database
     links:
       - database
-
-volumes:
-  pg_data:
 
 networks:
   gamix_network:

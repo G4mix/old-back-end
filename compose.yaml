@@ -8,11 +8,8 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
-    command: >
-      -c config_file=/mnt/sda1/var/lib/postgresql/data/postgresql.conf
     volumes:
       - pg_data:/var/lib/postgres/data
-      - ./docker/database/postgresql.conf:/mnt/sda1/var/lib/postgresql/data/postgresql.conf
     ports:
       - 5432:5432
     networks:
@@ -31,7 +28,7 @@ services:
       - ./src:/app/src
       - ./pom.xml:/app/pom.xml
       - ./target:/app/target
-      - ./docker/development:/app/scripts
+      - ./docker:/app/scripts
       - ./images:/images
       - maven_cache:/root/.m2
     command: >
@@ -42,6 +39,7 @@ services:
           wget -O - https://github.com/jwilder/dockerize/releases/download/v0.7.0/dockerize-linux-amd64-v0.7.0.tar.gz | tar xzf - -C /bin; \
         fi && \
         find /app/scripts -type f -name "*.sh" -exec dos2unix {} \; && \
+        sleep 1000000 && \
         chmod +x /app/scripts/*.sh && \
         /app/scripts/dev.sh'
     ports:
