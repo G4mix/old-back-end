@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) {
         String token = req.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
-            res.header("Set-Cookie", "token=undefined; path=/; max-age=0; SameSite=Lax");
+            res.setHeader("Set-Cookie", "token=undefined; path=/; max-age=0; SameSite=Lax");
             res.setHeader("Location", System.getenv("FRONT_END_BASE_URL")+"/auth/signin");
             filterChain(req, res, filterChain);
             return;
@@ -43,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
             if (diff <= 20) {
                 int maxAge = JwtManager.getRememberMeFromToken(token) ? 259200 : 3600;
-                res.header("Set-Cookie", "token="+JwtManager.refreshToken(token)+"; path=/; max-age="+maxAge+"; SameSite=Lax");
+                res.setHeader("Set-Cookie", "token="+JwtManager.refreshToken(token)+"; path=/; max-age="+maxAge+"; SameSite=Lax");
             }
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
