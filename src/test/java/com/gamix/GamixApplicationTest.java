@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +39,7 @@ class GamixApplicationTest {
                 .content(objectMapper.writeValueAsString(signUpUserInput)))
                 .andExpect(status().isOk()).andReturn();
 
-        String token = signUpResult.getResponse().getHeader("Authorization");
+        String token = "Bearer "+Objects.requireNonNull(signUpResult.getResponse().getHeader("Set-Cookie")).split(";")[0].split("=")[1];
         assertNotNull(token);
 
         // Executar o findAll com o AccessToken no header
@@ -66,7 +67,7 @@ class GamixApplicationTest {
                         .content(objectMapper.writeValueAsString(signInUserInput)))
                 .andExpect(status().isOk()).andReturn();
 
-        token = signInResult.getResponse().getHeader("Authorization");
+        token = "Bearer "+Objects.requireNonNull(signUpResult.getResponse().getHeader("Set-Cookie")).split(";")[0].split("=")[1];
         assertNotNull(token);
 
         // Executar o findAll com o novo AccessToken no header
