@@ -27,10 +27,8 @@ public class AuthController {
     ) throws ExceptionBase {
         try {
             SessionReturn session = authService.signUpPasswordUser(signUpUserInput);
-            String token = session.getToken();
-            int maxAge = JwtManager.getRememberMeFromToken(token) ? 259200 : 3600;
             return ResponseEntity.ok()
-                    .header("Set-Cookie", "token="+token+"; path=/; max-age="+maxAge+"; SameSite=Lax")
+                    .header("Set-Cookie", "token="+session.getToken()+"; path=/; max-age=3600; SameSite=Lax")
                     .body(session);
         } catch (ExceptionBase ex) {
             return throwError(ex);
@@ -41,10 +39,10 @@ public class AuthController {
     public ResponseEntity<Object> signInPasswordUser(@RequestBody SignInUserInput signInUserInput) throws ExceptionBase {
         try {
             SessionReturn session = authService.signInPasswordUser(signInUserInput);
-            String token = session.getToken();
-            int maxAge = JwtManager.getRememberMeFromToken(token) ? 259200 : 3600;
+            int maxAge = signInUserInput.rememberMe() ? 259200 : 3600;
             return ResponseEntity.ok()
-                    .header("Set-Cookie", "token="+token+"; path=/; max-age="+maxAge+"; SameSite=Lax")
+                    .header("Set-Cookie",
+                            "token="+session.getToken()+"; path=/; max-age="+maxAge+"; SameSite=Lax")
                     .body(session);
         } catch (ExceptionBase ex) {
             return throwError(ex);
