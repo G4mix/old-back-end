@@ -24,10 +24,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserService userService;
 
     @Override
-    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain) {
-        String token = request.getHeader("Authorization");
+    protected void doFilterInternal(
+        @NotNull HttpServletRequest req, @NotNull HttpServletResponse res, @NotNull FilterChain filterChain
+    ) {
+        String token = req.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
-            filterChain(request, response, filterChain);
+            res.header("Set-Cookie", "token=undefined; path=/; max-age=0; SameSite=Lax");
+            res.setHeader("Location", System.getEnv("FRONT_END_BASE_URL")+"/auth/signin");
+            filterChain(req, res, filterChain);
             return;
         }
 
@@ -38,19 +42,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             long diffInMillies = Math.abs(expirationDate.getTime() - now.getTime());
             long diff = TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
             if (diff <= 20) {
-                response.setHeader("Authorization", "Bearer " + JwtManager.refreshToken(token));
+                int maxAge = JwtManager.getRememberMeFromToken(token) ? 259200 : 3600;
+                res.header("Set-Cookie", "token="+JwtManager.refreshToken(token)+"; path=/; max-age="+maxAge+"; SameSite=Lax");
             }
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     user.getId(), null, new ArrayList<>());
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-        filterChain(request, response, filterChain);
+        filterChain(req, res, filterChain);
     }
 
-    private void filterChain(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+    private void filterChain(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) {
         try {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(req, res);
         } catch (IOException | ServletException e) {
             System.out.println(e.getMessage());
         }
