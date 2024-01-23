@@ -16,16 +16,13 @@ import com.gamix.models.UserProfile;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import com.gamix.utils.ParameterValidator;
-import com.gamix.utils.ThreadPool;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @Service
@@ -61,14 +58,16 @@ public class AuthService {
                 : userRepository.findByUsername(signInUserInput.username()).orElseThrow(UserNotFoundByUsername::new);
 
         if (user.getPassword() == null) throw new PasswordUserNotFound();
-
         boolean attempsGreaterOrEqualsFive = user.getLoginAttempts() >= 5;
-        boolean blockedByTime = (user.getBlockedUntil() != null
-                && user.getBlockedUntil().isAfter(LocalDateTime.now()));
+        boolean blockedByTime = (user.getBlockedUntil() != null && user.getBlockedUntil().isAfter(LocalDateTime.now()));
+        if (attempsGreaterOrEqualsFive) {
+            if (blockedByTime) throw new ExcessiveFailedLoginAttempts();
+            user.setLoginAttempts(0);
+            userRepository.save(user.setLoginAttempts(0));
+        }
 
-        if (attempsGreaterOrEqualsFive && blockedByTime) throw new ExcessiveFailedLoginAttempts();
         if (!passwordEncoder.matches(signInUserInput.password(), user.getPassword())) {
-            handleFailedLoginAttempt(user);
+            userRepository.save(user.setLoginAttempts(user.getLoginAttempts() + 1));
             throw new PasswordWrong();
         }
 
@@ -81,20 +80,6 @@ public class AuthService {
         return new SessionReturn(user.getUsername(), user.getUserProfile().getIcon(), token);
     }
 
-    public List<User> findUsersToUnbanNow() {
-        return userRepository.findUsersToUnbanNow();
-    }
-
-    public List<User> findUsersToUnbanSoon() {
-        return userRepository.findUsersToUnbanSoon();
-    }
-
-    public void unbanUser(User userToUnban) {
-        userToUnban.setBlockedUntil(null);
-        userToUnban.setLoginAttempts(0);
-        userRepository.save(userToUnban);
-    }
-
     @Transactional
     public User createUser(String username, String email, String encodedPassword) {
         User user = new User()
@@ -103,17 +88,5 @@ public class AuthService {
 
         user.setUserProfile(new UserProfile().setUser(user).setDisplayName(user.getUsername()));
         return userRepository.save(user);
-    }
-
-    private void handleFailedLoginAttempt(User user) {
-        user.setLoginAttempts(user.getLoginAttempts() + 1);
-
-        if (user.getLoginAttempts() >= 5) {
-            int banTime = 30;
-            user.setBlockedUntil(LocalDateTime.now().plusMinutes(banTime));
-            ThreadPool.schedule(() -> unbanUser(user), banTime, TimeUnit.MINUTES);
-        }
-
-        userRepository.save(user);
     }
 }
