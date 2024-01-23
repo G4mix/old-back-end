@@ -67,7 +67,9 @@ public class AuthService {
         }
 
         if (!passwordEncoder.matches(signInUserInput.password(), user.getPassword())) {
-            userRepository.save(user.setLoginAttempts(user.getLoginAttempts() + 1));
+            userRepository.save(user
+                    .setLoginAttempts(user.getLoginAttempts() + 1)
+                    .setBlockedUntil(LocalDateTime.now().plusMinutes(30)));
             throw new PasswordWrong();
         }
 
