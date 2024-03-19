@@ -1,109 +1,64 @@
 package com.gamix.service;
 
-import java.util.List;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import com.gamix.communication.postController.PartialPostInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
-import com.gamix.exceptions.parameters.posts.CompletelyEmptyPost;
-import com.gamix.exceptions.parameters.posts.ContentTooLong;
-import com.gamix.exceptions.parameters.posts.TitleTooLong;
-import com.gamix.exceptions.parameters.posts.TooManyImages;
-import com.gamix.exceptions.parameters.posts.TooManyLinks;
+import com.gamix.exceptions.parameters.posts.*;
 import com.gamix.exceptions.post.PostNotFoundById;
 import com.gamix.exceptions.post.PostNotFoundByTitle;
-import com.gamix.exceptions.userProfile.UserProfileNotFound;
-import com.gamix.interfaces.services.PostServiceInterface;
-import com.gamix.models.Image;
-import com.gamix.models.Link;
-import com.gamix.models.Post;
-import com.gamix.models.Tag;
-import com.gamix.models.User;
-import com.gamix.models.UserProfile;
-import com.gamix.records.inputs.PostController.PartialPostInput;
+import com.gamix.models.*;
 import com.gamix.repositories.PostRepository;
-import com.gamix.repositories.UserProfileRepository;
-import com.gamix.security.JwtManager;
-import com.gamix.utils.SortUtils;
+import com.gamix.utils.EntityManagerUtils;
 import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@RequiredArgsConstructor
 @Service
-public class PostService implements PostServiceInterface {
+public class PostService {
+    private final EntityManagerUtils entityManagerUtils;
+    private final PostRepository postRepository;
+    private final ImageService imageService;
 
-    @Autowired
-    private JwtManager jwtManager;
-
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private LinkService linkService;
-
-    @Autowired
-    private TagService tagService;
-
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private ImageService imageService;
-
-    @Autowired
-    private LikeService likeService;
-
-    @Autowired
-    private UserProfileRepository userProfileRepository;
-
-    @Override
-    public Post createPost(String accessToken, PartialPostInput postInput, List<Part> partImages)
+    public Post createPost(Integer userId, PartialPostInput postInput, List<Part> partImages)
             throws ExceptionBase {
-        
+
         if (
-            postInput.content() == "" &&
-            postInput.title() == "" &&
-            (postInput.links() == null || postInput.links().isEmpty()) &&
-            (partImages == null)
-            
+                postInput.content().isEmpty() &&
+                        postInput.title().isEmpty() &&
+                        (postInput.links() == null || postInput.links().isEmpty()) &&
+                        (partImages == null)
+
         ) {
             throw new CompletelyEmptyPost();
         }
 
-        if (postInput.title().length() > 70 ) {
+        if (postInput.title().length() > 70) {
             throw new TitleTooLong();
         }
 
-        if (postInput.content().length() > 700 ) {
+        if (postInput.content().length() > 700) {
             throw new ContentTooLong();
         }
+        User user = entityManagerUtils.getUser(userId);
 
-        User user = userService.findUserByToken(accessToken);
-        UserProfile author = user.getUserProfile();
-        if (author == null)
-            new UserProfileNotFound();
+        Post newPost = new Post()
+                .setAuthor(user.getUserProfile()).setTitle(postInput.title()).setContent(postInput.content());
 
-        Post newPost = new Post();
-        newPost.setAuthor(author);
-        newPost.setTitle(postInput.title());
-        newPost.setContent(postInput.content());
-        
         if (postInput.links() != null && !postInput.links().isEmpty()) {
             if (postInput.links().size() > 5) {
                 throw new TooManyLinks();
             }
-            List<Link> links = linkService.createLinksForPost(newPost, postInput.links());
+            List<Link> links = LinkService.createLinksForPost(newPost, postInput.links());
             newPost.setLinks(links);
         }
-        
+
         if (postInput.tags() != null && !postInput.tags().isEmpty()) {
-            List<Tag> tags = tagService.createTagsForPost(newPost, postInput.tags());
+            List<Tag> tags = TagService.createTagsForPost(newPost, postInput.tags());
             newPost.setTags(tags);
         }
 
@@ -118,95 +73,91 @@ public class PostService implements PostServiceInterface {
         return postRepository.save(newPost);
     }
 
-    @Override
-    public List<Post> findAll(int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-        Page<Post> posts = postRepository.findAll(page);
-        return posts.getContent();
-    }
-
-    @Override
-    public Post findPostById(Integer id) throws ExceptionBase {
-        Optional<Post> post = postRepository.findById(id);
-        if (post == null) {
-            throw new PostNotFoundById();
-        }
-        return post.orElseThrow(() -> new PostNotFoundById());
-    }
-
-    @Override
-    public Post findPostByTitle(String title) throws ExceptionBase {
-        Optional<Post> post = postRepository.findPostByTitle(title);
-        if (post == null) {
-            throw new PostNotFoundByTitle();
-        }
-        return post.orElseThrow(() -> new PostNotFoundByTitle());
-    }
-
-    @Override
     public Post updatePost(
-        String accessToken, Integer id, PartialPostInput postInput, List<Part> partImages
+            Integer userId, Integer id, PartialPostInput postInput, List<Part> partImages
     ) throws ExceptionBase {
-        if (!jwtManager.validate(accessToken)) {
+        Post post = findPostById(id);
+        post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));
+        UserProfile postAuthor = post.getAuthor();
+
+        if (!userId.equals(postAuthor.getUser().getId())) {
             throw new InvalidAccessToken();
         }
 
-        Post post = findPostById(id);
-        UserProfile postAuthor = post.getAuthor();
-        User userFromToken = userService.findUserByToken(accessToken);
-        UserProfile userProfileFromToken = userFromToken.getUserProfile();
-        
-        if (userProfileFromToken.getId() != postAuthor.getId()) {
-            throw new InvalidAccessToken();
-        }
-        
         if (postInput.title() != null) {
             post.setTitle(postInput.title());
         }
-        
+
         if (postInput.content() != null) {
             post.setContent(postInput.content());
         }
-        
-        List<Link> links = linkService.updateLinksForPost(post, postInput.links());
+
+        List<Link> links = LinkService.updateLinksForPost(post, postInput.links());
         post.setLinks(links);
-        
-        List<Tag> tags = tagService.updateTagsForPost(post, postInput.tags());
+
+        List<Tag> tags = TagService.updateTagsForPost(post, postInput.tags());
         post.setTags(tags);
-        
+
         List<Image> images = imageService.updateImagesForPost(post, partImages, postAuthor.getUser());
         post.setImages(images);
 
         return postRepository.save(post);
     }
 
-    @Override
+    public List<Post> findAll(Pageable page) {
+        return postRepository.findAll(page).getContent();
+    }
+
+    public Post findPostById(Integer id) throws ExceptionBase {
+        return postRepository.findById(id).orElseThrow(PostNotFoundById::new);
+    }
+
+    public Post findPostByTitle(String title) throws ExceptionBase {
+        return postRepository.findPostByTitle(title).orElseThrow(PostNotFoundByTitle::new);
+    }
+
     @Transactional
-    public boolean deletePost(String accessToken, Integer id) throws ExceptionBase {
-        if (!jwtManager.validate(accessToken)) {
-            throw new InvalidAccessToken();
-        }
+    public boolean deletePost(Integer userId, Integer postId) throws ExceptionBase {
+        Post post = findPostById(postId);
+        User postAuthor = post.getAuthor().getUser();
 
-        UserProfile accessTokenOwner = userService.findUserByToken(accessToken).getUserProfile();
-        Post post = findPostById(id);
-        UserProfile postAuthor = post.getAuthor();
+        if (!userId.equals(postAuthor.getId())) return false;
 
-        if (accessTokenOwner.getId() != postAuthor.getId()) return false;
-        
-        imageService.deleteImages(post);
-        commentService.deleteCommentsByPost(post);
-        likeService.deleteLikesByPost(post);
-        postAuthor.getPosts().remove(post);
-        post.setAuthor(null);
-        userProfileRepository.save(postAuthor);
+        imageService.deleteImages(getImages(post));
         postRepository.delete(post);
 
         return true;
     }
 
-    public boolean getIsLiked(String accessToken, Post post) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile author = user.getUserProfile();
-        return likeService.userHasLikedPost(post, author);
+    public boolean getIsLiked(Post post, Integer userId) throws ExceptionBase {
+        return postRepository.existsLikeByPostAndUserId(post, userId);
+    }
+
+    public List<Comment> getComments(Post post) {
+        return postRepository.findAllCommentsByPost(post);
+    }
+
+    public List<Image> getImages(Post post) {
+        return postRepository.findAllImagesByPost(post);
+    }
+
+    public List<Link> getLinks(Post post) {
+        return postRepository.findAllLinksByPost(post);
+    }
+
+    public List<Tag> getTags(Post post) {
+        return postRepository.findAllTagsByPost(post);
+    }
+
+    public int getLikesCount(Post post) {
+        return postRepository.countLikesByPost(post);
+    }
+
+    public int getCommentsCount(Post post) {
+        return postRepository.countCommentsByPost(post);
+    }
+
+    public int getViewsCount(Post post) {
+        return postRepository.countViewsByPost(post);
     }
 }

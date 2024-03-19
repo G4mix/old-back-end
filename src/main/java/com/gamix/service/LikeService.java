@@ -1,101 +1,58 @@
 package com.gamix.service;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.models.Comment;
-import com.gamix.models.Like;
-import com.gamix.models.Post;
-import com.gamix.models.User;
-import com.gamix.models.UserProfile;
+import com.gamix.models.*;
 import com.gamix.repositories.LikeRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import com.gamix.utils.EntityManagerUtils;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+@RequiredArgsConstructor
 @Service
 public class LikeService {
-    @Autowired
-    private LikeRepository likeRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManagerUtils entityManagerUtils;
+    private final LikeRepository likeRepository;
 
     @Transactional
-    public boolean likePost(String accessToken, Post post, boolean isLiked) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile userProfile = user.getUserProfile();
+    public void likePost(Integer userId, Integer postId, boolean isLiked) throws ExceptionBase {
+        Optional<Like> likedPost = userHasLikedPost(postId, userId);
+
         if (isLiked) {
-            if (userHasLikedPost(post, userProfile)) return true;
-            Like like = new Like();
-            like.setPost(post);
-            like.setUserProfile(userProfile);
+            if (likedPost.isPresent()) return;
+            Like like = new Like()
+                    .setPost(entityManagerUtils.getPost(postId))
+                    .setUserProfile(entityManagerUtils.getUserProfile(userId));
             likeRepository.save(like);
         } else {
-            Like like = likeRepository.findByPostAndUserProfile(post, userProfile);
-            if (like == null) return true;
-
-            entityManager.createQuery("DELETE FROM Like l WHERE l.post = :post AND l.userProfile = :userProfile")
-                .setParameter("post", post)
-                .setParameter("userProfile", userProfile)
-                .executeUpdate();
+            if (likedPost.isEmpty()) return;
+            likeRepository.delete(likedPost.get());
         }
-        return true;
     }
 
     @Transactional
-    public boolean likeComment(String accessToken, Comment comment, boolean isLiked) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile userProfile = user.getUserProfile();
+    public void likeComment(Integer userId, Integer commentId, boolean isLiked) throws ExceptionBase {
+        Optional<Like> likedComment = userHasLikedComment(commentId, userId);
+
         if (isLiked) {
-            if (userHasLikedComment(comment, userProfile)) return true;
-            Like like = new Like();
-            like.setComment(comment);
-            like.setUserProfile(userProfile);
+            if (likedComment.isPresent()) return;
+            Like like = new Like()
+                    .setUserProfile(entityManagerUtils.getUserProfile(userId))
+                    .setComment(entityManagerUtils.getComment(commentId));
             likeRepository.save(like);
         } else {
-            Like like = likeRepository.findByCommentAndUserProfile(comment, userProfile);
-            if (like == null) return true;
-
-            entityManager.createQuery("DELETE FROM Like l WHERE l.comment = :comment AND l.userProfile = :userProfile")
-                .setParameter("comment", comment)
-                .setParameter("userProfile", userProfile)
-                .executeUpdate();
+            if (likedComment.isEmpty()) return;
+            likeRepository.delete(likedComment.get());
         }
-        return true;
     }
 
-    public List<Post> findAllLikesPageable(Post post, UserProfile userProfile, int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit, sortByUpdatedAtOrCreatedAt());
-        Page<Post> posts = likeRepository.findPostsByUserProfile(userProfile, page);
-        return posts.getContent();
+    public Optional<Like> userHasLikedPost(Integer postId, Integer userId) {
+        return likeRepository.findByPostIdAndUserProfileUserId(postId, userId);
     }
 
-    public boolean userHasLikedPost(Post post, UserProfile userProfile) {
-        return likeRepository.existsByPostAndUserProfile(post, userProfile);
-    }
-
-    public boolean userHasLikedComment(Comment comment, UserProfile userProfile) {
-        return likeRepository.existsByCommentAndUserProfile(comment, userProfile);
-    }
-
-    @Transactional
-    public void deleteLikesByPost(Post post) {
-        likeRepository.deleteByPost(post);
-    }
-
-    private Sort sortByUpdatedAtOrCreatedAt() {
-        return Sort.by(
-            Sort.Order.desc("updatedAt").nullsLast(),
-            Sort.Order.desc("createdAt")
-        );
+    public Optional<Like> userHasLikedComment(Integer commentId, Integer userId) {
+        return likeRepository.findByCommentIdAndUserProfileUserId(commentId, userId);
     }
 }

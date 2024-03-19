@@ -1,79 +1,78 @@
 package com.gamix.security;
 
-import java.util.Date;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import com.gamix.enums.ExpirationTime;
-import com.gamix.enums.Role;
-import com.gamix.exceptions.authentication.TokenClaimsException;
-import com.gamix.interfaces.security.JwtManagerInterface;
 import com.gamix.models.User;
-import com.gamix.records.returns.security.JwtTokens;
-import com.gamix.repositories.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
-@Component
-public class JwtManager implements JwtManagerInterface {
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Date;
+import java.util.function.Function;
 
-    @Autowired
-    private UserRepository userRepository;
+public class JwtManager {
+    private static final String secret = System.getenv("JWT_SIGNING_KEY_SECRET");
 
-    @Override
-    public Claims getTokenClaims(String token) throws TokenClaimsException {
-        try {
-            return Jwts.parser().setSigningKey(System.getenv("JWT_SIGNING_KEY_SECRET"))
-                    .parseClaimsJws(token).getBody();
-        } catch (Exception e) {
-            throw new TokenClaimsException();
-        }
+    public static boolean isValid(String token, User user) {
+        boolean isValidId = user.getId().equals(getIdFromToken(token));
+        boolean isValidPasswordUser = getPasswordFromToken(token).equals(user.getPassword());
+        return isTokenNotExpired(token) && isValidId && isValidPasswordUser;
     }
 
-    @Override
-    public boolean validate(String token) throws TokenClaimsException {
-        Claims body = getTokenClaims(token);
-
-        Date expirationDate = body.getExpiration();
-        Date currentDate = new Date();
-
-        Optional<User> userOptional = userRepository.findById(Integer.parseInt(body.getSubject()));
-
-        boolean isExpired = expirationDate != null && expirationDate.before(currentDate);
-        boolean invalidUser = !userOptional.isPresent();
-        boolean invalidPasswordUser = false;
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            invalidPasswordUser = user.getPasswordUser() != null && !body.get("password")
-                    .toString().equals(user.getPasswordUser().getPassword());
-        }
-
-        if (isExpired || invalidUser || invalidPasswordUser)
-            return false;
-
-        return true;
+    public static String refreshToken(String token) {
+        return generateToken(getIdFromToken(token), getPasswordFromToken(token), getRememberMeFromToken(token));
     }
 
-    @Override
-    public JwtTokens generateJwtTokens(Integer id, String password, boolean rememberMe) {
-        String accessToken = generateToken(id, password, rememberMe, ExpirationTime.ACCESS_TOKEN);
-        String refreshToken = generateToken(id, password, rememberMe,
-                rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.REFRESH_TOKEN);
-
-        return new JwtTokens(accessToken, refreshToken, rememberMe);
-    }
-
-    private String generateToken(Integer id, String password, boolean rememberMe,
-            ExpirationTime expirationTime) {
+    public static String generateToken(Integer id, String password, boolean rememberMe) {
         Claims claims = Jwts.claims().setSubject(id.toString());
         claims.put("rememberMe", rememberMe);
-        claims.put("role", Role.USER.toString());
         claims.put("password", password);
-
+        ExpirationTime expirationTime = rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.ACCESS_TOKEN;
         Date expirationDate = new Date(System.currentTimeMillis() + expirationTime.getValue());
 
-        return Jwts.builder().setClaims(claims).setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS512, System.getenv("JWT_SIGNING_KEY_SECRET")).compact();
+        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(expirationDate)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public static Integer getIdFromToken(String token) {
+        return Integer.parseInt(getClaimFromToken(token, Claims::getSubject));
+    }
+
+    public static String getPasswordFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("password", String.class));
+    }
+
+    public static Boolean getRememberMeFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("rememberMe", Boolean.class));
+    }
+
+    private static Boolean isTokenNotExpired(String token) {
+        final Date expiration = getExpirationDateFromToken(token);
+        return !expiration.before(new Date());
+    }
+
+    public static Date getExpirationDateFromToken(String token) {
+        return getClaimFromToken(token, Claims::getExpiration);
+    }
+
+    public static <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = getAllClaimsFromToken(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private static Claims getAllClaimsFromToken(String token) {
+        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token.substring(7))
+                .getBody();
     }
 }

@@ -1,11 +1,15 @@
 package com.gamix.repositories;
 
-import java.util.Optional;
+import com.gamix.models.User;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import com.gamix.models.User;
+
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
@@ -13,7 +17,15 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     Optional<User> findByUsername(String username);
 
-    Optional<User> findById(Integer id);
+    @NotNull
+    Optional<User> findById(@NotNull Integer id);
 
-    Page<User> findAll(Pageable page);
+    @NotNull
+    Page<User> findAll(@NotNull Pageable page);
+
+    @Query("SELECT p FROM User p WHERE p.blockedUntil IS NOT NULL AND p.blockedUntil < CURRENT_TIMESTAMP")
+    List<User> findUsersToUnbanNow();
+
+    @Query("SELECT p FROM User p WHERE p.blockedUntil IS NOT NULL")
+    List<User> findUsersToUnbanSoon();
 }

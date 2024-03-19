@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ScribeMD/docker-cache@0.3.6
         with:
-          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
+          key: docker-${{ runner.os }}-${{ hashFiles('compose.yaml') }}
       - uses: actions/setup-java@v3
         with:
           distribution: "temurin"
@@ -35,6 +35,6 @@ jobs:
           export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/postgres && \
           export SPRING_DATASOURCE_USERNAME=postgres && \
           export SPRING_DATASOURCE_PASSWORD=root && \
-          export JWT_SIGNING_KEY_SECRET=Graphql && \
+          export JWT_SIGNING_KEY_SECRET=32f9799e0e890686629813253cd5c032369e2fd1a57f0bdd3f4c89b556481839 && \
           export FRONT_END_BASE_URL=http://localhost:3000 && \
-          dockerize -wait tcp://localhost:5432 -timeout 60s && mvn test && mvn test -P unit_tests
+          dockerize -wait tcp://localhost:5432 -timeout 60s && mvn test

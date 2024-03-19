@@ -1,5 +1,20 @@
 package com.gamix.service;
 
+import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.image.ErrorCreatingImage;
+import com.gamix.exceptions.image.ErrorUpdatingImage;
+import com.gamix.exceptions.parameters.posts.TooManyImages;
+import com.gamix.models.Image;
+import com.gamix.models.Post;
+import com.gamix.models.User;
+import com.gamix.repositories.ImageRepository;
+import com.gamix.utils.SingleMultipartFile;
+import jakarta.servlet.http.Part;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,64 +23,28 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.imageio.ImageIO;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import com.gamix.exceptions.ExceptionBase;
-import com.gamix.exceptions.image.ErrorCreatingImage;
-import com.gamix.exceptions.parameters.posts.TooManyImages;
-import com.gamix.models.Image;
-import com.gamix.models.Post;
-import com.gamix.models.User;
-import com.gamix.repositories.ImageRepository;
-import com.gamix.utils.SingleMultipartFile;
-import jakarta.servlet.http.Part;
 
+@RequiredArgsConstructor
 @Service
 public class ImageService {
-
-    private final Integer MAX_SIZE = 1048576;
-    
-    private final List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
-
-    @Autowired
-    private ImageRepository imageRepository;
+    private final static List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
+    private final ImageRepository imageRepository;
 
     public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
-        String imagesFolderPath = "/images/posts/"+user.getId()+"/";
+        String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
 
         List<Image> images = new ArrayList<>();
+        if (files.size() > 8) {
+            throw new TooManyImages();
+        }
+
         try {
             for (Part partFile : files) {
                 MultipartFile file = new SingleMultipartFile(partFile);
                 String fileName = file.getOriginalFilename();
-                InputStream fileContent = file.getInputStream();
-                
-                if (file.getSize() > MAX_SIZE) continue;
-
-                String fileExtension = getFileExtension(fileName);
-                if (!allowedExtensions.contains(fileExtension)) continue;
-                
-                String src = imagesFolderPath + fileName;
-                
-                File imageFile = new File(src);
-                saveFile(fileContent, imageFile);
-    
-                BufferedImage bufferedImage = ImageIO.read(imageFile);
-                int width = bufferedImage.getWidth();
-                int height = bufferedImage.getHeight();
-    
-                Image image = new Image()
-                    .setName(fileName)
-                    .setSrc(src)
-                    .setWidth(width)
-                    .setHeight(height)
-                    .setPost(post);
-
-                images.add(image);
-
+                if (!allowedExtensions.contains(getFileExtension(fileName))) continue;
+                images.add(createImage(imagesFolderPath + fileName, file, post));
             }
         } catch (IOException e) {
             throw new ErrorCreatingImage();
@@ -76,12 +55,12 @@ public class ImageService {
     public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
         String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
-    
+
         List<Image> postImages = post.getImages();
 
         if (files == null || files.isEmpty()) {
+            deleteImages(postImages);
             postImages.clear();
-            deleteImages(post);
             return postImages;
         }
 
@@ -95,12 +74,9 @@ public class ImageService {
             for (Part partFile : files) {
                 MultipartFile file = new SingleMultipartFile(partFile);
                 String fileName = file.getOriginalFilename();
-                InputStream fileContent = file.getInputStream();
-                
-                String src = imagesFolderPath + fileName;
-                
+
                 boolean imageExists = false;
-                
+
                 for (Image postImage : postImages) {
                     if (postImage.getName().equals(fileName)) {
                         imagesToAdd.add(postImage);
@@ -108,28 +84,12 @@ public class ImageService {
                         break;
                     }
                 }
-                
                 if (imageExists && file.getSize() == 0) continue;
-                String fileExtension = getFileExtension(fileName);
-                if (!allowedExtensions.contains(fileExtension)) continue;
-    
-                File imageFile = new File(src);
-                saveFile(fileContent, imageFile);
-            
-                BufferedImage bufferedImage = ImageIO.read(imageFile);
-                int width = bufferedImage.getWidth();
-                int height = bufferedImage.getHeight();
-            
-                Image newImage = new Image()
-                    .setName(fileName)
-                    .setSrc(src)
-                    .setWidth(width)
-                    .setHeight(height)
-                    .setPost(post);
-            
-                imagesToAdd.add(newImage);
+                if (!allowedExtensions.contains(getFileExtension(fileName))) continue;
+
+                imagesToAdd.add(createImage(imagesFolderPath + fileName, file, post));
             }
-        
+
             for (Image postImage : postImages) {
                 boolean found = false;
                 for (Image newImage : imagesToAdd) {
@@ -143,27 +103,38 @@ public class ImageService {
                     imagesToRemove.add(postImage);
                 }
             }
-        
+
             postImages.removeAll(imagesToRemove);
             postImages.addAll(imagesToAdd);
-        
+
         } catch (IOException e) {
-            
+            throw new ErrorUpdatingImage();
         }
         return postImages;
     }
 
     public void deleteImage(Image image) {
         if (!imageIsReferencedByOtherPosts(image)) {
-            System.out.println("Deletando "+image.getSrc());
             deleteImageFromDisk(image.getSrc());
         }
     }
 
-    public void deleteImages(Post post) {
-        for (Image image : post.getImages()) {
+    public void deleteImages(List<Image> images) {
+        for (Image image : images) {
             deleteImage(image);
         }
+    }
+
+    private Image createImage(String src, MultipartFile file, Post post) throws IOException {
+        File imageFile = new File(src);
+        saveFile(file.getInputStream(), imageFile);
+        BufferedImage bufferedImage = ImageIO.read(imageFile);
+        return new Image()
+                .setName(file.getOriginalFilename())
+                .setSrc(src)
+                .setWidth(bufferedImage.getWidth())
+                .setHeight(bufferedImage.getHeight())
+                .setPost(post);
     }
 
     private boolean imageIsReferencedByOtherPosts(Image image) {
@@ -177,7 +148,7 @@ public class ImageService {
 
     private void saveFile(InputStream fileContent, File file) throws IOException {
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            byte[] buffer = new byte[MAX_SIZE];
+            byte[] buffer = new byte[1048576];
             int bytesRead;
             while ((bytesRead = fileContent.read(buffer)) != -1) {
                 fos.write(buffer, 0, bytesRead);

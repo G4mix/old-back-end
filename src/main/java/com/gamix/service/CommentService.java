@@ -1,94 +1,63 @@
 package com.gamix.service;
 
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.comment.CommentIdNotFound;
 import com.gamix.exceptions.comment.EmptyComment;
 import com.gamix.exceptions.comment.TooLongContent;
 import com.gamix.models.Comment;
-import com.gamix.models.Post;
-import com.gamix.models.User;
-import com.gamix.models.UserProfile;
 import com.gamix.repositories.CommentRepository;
-import com.gamix.utils.SortUtils;
-import jakarta.transaction.Transactional;
+import com.gamix.utils.EntityManagerUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@RequiredArgsConstructor
 @Service
 public class CommentService {
-    @Autowired
-    private CommentRepository commentRepository;
-    
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private LikeService likeService;
+    private final EntityManagerUtils entityManagerUtils;
+    private final CommentRepository commentRepository;
 
     public Comment commentPost(
-        String accessToken, Post post, String content
+            Integer userId, Integer postId, String content
     ) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile author = user.getUserProfile();
+        if (content.isEmpty()) throw new EmptyComment();
+        if (content.length() > 200) throw new TooLongContent();
 
-        if (content == "") {
-            throw new EmptyComment();
-        }
-        
-        if (content.length() > 200){
-            throw new TooLongContent();
-        }
-
-        Comment newComment = new Comment();
-        newComment.setAuthor(author);
-        newComment.setPost(post);
-        newComment.setContent(content);
-
-        commentRepository.save(newComment);
-
-        return newComment;
+        Comment newComment = new Comment()
+                .setAuthor(entityManagerUtils.getUserProfile(userId))
+                .setPost(entityManagerUtils.getPost(postId)).setContent(content);
+        return commentRepository.save(newComment);
     }
 
-    public Comment replyComment(String accessToken, Integer commentId, String content) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile author = user.getUserProfile();
-        Comment parentComment = commentRepository.findCommentById(commentId)
-            .orElseThrow(() -> new CommentIdNotFound());
+    public Comment replyComment(Integer userId, Integer commentId, String content) throws ExceptionBase {
+        Comment parentComment = commentRepository.findCommentById(commentId).orElseThrow(CommentIdNotFound::new);
 
         Comment newReply = new Comment()
-            .setParentComment(parentComment)
-            .setAuthor(author)
-            .setContent(content)
-            .setPost(parentComment.getPost());
-        
-        parentComment.getReplies().add(newReply);
-        commentRepository.save(newReply);
-        return newReply;
+                .setParentComment(parentComment).setAuthor(entityManagerUtils.getUserProfile(userId))
+                .setContent(content).setPost(parentComment.getPost());
+
+        return commentRepository.save(newReply);
     }
 
     public Comment findCommentById(Integer commentId) throws ExceptionBase {
-        return commentRepository.findCommentById(commentId).orElseThrow(() -> new CommentIdNotFound());
+        return commentRepository.findCommentById(commentId).orElseThrow(CommentIdNotFound::new);
     }
 
-    public List<Comment> findAllCommentsOfAPost(int postId, int skip, int limit) {
-        Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-        Page<Comment> posts = commentRepository.findAllByPostIdAndParentCommentIsNull(postId, page);
-        return posts.getContent();
+    public List<Comment> findAllCommentsOfAPost(int postId, Pageable page) {
+        return commentRepository.findAllByPostIdAndParentCommentIsNull(postId, page).getContent();
     }
 
-    public boolean getIsLiked(String accessToken, Comment comment) throws ExceptionBase {
-        User user = userService.findUserByToken(accessToken);
-        UserProfile author = user.getUserProfile();
-        return likeService.userHasLikedComment(comment, author);
+    public boolean getIsLiked(Comment comment, Integer id) throws ExceptionBase {
+        return commentRepository.existsLikeByCommentAndUserId(comment, id);
     }
 
-    @Transactional
-    public void deleteCommentsByPost(Post post) {
-        commentRepository.deleteLikesByPost(post);
-        commentRepository.deleteCommentsByPost(post);
+    public int getLikesCount(Comment comment) {
+        return commentRepository.countLikesByPost(comment);
+    }
+
+    public List<Comment> getReplies(Comment comment) {
+        return commentRepository.findAllRepliesByComments(comment);
     }
 }

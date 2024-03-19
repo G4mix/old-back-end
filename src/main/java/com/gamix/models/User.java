@@ -1,15 +1,10 @@
 package com.gamix.models;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.time.LocalDateTime;
 
 @Data
 @Accessors(chain = true)
@@ -21,18 +16,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserProfile userProfile;
+
     @Column(unique = true, nullable = false, length = 50)
     private String username;
 
     @Column(unique = true, nullable = false, length = 320)
     private String email;
 
-    @Column(nullable = true, length = 120)
-    private String icon;
+    @Column(nullable = false, length = 60)
+    private String password;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private PasswordUser passwordUser;
+    private Boolean verifiedEmail;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserProfile userProfile;
+    @Column(nullable = false)
+    private Integer loginAttempts = 0;
+
+    @Column()
+    private LocalDateTime blockedUntil;
 }

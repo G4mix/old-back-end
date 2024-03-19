@@ -1,6 +1,6 @@
 package com.gamix.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.ResponseEntity;
@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+@RequiredArgsConstructor
 @Controller
 public class ImagesController {
     private static final String BASE_PATH = "images";
-    
-    @Autowired
-    private ResourceLoader resourceLoader;
+
+    private final ResourceLoader resourceLoader;
 
     @GetMapping(BASE_PATH + "/{imageName}")
     @ResponseBody

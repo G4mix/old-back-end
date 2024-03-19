@@ -1,15 +1,14 @@
 package com.gamix.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.stereotype.Service;
 import com.gamix.models.Post;
 import com.gamix.models.Tag;
 
-@Service
+import java.util.ArrayList;
+import java.util.List;
+
 public class TagService {
 
-    public List<Tag> createTagsForPost(Post post, List<String> tagsStrings) {
+    public static List<Tag> createTagsForPost(Post post, List<String> tagsStrings) {
         List<Tag> postTags = new ArrayList<>();
         for (String tagString : tagsStrings) {
             Tag tag = new Tag();
@@ -21,9 +20,8 @@ public class TagService {
         return postTags;
     }
 
-    public List<Tag> updateTagsForPost(Post post, List<String> tagsStrings) {
+    public static List<Tag> updateTagsForPost(Post post, List<String> tagsStrings) {
         List<Tag> postTags = post.getTags();
-        
         if (tagsStrings == null || tagsStrings.isEmpty()) {
             postTags.clear();
             return postTags;

@@ -1,0 +1,21 @@
+version: "3.3"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lordluch/gamix-back-end
+    container_name: backend
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - gamix_network
+    depends_on:
+      - database
+    links:
+      - database
+
+networks:
+  gamix_network:
+    driver: bridge

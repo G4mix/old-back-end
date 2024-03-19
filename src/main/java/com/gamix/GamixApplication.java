@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfi
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 public class GamixApplication {
-    
-	public static void main(String[] args) {
-		SpringApplication.run(GamixApplication.class, args);
-	}
+
+    public static void main(String[] args) {
+        SpringApplication.run(GamixApplication.class, args);
+    }
 }

@@ -81,39 +81,41 @@ Dentro do pacote `com.gamix`, a estrutura padrão do projeto Spring Boot inclui:
 
 UserController.java:
 ```java
-package com.gamix.controller;
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+    private final AuthService authService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
+    @PostMapping("/signup")
+    public ResponseEntity<Object> signUpPasswordUser(
+            @RequestBody SignUpUserInput signUpUserInput
+    ) throws ExceptionBase {
+        try {
+            SessionReturn session = authService.signUpPasswordUser(signUpUserInput);
 
-import com.gamix.models.UserEntity;
-import com.gamix.service.EntityService;
-
-@Controller
-public class UserController {
-
-    private final EntityService userService;
-
-    @Autowired
-    public UserController(EntityService userService) {
-        this.userService = userService;
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + session.getToken())
+                    .body(session);
+        } catch (ExceptionBase ex) {
+            return throwError(ex);
+        }
     }
 
-    @QueryMapping
-    public Iterable<UserEntity> getUser() {
-        return userService.getAllUsers();
-    }
+    @PostMapping("/signin")
+    public ResponseEntity<Object> signInPasswordUser(
+            @RequestBody SignInUserInput signInUserInput,
+            HttpServletRequest req) throws ExceptionBase {
+        try {
+            SessionReturn session = authService.signInPasswordUser(signInUserInput);
 
-    @MutationMapping
-    public UserEntity addUser(@Argument UserInput userInput) {
-        UserEntity newUser = new UserEntity(userInput.name);
-        return userService.addUser(newUser);
+            return ResponseEntity.ok()
+                    .header("Authorization", "Bearer " + session.getToken())
+                    .body(session);
+        } catch (ExceptionBase ex) {
+            return throwError(ex);
+        }
     }
-
-    record UserInput(String name) {}
 }
 ```
 Schema.graphqls:

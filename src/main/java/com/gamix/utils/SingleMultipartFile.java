@@ -1,14 +1,15 @@
 package com.gamix.utils;
 
+import jakarta.servlet.http.Part;
+import org.springframework.util.FileCopyUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import javax.validation.constraints.NotNull;
-import org.springframework.util.FileCopyUtils;
-import org.springframework.web.multipart.MultipartFile;
-import jakarta.servlet.http.Part;
 
 public class SingleMultipartFile implements MultipartFile {
     private final Part part;
@@ -17,6 +18,7 @@ public class SingleMultipartFile implements MultipartFile {
         this.part = part;
     }
 
+    @org.jetbrains.annotations.NotNull
     @NotNull
     @Override
     public String getName() {
@@ -45,13 +47,13 @@ public class SingleMultipartFile implements MultipartFile {
 
     @NotNull
     @Override
-    public byte[] getBytes() throws IOException {
+    public byte @org.jetbrains.annotations.NotNull [] getBytes() throws IOException {
         return FileCopyUtils.copyToByteArray(this.part.getInputStream());
     }
 
     @NotNull
     @Override
-    public InputStream getInputStream() throws IOException {
+    public @org.jetbrains.annotations.NotNull InputStream getInputStream() throws IOException {
         return this.part.getInputStream();
     }
 
@@ -64,7 +66,7 @@ public class SingleMultipartFile implements MultipartFile {
     }
 
     @Override
-    public void transferTo(Path dest) throws IOException, IllegalStateException {
+    public void transferTo(@org.jetbrains.annotations.NotNull Path dest) throws IOException, IllegalStateException {
         FileCopyUtils.copy(this.part.getInputStream(), Files.newOutputStream(dest));
     }
 }
