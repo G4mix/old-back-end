@@ -2,6 +2,8 @@ package com.gamix.service;
 
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.user.UserNotFoundById;
+import com.gamix.exceptions.user.UserNotFoundByEmail;
+import com.gamix.exceptions.user.UserNotFoundByUsername;
 import com.gamix.models.User;
 import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;

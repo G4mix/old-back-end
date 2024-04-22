@@ -24,7 +24,7 @@ public class UserQueryResolver implements GraphQLQueryResolver {
         return userService.findUserByToken(accessToken);
     }
 
-    @QueryMapping
+/*    @QueryMapping
     User findUserByUsername(@Argument String username) throws ExceptionBase {
         return userService.findByUsername(username).orElseThrow(UserNotFoundByUsername::new);
     }
@@ -32,6 +32,6 @@ public class UserQueryResolver implements GraphQLQueryResolver {
     @QueryMapping
     User findUserByEmail(@Argument String email) throws ExceptionBase {
         return userService.findByEmail(email).orElseThrow(UserNotFoundByEmail::new);
-    }
+    }*/
 
 }
