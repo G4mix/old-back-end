@@ -2,6 +2,7 @@ package com.gamix.controller.user;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,5 +42,17 @@ public class UserController {
         } catch (UserNotFoundByEmail userNotFoundByEmail) {
             throw new UserNotFoundByEmail();
         }
-    }   
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<Boolean> deleteUserById(@PathVariable Integer id) {
+        boolean success = userService.deleteAccount(id);
+
+        if (success) {
+            return ResponseEntity.ok(true);
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+        }
+    }
 }

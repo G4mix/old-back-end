@@ -35,7 +35,13 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteAccount(Integer id) throws ExceptionBase {
-        userRepository.deleteById(id);
+    public boolean deleteAccount(Integer id) throws ExceptionBase {
+        try {
+            userRepository.deleteById(id);
+
+            return true;
+        } catch (DataAccessException ex) {
+            return false;
+        }
     }
 }
