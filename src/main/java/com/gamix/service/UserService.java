@@ -24,12 +24,12 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(UserNotFoundById::new);
     }
 
-    public Optional<User> findByEmail(String email) throws ExceptionBase {
-        return userRepository.findByEmail(email);
+    public User findByEmail(String email) throws ExceptionBase {
+        return userRepository.findByEmail(email).orElseThrow(UserNotFoundByEmail::new);
     }
 
-    public Optional<User> findByUsername(String username) throws ExceptionBase {
-        return userRepository.findByUsername(username);
+    public User findByUsername(String username) throws ExceptionBase {
+        return userRepository.findByUsername(username).orElseThrow(UserNotFoundByUsername::new);
     }
 
     @Transactional
