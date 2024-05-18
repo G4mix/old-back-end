@@ -1,4 +1,4 @@
-package com.gamix.communication.userController;
+package com.gamix.communication.authController;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;

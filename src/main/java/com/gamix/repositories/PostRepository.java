@@ -1,7 +1,7 @@
 package com.gamix.repositories;
 
 import com.gamix.models.*;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.lang.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +15,8 @@ import java.util.Optional;
 public interface PostRepository extends JpaRepository<Post, Integer> {
     Optional<Post> findPostByTitle(String title);
 
-    @NotNull
-    Page<Post> findAll(@NotNull Pageable page);
+    @NonNull
+    Page<Post> findAll(@NonNull Pageable page);
 
     @Query("SELECT CASE WHEN COUNT(l) > 0 THEN true ELSE false END FROM Like l WHERE l.post = :post AND l.userProfile.user.id = :userId")
     boolean existsLikeByPostAndUserId(Post post, Integer userId);

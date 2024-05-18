@@ -1,18 +1,22 @@
 package com.gamix.controller.user;
 
-import org.springframework.http.HttpStatus;
+import com.gamix.communication.authController.SessionReturn;
+import com.gamix.communication.userController.UserReturn;
+import com.gamix.security.JwtManager;
+import com.gamix.models.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.gamix.exceptions.user.UserNotFoundByEmail;
-import com.gamix.exceptions.user.UserNotFoundByUsername;
-import com.gamix.models.User;
+import com.gamix.exceptions.ExceptionBase;
 import com.gamix.service.UserService;
 import lombok.RequiredArgsConstructor;
+
+import static com.gamix.utils.ControllerUtils.throwError;
 
 @RequiredArgsConstructor
 @RestController
@@ -20,39 +24,48 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/{username}")
+    @GetMapping()
     @ResponseBody
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+    public ResponseEntity<Object> getUserByAccessToken(@RequestHeader("Authorization") String token) {
         try {
-            User user = userService.findByUsername(username);
-
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (UserNotFoundByUsername userNotFoundByUsername) {
-            throw new UserNotFoundByUsername();
+            User user = userService.findUserByToken(token);
+            return ResponseEntity.ok().body(
+                new SessionReturn(user.getUsername(), user.getUserProfile().getIcon(), null)
+            );
+        } catch (ExceptionBase ex) {
+            return throwError(ex);
         }
     }
 
-    @GetMapping("/{email}")
+    @GetMapping("/username/{username}")
     @ResponseBody
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<Object> getUserByUsername(@PathVariable String username) {
         try {
-            User user = userService.findByEmail(email);
-
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (UserNotFoundByEmail userNotFoundByEmail) {
-            throw new UserNotFoundByEmail();
+            return ResponseEntity.ok().body(new UserReturn(userService.findByUsername(username)));
+        } catch (ExceptionBase ex) {
+            return throwError(ex);
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @GetMapping("/email/{email}")
     @ResponseBody
-    public ResponseEntity<Boolean> deleteUserById(@PathVariable Integer id) {
-        boolean success = userService.deleteAccount(id);
+    public ResponseEntity<Object> getUserByEmail(@PathVariable String email) {
+        try {
+            return ResponseEntity.ok().body(new UserReturn(userService.findByEmail(email)));
+        } catch (ExceptionBase ex) {
+            return throwError(ex);
+        }
+    }
 
-        if (success) {
-            return ResponseEntity.ok(true);
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+    @DeleteMapping()
+    @ResponseBody
+    public ResponseEntity<Object> deleteUserById(@RequestHeader("Authorization") String token) {
+        System.out.println(token);
+        try {
+            userService.deleteAccount(JwtManager.getIdFromToken(token));
+            return ResponseEntity.status(204).body(true);
+        } catch (ExceptionBase ex) {
+            return throwError(ex);
         }
     }
 }

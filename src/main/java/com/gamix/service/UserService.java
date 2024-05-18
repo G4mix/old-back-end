@@ -1,6 +1,7 @@
 package com.gamix.service;
 
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.general.FailWhenTriedToDelete;
 import com.gamix.exceptions.user.UserNotFoundById;
 import com.gamix.exceptions.user.UserNotFoundByEmail;
 import com.gamix.exceptions.user.UserNotFoundByUsername;
@@ -9,9 +10,8 @@ import com.gamix.repositories.UserRepository;
 import com.gamix.security.JwtManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -35,13 +35,11 @@ public class UserService {
     }
 
     @Transactional
-    public boolean deleteAccount(Integer id) throws ExceptionBase {
+    public void deleteAccount(Integer id) throws ExceptionBase {
         try {
             userRepository.deleteById(id);
-
-            return true;
         } catch (DataAccessException ex) {
-            return false;
+            throw new FailWhenTriedToDelete();
         }
     }
 }

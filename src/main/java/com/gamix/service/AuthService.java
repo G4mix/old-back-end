@@ -1,8 +1,8 @@
 package com.gamix.service;
 
-import com.gamix.communication.userController.SessionReturn;
-import com.gamix.communication.userController.SignInUserInput;
-import com.gamix.communication.userController.SignUpUserInput;
+import com.gamix.communication.authController.SessionReturn;
+import com.gamix.communication.authController.SignInUserInput;
+import com.gamix.communication.authController.SignUpUserInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.authentication.PasswordUserNotFound;

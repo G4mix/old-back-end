@@ -1,10 +1,9 @@
 package com.gamix.controller;
 
-import com.gamix.communication.userController.SessionReturn;
-import com.gamix.communication.userController.SignInUserInput;
-import com.gamix.communication.userController.SignUpUserInput;
+import com.gamix.communication.authController.SessionReturn;
+import com.gamix.communication.authController.SignInUserInput;
+import com.gamix.communication.authController.SignUpUserInput;
 import com.gamix.exceptions.ExceptionBase;
-import com.gamix.security.JwtManager;
 import com.gamix.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

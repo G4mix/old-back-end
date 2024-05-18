@@ -7,11 +7,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(
-        @NotNull HttpServletRequest req, @NotNull HttpServletResponse res, @NotNull FilterChain filterChain
+        @NonNull HttpServletRequest req, @NonNull HttpServletResponse res, @NonNull FilterChain filterChain
     ) {
         String token = req.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
@@ -35,6 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         User user = userService.findUserByToken(token);
         if (user == null || !JwtManager.isValid(token, user)) {
+            System.out.println("Se fodeo");
+
             res.setHeader("Set-Cookie", "token=undefined; path=/; max-age=0; SameSite=Lax");
             res.setHeader("Location", System.getenv("FRONT_END_BASE_URL")+"/auth/signin");
             filterChain(req, res, filterChain);

@@ -44,7 +44,8 @@ public enum ExceptionMessage {
     COMMENT_EMPTY(HttpStatus.BAD_REQUEST, "Comentário não pode ser vazio."),
     TOO_LONG_COMMENT(HttpStatus.BAD_REQUEST, "Comentário muito longo (comprimento máximo é 200 caracteres)."),
 
-    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido.");
+    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido."),
+    FAIL_WHEN_TRIED_TO_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar deletar.");
 
     private final HttpStatusCode httpStatus;
     private final String message;

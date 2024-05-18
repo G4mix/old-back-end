@@ -9,12 +9,11 @@ import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.models.*;
 import com.gamix.repositories.PostRepository;
 import com.gamix.utils.EntityManagerUtils;
-import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -24,7 +23,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final ImageService imageService;
 
-    public Post createPost(Integer userId, PartialPostInput postInput, List<Part> partImages)
+    public Post createPost(Integer userId, PartialPostInput postInput, List<MultipartFile> partImages)
             throws ExceptionBase {
 
         if (
@@ -74,7 +73,7 @@ public class PostService {
     }
 
     public Post updatePost(
-            Integer userId, Integer id, PartialPostInput postInput, List<Part> partImages
+            Integer userId, Integer id, PartialPostInput postInput, List<MultipartFile> partImages
     ) throws ExceptionBase {
         Post post = findPostById(id);
         post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));

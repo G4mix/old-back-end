@@ -8,8 +8,6 @@ import com.gamix.models.Image;
 import com.gamix.models.Post;
 import com.gamix.models.User;
 import com.gamix.repositories.ImageRepository;
-import com.gamix.utils.SingleMultipartFile;
-import jakarta.servlet.http.Part;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +28,7 @@ public class ImageService {
     private final static List<String> allowedExtensions = Arrays.asList(".gif", ".jpeg", ".jpg", ".png", ".webp");
     private final ImageRepository imageRepository;
 
-    public List<Image> createImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
+    public List<Image> createImagesForPost(Post post, List<MultipartFile> files, User user) throws ExceptionBase {
         String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
 
@@ -40,8 +38,7 @@ public class ImageService {
         }
 
         try {
-            for (Part partFile : files) {
-                MultipartFile file = new SingleMultipartFile(partFile);
+            for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
                 if (!allowedExtensions.contains(getFileExtension(fileName))) continue;
                 images.add(createImage(imagesFolderPath + fileName, file, post));
@@ -52,7 +49,7 @@ public class ImageService {
         return images;
     }
 
-    public List<Image> updateImagesForPost(Post post, List<Part> files, User user) throws ExceptionBase {
+    public List<Image> updateImagesForPost(Post post, List<MultipartFile> files, User user) throws ExceptionBase {
         String imagesFolderPath = "/images/posts/" + user.getId() + "/";
         createDirectoryIfNotExists(imagesFolderPath);
 
@@ -71,8 +68,7 @@ public class ImageService {
         List<Image> imagesToAdd = new ArrayList<>();
         List<Image> imagesToRemove = new ArrayList<>();
         try {
-            for (Part partFile : files) {
-                MultipartFile file = new SingleMultipartFile(partFile);
+            for (MultipartFile file : files) {
                 String fileName = file.getOriginalFilename();
 
                 boolean imageExists = false;
