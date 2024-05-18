@@ -1,4 +1,4 @@
-package com.gamix.controller.user;
+package com.gamix.controller;
 
 import com.gamix.communication.authController.SessionReturn;
 import com.gamix.communication.userController.UserReturn;

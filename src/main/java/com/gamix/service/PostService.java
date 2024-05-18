@@ -27,11 +27,10 @@ public class PostService {
             throws ExceptionBase {
 
         if (
-                postInput.content().isEmpty() &&
-                        postInput.title().isEmpty() &&
-                        (postInput.links() == null || postInput.links().isEmpty()) &&
-                        (partImages == null)
-
+            postInput.content().isEmpty() &&
+            postInput.title().isEmpty() &&
+            (postInput.links() == null || postInput.links().isEmpty()) &&
+            (partImages == null)
         ) {
             throw new CompletelyEmptyPost();
         }

@@ -78,5 +78,4 @@ public class Post {
     public String getUpdatedAt() {
         return updatedAt != null ? updatedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
     }
-
 }
