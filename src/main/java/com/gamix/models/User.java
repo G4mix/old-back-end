@@ -2,6 +2,7 @@ package com.gamix.models;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserProfile userProfile;
-
+    
     @Column(unique = true, nullable = false, length = 50)
     private String username;
 
@@ -35,4 +36,15 @@ public class User {
 
     @Column()
     private LocalDateTime blockedUntil;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", verifiedEmail=" + verifiedEmail +
+                '}';
+    }    
+    
 }

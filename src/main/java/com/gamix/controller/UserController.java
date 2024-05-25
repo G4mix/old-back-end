@@ -25,16 +25,13 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping()
-    @ResponseBody
-    public ResponseEntity<Object> getUserByAccessToken(@RequestHeader("Authorization") String token) {
-        try {
-            User user = userService.findUserByToken(token);
-            return ResponseEntity.ok().body(
-                new SessionReturn(user.getUsername(), user.getUserProfile().getIcon(), null)
-            );
-        } catch (ExceptionBase ex) {
-            return throwError(ex);
-        }
+    public ResponseEntity<User> getUserByAccessToken(@RequestHeader("Authorization") String token) {
+        // try {
+        User user = userService.findUserByToken(token);
+        return ResponseEntity.ok().body(user);
+        // } catch (ExceptionBase ex) {
+        //     return throwError(ex);
+        // }
     }
 
     @GetMapping("/username/{username}")
