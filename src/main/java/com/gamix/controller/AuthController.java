@@ -5,6 +5,7 @@ import com.gamix.communication.authController.SignInUserInput;
 import com.gamix.communication.authController.SignUpUserInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import static com.gamix.utils.ControllerUtils.throwError;
 public class AuthController {
     private final AuthService authService;
 
+    @Operation(tags = "Auth", description = "Signup in the Gamix plataform")
     @PostMapping("/signup")
     public ResponseEntity<Object> signUpPasswordUser(
             @RequestBody SignUpUserInput signUpUserInput
@@ -34,6 +36,7 @@ public class AuthController {
         }
     }
 
+    @Operation(tags = "Auth", description = "Signin in the Gamix plataform")
     @PostMapping("/signin")
     public ResponseEntity<Object> signInPasswordUser(@RequestBody SignInUserInput signInUserInput) throws ExceptionBase {
         try {

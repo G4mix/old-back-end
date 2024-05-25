@@ -25,6 +25,8 @@ import com.gamix.models.Post;
 import com.gamix.security.JwtManager;
 import com.gamix.service.PostService;
 import com.gamix.utils.SortUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -33,6 +35,7 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
     private final PostService postService;
 
+    @Operation(tags = "Post", description = "Create a post", security = { @SecurityRequirement(name = "jwt") })
     @PostMapping()
     @ResponseBody
     public ResponseEntity<Object> createPost(@RequestHeader("Authorization") String token,
@@ -50,6 +53,7 @@ public class PostController {
         }
     }
 
+    @Operation(tags = "Post", description = "Find all posts", security = { @SecurityRequirement(name = "jwt") })
     @GetMapping()
     @ResponseBody
     public ResponseEntity<Object> findAllPosts(
@@ -64,6 +68,7 @@ public class PostController {
         }
     }
 
+    @Operation(tags = "Post", description = "Find post by ID", security = { @SecurityRequirement(name = "jwt") })
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Object> findPostById(@PathVariable Integer id) {
@@ -75,6 +80,7 @@ public class PostController {
         }
     }
 
+    @Operation(tags = "Post", description = "Update post by ID", security = { @SecurityRequirement(name = "jwt") })
     @PatchMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Object> updatePost(@RequestHeader("Authorization") String token,
@@ -92,6 +98,7 @@ public class PostController {
         }
     }
 
+    @Operation(tags = "Post", description = "Delete post by ID", security = { @SecurityRequirement(name = "jwt") })
     @DeleteMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Object> deletePostById(@RequestHeader("Authorization") String token,

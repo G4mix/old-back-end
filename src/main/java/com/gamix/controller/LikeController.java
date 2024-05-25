@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.security.JwtManager;
 import com.gamix.service.LikeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class LikeController {
     private final LikeService likeService;
 
+    @Operation(tags = "Like", description = "Post likes", security = { @SecurityRequirement(name = "jwt") })
     @GetMapping("/post/{postId}")
     @ResponseBody
     public ResponseEntity<Object> likePost(@RequestHeader("Authorization") String token,
@@ -29,6 +32,7 @@ public class LikeController {
         return ResponseEntity.ok().body(true);
     }
 
+    @Operation(tags = "Like", description = "Comment likes", security = { @SecurityRequirement(name = "jwt") })
     @GetMapping("/comment/{commentId}")
     @ResponseBody
     public ResponseEntity<Object> likeComment(@RequestHeader("Authorization") String token,

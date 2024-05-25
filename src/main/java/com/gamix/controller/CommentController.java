@@ -22,6 +22,8 @@ import com.gamix.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import com.gamix.utils.SortUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RequiredArgsConstructor
 @RestController
@@ -29,12 +31,14 @@ import com.gamix.utils.SortUtils;
 public class CommentController {
     private final CommentService commentService;
 
+    @Operation(tags = "Comment", description = "Comment in a post", security = { @SecurityRequirement(name = "jwt") })
     @PostMapping("/post/{postId}")
     @ResponseBody
     public ResponseEntity<Object> commentPost(@RequestHeader("Authorization") String token,
             @PathVariable Integer postId,
             @RequestBody CommentInput commentData
         ) {
+
         try {
             Comment comment = commentService.commentPost(JwtManager.getIdFromToken(token), postId, commentData.content());
             return ResponseEntity.ok().body(new CommentReturn(comment));
@@ -43,6 +47,7 @@ public class CommentController {
         }
     }
 
+    @Operation(tags = "Comment", description = "Reply to a comment", security = { @SecurityRequirement(name = "jwt") })
     @PostMapping("/reply/{commentId}")
     @ResponseBody
     public ResponseEntity<Object> replyComment(@RequestHeader("Authorization") String token,
@@ -55,6 +60,7 @@ public class CommentController {
         }
     }
 
+    @Operation(tags = "Comment", description = "Find all comments of a post", security = { @SecurityRequirement(name = "jwt") })
     @GetMapping("/{postId}")
     @ResponseBody
     public ResponseEntity<Object> findAllCommentsOfAPost(@RequestHeader("Authorization") String token,
