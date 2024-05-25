@@ -49,7 +49,7 @@ public class AuthService {
         User user = createUser(
                 signUpUserInput.username(), signUpUserInput.email(), encodedPassword);
         String token = JwtManager.generateToken(user.getId(), encodedPassword, false);
-        return new SessionReturn(user.getUsername(), null, token);
+        return new SessionReturn(user, token);
     }
 
     public SessionReturn signInPasswordUser(SignInUserInput signInUserInput) throws ExceptionBase {
@@ -79,7 +79,7 @@ public class AuthService {
         String token = JwtManager.generateToken(user.getId(),
                 user.getPassword(), signInUserInput.rememberMe());
 
-        return new SessionReturn(user.getUsername(), user.getUserProfile().getIcon(), token);
+        return new SessionReturn(user, token);
     }
 
     @Transactional

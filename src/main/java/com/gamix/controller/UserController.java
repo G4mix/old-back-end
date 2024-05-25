@@ -1,7 +1,5 @@
 package com.gamix.controller;
 
-import com.gamix.communication.authController.SessionReturn;
-import com.gamix.communication.userController.UserReturn;
 import com.gamix.security.JwtManager;
 import com.gamix.models.User;
 import org.springframework.http.ResponseEntity;
@@ -25,20 +23,20 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping()
-    public ResponseEntity<User> getUserByAccessToken(@RequestHeader("Authorization") String token) {
-        // try {
-        User user = userService.findUserByToken(token);
-        return ResponseEntity.ok().body(user);
-        // } catch (ExceptionBase ex) {
-        //     return throwError(ex);
-        // }
+    public ResponseEntity<Object> getUserByAccessToken(@RequestHeader("Authorization") String token) {
+        try {
+            User user = userService.findUserByToken(token);
+            return ResponseEntity.ok().body(user);
+        } catch (ExceptionBase ex) {
+            return throwError(ex);
+        }
     }
 
     @GetMapping("/username/{username}")
     @ResponseBody
     public ResponseEntity<Object> getUserByUsername(@PathVariable String username) {
         try {
-            return ResponseEntity.ok().body(new UserReturn(userService.findByUsername(username)));
+            return ResponseEntity.ok().body(userService.findByUsername(username));
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -48,7 +46,7 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<Object> getUserByEmail(@PathVariable String email) {
         try {
-            return ResponseEntity.ok().body(new UserReturn(userService.findByEmail(email)));
+            return ResponseEntity.ok().body(userService.findByEmail(email));
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }

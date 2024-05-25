@@ -28,7 +28,7 @@ public class AuthController {
             SessionReturn session = authService.signUpPasswordUser(signUpUserInput);
             return ResponseEntity.ok()
                     .header("Set-Cookie", "token="+session.getToken()+"; path=/; max-age=3600; SameSite=Lax")
-                    .body(session);
+                    .body(session.getUser());
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -42,7 +42,7 @@ public class AuthController {
             return ResponseEntity.ok()
                     .header("Set-Cookie",
                             "token="+session.getToken()+"; path=/; max-age="+maxAge+"; SameSite=Lax")
-                    .body(session);
+                    .body(session.getUser());
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
