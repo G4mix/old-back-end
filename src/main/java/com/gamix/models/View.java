@@ -1,5 +1,6 @@
 package com.gamix.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,9 +21,11 @@ public class View {
 
     @ManyToOne
     @JoinColumn(name = "post_id")
+    @JsonManagedReference
     private Post post;
 
     @OneToOne
     @JoinColumn(name = "user_profile_id")
+    @JsonManagedReference
     private UserProfile userProfile;
 }
