@@ -1,8 +1,8 @@
 package com.gamix.service;
 
-import com.gamix.communication.authController.SessionReturn;
-import com.gamix.communication.authController.SignInUserInput;
-import com.gamix.communication.authController.SignUpUserInput;
+import com.gamix.communication.auth.SessionDTO;
+import com.gamix.communication.auth.SignInUserInput;
+import com.gamix.communication.auth.SignUpUserInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.ExcessiveFailedLoginAttempts;
 import com.gamix.exceptions.authentication.PasswordUserNotFound;
@@ -31,7 +31,7 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    public SessionReturn signUpPasswordUser(SignUpUserInput signUpUserInput) throws ExceptionBase {
+    public SessionDTO signUpPasswordUser(SignUpUserInput signUpUserInput) throws ExceptionBase {
         ParameterValidator.validateUsername(signUpUserInput.username());
         ParameterValidator.validatePassword(signUpUserInput.password());
         ParameterValidator.validateEmail(signUpUserInput.email());
@@ -48,11 +48,11 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(signUpUserInput.password());
         User user = createUser(
                 signUpUserInput.username(), signUpUserInput.email(), encodedPassword);
-        String token = JwtManager.generateToken(user.getId(), encodedPassword, false);
-        return new SessionReturn(user, token);
+        String token = JwtManager.generateToken(user.getId(), user.getUserProfile().getId(), false);
+        return new SessionDTO(user, token);
     }
 
-    public SessionReturn signInPasswordUser(SignInUserInput signInUserInput) throws ExceptionBase {
+    public SessionDTO signInPasswordUser(SignInUserInput signInUserInput) throws ExceptionBase {
         User user = signInUserInput.email() != null
                 ? userRepository.findByEmail(signInUserInput.email()).orElseThrow(UserNotFoundByEmail::new)
                 : userRepository.findByUsername(signInUserInput.username()).orElseThrow(UserNotFoundByUsername::new);
@@ -77,9 +77,9 @@ public class AuthService {
         userRepository.save(user);
 
         String token = JwtManager.generateToken(user.getId(),
-                user.getPassword(), signInUserInput.rememberMe());
+                user.getUserProfile().getId(), signInUserInput.rememberMe());
 
-        return new SessionReturn(user, token);
+        return new SessionDTO(user, token);
     }
 
     @Transactional

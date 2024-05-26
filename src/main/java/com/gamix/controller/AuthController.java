@@ -1,8 +1,8 @@
 package com.gamix.controller;
 
-import com.gamix.communication.authController.SessionReturn;
-import com.gamix.communication.authController.SignInUserInput;
-import com.gamix.communication.authController.SignUpUserInput;
+import com.gamix.communication.auth.SessionDTO;
+import com.gamix.communication.auth.SignInUserInput;
+import com.gamix.communication.auth.SignUpUserInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +27,7 @@ public class AuthController {
             @RequestBody SignUpUserInput signUpUserInput
     ) throws ExceptionBase {
         try {
-            SessionReturn session = authService.signUpPasswordUser(signUpUserInput);
+            SessionDTO session = authService.signUpPasswordUser(signUpUserInput);
             return ResponseEntity.ok()
                     .header("Set-Cookie", "token="+session.getToken()+"; path=/; max-age=3600; SameSite=Lax")
                     .body(session.getUser());
@@ -40,7 +40,7 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<Object> signInPasswordUser(@RequestBody SignInUserInput signInUserInput) throws ExceptionBase {
         try {
-            SessionReturn session = authService.signInPasswordUser(signInUserInput);
+            SessionDTO session = authService.signInPasswordUser(signInUserInput);
             int maxAge = signInUserInput.rememberMe() ? 259200 : 3600;
             return ResponseEntity.ok()
                     .header("Set-Cookie",

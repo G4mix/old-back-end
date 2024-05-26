@@ -2,7 +2,6 @@ package com.gamix.controller;
 
 import static com.gamix.utils.ControllerUtils.throwError;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -18,16 +17,19 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.gamix.communication.postController.PartialPostInput;
-import com.gamix.communication.postController.PostReturn;
+import com.gamix.communication.post.PartialPostInput;
+import com.gamix.communication.post.PostInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.models.Post;
 import com.gamix.security.JwtManager;
 import com.gamix.service.PostService;
 import com.gamix.utils.SortUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+
 
 @RequiredArgsConstructor
 @RestController
@@ -35,7 +37,17 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
     private final PostService postService;
 
-    @Operation(tags = "Post", description = "Create a post", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Post",
+        description = "Create a post",
+        security = { @SecurityRequirement(name = "jwt") },
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            content = @Content(
+                mediaType = "multipart/form-data",
+                schema = @Schema(implementation = PostInput.class)
+            )
+        )
+    )
     @PostMapping()
     @ResponseBody
     public ResponseEntity<Object> createPost(@RequestHeader("Authorization") String token,
@@ -47,7 +59,7 @@ public class PostController {
         try {
             Post post = postService.createPost(JwtManager.getIdFromToken(token),
                     new PartialPostInput(title, content, links, tags), images);
-            return ResponseEntity.ok().body(new PostReturn(post));
+            return ResponseEntity.ok().body(post);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -57,12 +69,12 @@ public class PostController {
     @GetMapping()
     @ResponseBody
     public ResponseEntity<Object> findAllPosts(
+            @RequestHeader("Authorization") String token,
             @RequestParam(value = "skip", defaultValue = "0") int skip,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
         try {
             Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-            return ResponseEntity.ok().body(postService.findAll(page).stream().map(PostReturn::new)
-                    .collect(Collectors.toList()));
+            return ResponseEntity.ok().body(postService.findAll(JwtManager.getIdFromToken(token), page));
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -71,10 +83,11 @@ public class PostController {
     @Operation(tags = "Post", description = "Find post by ID", security = { @SecurityRequirement(name = "jwt") })
     @GetMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Object> findPostById(@PathVariable Integer id) {
+    public ResponseEntity<Object> findPostById(
+        @RequestHeader("Authorization") String token,
+        @PathVariable Integer id) {
         try {
-            Post post = postService.findPostById(id);
-            return ResponseEntity.ok().body(new PostReturn(post));
+            return ResponseEntity.ok().body(postService.findPostByIdDetails(JwtManager.getIdFromToken(token), id));
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -92,7 +105,7 @@ public class PostController {
         try {
             Post post = postService.updatePost(JwtManager.getIdFromToken(token), id,
                     new PartialPostInput(title, content, links, tags), images);
-            return ResponseEntity.ok().body(new PostReturn(post));
+            return ResponseEntity.ok().body(post);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }

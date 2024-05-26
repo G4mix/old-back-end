@@ -1,11 +1,11 @@
 package com.gamix.service;
 
-import com.gamix.communication.postController.PartialPostInput;
+import com.gamix.communication.post.PartialPostInput;
+import com.gamix.communication.post.PostDTO;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.*;
 import com.gamix.exceptions.post.PostNotFoundById;
-import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.models.*;
 import com.gamix.repositories.PostRepository;
 import com.gamix.utils.EntityManagerUtils;
@@ -72,9 +72,9 @@ public class PostService {
     }
 
     public Post updatePost(
-            Integer userId, Integer id, PartialPostInput postInput, List<MultipartFile> partImages
+        Integer userId, Integer postId, PartialPostInput postInput, List<MultipartFile> partImages
     ) throws ExceptionBase {
-        Post post = findPostById(id);
+        Post post = findPostById(postId);
         post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));
         UserProfile postAuthor = post.getAuthor();
 
@@ -102,16 +102,16 @@ public class PostService {
         return postRepository.save(post);
     }
 
-    public List<Post> findAll(Pageable page) {
-        return postRepository.findAll(page).getContent();
+    public List<PostDTO> findAll(Integer userId, Pageable page) {
+        return postRepository.findAll(userId, page).getContent();
     }
 
-    public Post findPostById(Integer id) throws ExceptionBase {
-        return postRepository.findById(id).orElseThrow(PostNotFoundById::new);
+    public PostDTO findPostByIdDetails(Integer userId, Integer postId) throws ExceptionBase {
+        return postRepository.findByIdDetails(userId, postId).orElseThrow(PostNotFoundById::new);
     }
 
-    public Post findPostByTitle(String title) throws ExceptionBase {
-        return postRepository.findPostByTitle(title).orElseThrow(PostNotFoundByTitle::new);
+    public Post findPostById(Integer postId) throws ExceptionBase {
+        return postRepository.findById(postId).orElseThrow(PostNotFoundById::new);
     }
 
     @Transactional
@@ -145,17 +145,5 @@ public class PostService {
 
     public List<Tag> getTags(Post post) {
         return postRepository.findAllTagsByPost(post);
-    }
-
-    public int getLikesCount(Post post) {
-        return postRepository.countLikesByPost(post);
-    }
-
-    public int getCommentsCount(Post post) {
-        return postRepository.countCommentsByPost(post);
-    }
-
-    public int getViewsCount(Post post) {
-        return postRepository.countViewsByPost(post);
     }
 }

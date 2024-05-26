@@ -1,7 +1,6 @@
 package com.gamix.controller;
 
 import static com.gamix.utils.ControllerUtils.throwError;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,8 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import com.gamix.communication.commentController.CommentInput;
-import com.gamix.communication.commentController.CommentReturn;
+import com.gamix.communication.comment.CommentInput;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.security.JwtManager;
 import com.gamix.models.Comment;
@@ -41,7 +39,7 @@ public class CommentController {
 
         try {
             Comment comment = commentService.commentPost(JwtManager.getIdFromToken(token), postId, commentData.content());
-            return ResponseEntity.ok().body(new CommentReturn(comment));
+            return ResponseEntity.ok().body(comment);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -54,7 +52,7 @@ public class CommentController {
             @PathVariable Integer commentId, @RequestBody CommentInput commentData) {
         try {
             Comment comment = commentService.replyComment(JwtManager.getIdFromToken(token), commentId, commentData.content());
-            return ResponseEntity.ok().body(new CommentReturn(comment));
+            return ResponseEntity.ok().body(comment);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -70,8 +68,7 @@ public class CommentController {
         try {
             Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
             return ResponseEntity.ok().body(commentService
-                    .findAllCommentsOfAPost(postId, page).stream().map(CommentReturn::new)
-                    .collect(Collectors.toList()));
+                    .findAllCommentsOfAPost(postId, page));
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
