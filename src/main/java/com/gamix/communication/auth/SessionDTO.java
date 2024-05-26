@@ -1,4 +1,4 @@
-package com.gamix.communication.authController;
+package com.gamix.communication.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gamix.models.User;
@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Data
 @Accessors(chain = true)
-public class SessionReturn {
+public class SessionDTO {
     User user;
     String token;
 

@@ -1,4 +1,4 @@
-package com.gamix.communication.postController;
+package com.gamix.communication.post;
 
 import java.util.List;
 
