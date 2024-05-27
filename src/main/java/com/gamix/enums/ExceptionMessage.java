@@ -35,6 +35,7 @@ public enum ExceptionMessage {
     CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "Conteúdo muito longo (comprimento máximo é 700 caracteres)."),
     TOO_MANY_LINKS(HttpStatus.BAD_REQUEST, "Muitos links no post (máximo 5)."),
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "Muitas imagens no post (máximo 8)."),
+    TOO_MANY_TAGS(HttpStatus.BAD_REQUEST, "Muitas tags no post (máximo 10)"),
 
     ERROR_CREATING_IMAGE(HttpStatus.BAD_REQUEST, "Erro ao criar a imagem."),
     ERROR_UPDATING_IMAGE(HttpStatus.BAD_REQUEST, "Erro ao atualizar as imagens."),

@@ -58,6 +58,9 @@ public class PostService {
         }
 
         if (postInput.tags() != null && !postInput.tags().isEmpty()) {
+            if (postInput.tags().size() > 10) {
+                throw new TooManyTags();
+            }
             List<Tag> tags = TagService.createTagsForPost(newPost, postInput.tags());
             newPost.setTags(tags);
         }
@@ -77,6 +80,16 @@ public class PostService {
         Integer userId, Integer postId, PartialPostInput postInput, List<MultipartFile> partImages
     ) throws ExceptionBase {
         Post post = findPostById(postId);
+
+        if (
+            postInput.content().isEmpty() &&
+            postInput.title().isEmpty() &&
+            (postInput.links() == null || postInput.links().isEmpty()) &&
+            (partImages == null)
+        ) {
+            throw new CompletelyEmptyPost();
+        }
+
         post.setImages(getImages(post.getId())).setLinks(getLinks(post.getId())).setTags(getTags(post.getId()));
         UserProfile postAuthor = post.getAuthor();
 

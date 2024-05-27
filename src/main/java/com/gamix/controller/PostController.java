@@ -18,13 +18,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.gamix.communication.post.PartialPostInput;
+import com.gamix.communication.post.PostDTO;
 import com.gamix.communication.post.PostInput;
 import com.gamix.exceptions.ExceptionBase;
+import com.gamix.exceptions.GamixError;
 import com.gamix.models.Post;
 import com.gamix.security.JwtManager;
 import com.gamix.service.PostService;
 import com.gamix.utils.SortUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -46,7 +50,37 @@ public class PostController {
                 mediaType = "multipart/form-data",
                 schema = @Schema(implementation = PostInput.class)
             )
-        )
+        ),
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "Post created",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Post.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Wrong input",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = GamixError.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Invalid Token supplied or user not exists"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Resource not found",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = GamixError.class)
+                )
+            )
+        }
     )
     @PostMapping()
     @ResponseBody
@@ -65,7 +99,25 @@ public class PostController {
         }
     }
 
-    @Operation(tags = "Post", description = "Find all posts", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Post",
+        description = "Find all posts",
+        security = { @SecurityRequirement(name = "jwt") },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Updated",
+                content = @Content(
+                    mediaType = "application/json",
+                    array = @ArraySchema(schema = @Schema(implementation = PostDTO.class))
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Invalid Token supplied or user not exists"
+            )
+        }
+    )
     @GetMapping()
     @ResponseBody
     public ResponseEntity<Object> findAllPosts(
@@ -80,7 +132,33 @@ public class PostController {
         }
     }
 
-    @Operation(tags = "Post", description = "Find post by ID", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Post",
+        description = "Find post by ID",
+        security = { @SecurityRequirement(name = "jwt") },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Found",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = PostDTO.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Invalid Token supplied or user not exists"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Resource not found",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = GamixError.class)
+                )
+            )
+        }
+    )
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Object> findPostById(
@@ -93,7 +171,41 @@ public class PostController {
         }
     }
 
-    @Operation(tags = "Post", description = "Update post by ID", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Post",
+        description = "Update post by ID",
+        security = { @SecurityRequirement(name = "jwt") },
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Updated",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Post.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "Wrong input",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = GamixError.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Invalid Token supplied or user not exists"
+            ),
+            @ApiResponse(
+                responseCode = "404",
+                description = "Resource not found",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = GamixError.class)
+                )
+            )
+        }
+    )
     @PatchMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Object> updatePost(@RequestHeader("Authorization") String token,
@@ -111,7 +223,25 @@ public class PostController {
         }
     }
 
-    @Operation(tags = "Post", description = "Delete post by ID", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Post",
+        description = "Delete post by ID",
+        security = { @SecurityRequirement(name = "jwt") },
+        responses = {
+            @ApiResponse(
+                responseCode = "201",
+                description = "Updated",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Boolean.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "403",
+                description = "Invalid Token supplied or user not exists"
+            )
+        }
+    )
     @DeleteMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Object> deletePostById(@RequestHeader("Authorization") String token,

@@ -71,8 +71,7 @@ public class UserController {
                 responseCode = "404",
                 description = "Username not found",
                 content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = GamixError.class)
+                    schema = @Schema(type = "application/json", implementation = GamixError.class)
                 )
             ),
         }

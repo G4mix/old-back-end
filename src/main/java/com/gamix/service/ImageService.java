@@ -33,9 +33,6 @@ public class ImageService {
         createDirectoryIfNotExists(imagesFolderPath);
 
         List<Image> images = new ArrayList<>();
-        if (files.size() > 8) {
-            throw new TooManyImages();
-        }
 
         try {
             for (MultipartFile file : files) {
