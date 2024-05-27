@@ -2,6 +2,7 @@ package com.gamix.service;
 
 import com.gamix.communication.post.PartialPostInput;
 import com.gamix.communication.post.PostDTO;
+import com.gamix.communication.post.PostProjection;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.*;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -75,7 +77,7 @@ public class PostService {
         Integer userId, Integer postId, PartialPostInput postInput, List<MultipartFile> partImages
     ) throws ExceptionBase {
         Post post = findPostById(postId);
-        post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));
+        post.setImages(getImages(post.getId())).setLinks(getLinks(post.getId())).setTags(getTags(post.getId()));
         UserProfile postAuthor = post.getAuthor();
 
         if (!userId.equals(postAuthor.getUser().getId())) {
@@ -103,11 +105,22 @@ public class PostService {
     }
 
     public List<PostDTO> findAll(Integer userId, Pageable page) {
-        return postRepository.findAll(userId, page).getContent();
+        return postRepository
+            .findAll(userId, page)
+            .getContent()
+            .stream()
+            .map(this::convertToPostDTOWithDetails)
+            .collect(Collectors.toList());
     }
 
     public PostDTO findPostByIdDetails(Integer userId, Integer postId) throws ExceptionBase {
-        return postRepository.findByIdDetails(userId, postId).orElseThrow(PostNotFoundById::new);
+        PostProjection post = postRepository.findByIdDetails(userId, postId).orElseThrow(PostNotFoundById::new);
+        
+        return new PostDTO()
+            .convertToPostDTO(post)
+            .setImages(getImages(postId))
+            .setLinks(getLinks(postId))
+            .setTags(getTags(postId));
     }
 
     public Post findPostById(Integer postId) throws ExceptionBase {
@@ -121,7 +134,7 @@ public class PostService {
 
         if (!userId.equals(postAuthor.getId())) return false;
 
-        imageService.deleteImages(getImages(post));
+        imageService.deleteImages(getImages(post.getId()));
         postRepository.delete(post);
 
         return true;
@@ -131,19 +144,23 @@ public class PostService {
         return postRepository.existsLikeByPostAndUserId(post, userId);
     }
 
-    public List<Comment> getComments(Post post) {
-        return postRepository.findAllCommentsByPost(post);
+    public List<Image> getImages(Integer postId) {
+        return postRepository.findAllImagesByPostId(postId);
     }
 
-    public List<Image> getImages(Post post) {
-        return postRepository.findAllImagesByPost(post);
+    public List<Link> getLinks(Integer postId) {
+        return postRepository.findAllLinksByPostId(postId);
     }
 
-    public List<Link> getLinks(Post post) {
-        return postRepository.findAllLinksByPost(post);
+    public List<Tag> getTags(Integer postId) {
+        return postRepository.findAllTagsByPostId(postId);
     }
 
-    public List<Tag> getTags(Post post) {
-        return postRepository.findAllTagsByPost(post);
+    private PostDTO convertToPostDTOWithDetails(PostProjection postProjection) {
+        return new PostDTO()
+                .convertToPostDTO(postProjection)
+                .setImages(getImages(postProjection.getId()))
+                .setLinks(getLinks(postProjection.getId()))
+                .setTags(getTags(postProjection.getId()));
     }
 }
