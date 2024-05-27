@@ -16,35 +16,42 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Integer> {
 
-    @Query(value =
-"SELECT "+
-"p.post_id AS id, "+
-"p.title AS title, "+
-"p.content AS content, "+
-"COUNT(DISTINCT l.id) AS likesCount, "+
-"COUNT(DISTINCT v.id) AS viewsCount, "+
-"COUNT(DISTINCT c.id) AS commentsCount, "+
-"CASE WHEN COUNT(DISTINCT l.id) > 0 THEN true ELSE false END AS isLiked, "+
-"CASE WHEN COUNT(DISTINCT v.id) > 0 THEN true ELSE false END AS isViewed, "+
-"p.created_at AS createdAt, "+
-"p.updated_at AS updatedAt, "+
-"a.*, "+
-"GROUP_CONCAT(DISTINCT i.*) AS images, "+
-"GROUP_CONCAT(DISTINCT lnk.*) AS links, "+
-"GROUP_CONCAT(DISTINCT t.*) AS tags"+
-"FROM post p"+
-"LEFT JOIN likes l ON l.post_id = p.post_id AND l.user_profile_id = :userProfileId"+
-"LEFT JOIN view v ON v.post_id = p.post_id AND v.user_profile_id = :userProfileId"+
-"LEFT JOIN comment c ON c.post_id = p.post_id"+
-"LEFT JOIN user_profile a ON a.user_profile_id = p.user_profile_id"+
-"LEFT JOIN image i ON i.post_id = p.post_id"+
-"LEFT JOIN link lnk ON lnk.post_id = p.post_id"+
-"LEFT JOIN tag t ON t.post_id = p.post_id"+
-"WHERE p.post_id = :postId"+
-"GROUP BY p.post_id, p.title, p.content, p.created_at, p.updated_at, a.*;", nativeQuery = true)
+
+    @Query("""
+        SELECT
+            p.id AS id,
+            p.title AS title,
+            p.content AS content,
+            COUNT(DISTINCT l) AS likesCount,
+            COUNT(DISTINCT v) AS viewsCount,
+            COUNT(DISTINCT c) AS commentsCount,
+            (CASE WHEN COUNT(DISTINCT l) > 0 THEN true ELSE false END) AS isLiked,
+            (CASE WHEN COUNT(DISTINCT v) > 0 THEN true ELSE false END) AS isViewed,
+            p.createdAt AS createdAt,
+            p.updatedAt AS updatedAt,
+            a AS author,
+            ARRAY_AGG(i) AS images,
+            ARRAY_AGG(lnk) AS links,
+            ARRAY_AGG(t) AS tags
+        FROM Post p
+        LEFT JOIN p.likes l WITH l.userProfile.id = :userProfileId
+        LEFT JOIN p.views v WITH v.userProfile.id = :userProfileId
+        LEFT JOIN p.comments c
+        LEFT JOIN p.author a
+        INNER JOIN p.images i
+        INNER JOIN p.links lnk
+        INNER JOIN p.tags t
+        WHERE p.id = :postId
+        GROUP BY
+            p.id,
+            p.title,
+            p.content,
+            p.createdAt,
+            p.updatedAt,
+            a
+    """)
     Optional<PostDTO> findByIdDetails(@Param("userProfileId") Integer userProfileId, @Param("postId") Integer postId);
 
-    
     @NonNull
     Optional<Post> findById(@NonNull @Param("postId") Integer postId);
 

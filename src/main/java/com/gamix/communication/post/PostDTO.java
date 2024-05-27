@@ -20,15 +20,11 @@ public interface PostDTO {
     public LocalDateTime getCreatedAt();
     public LocalDateTime getUpdatedAt();
 
-    @JsonManagedReference
     public UserProfile getAuthor();
 
-    @JsonManagedReference
     public List<Image> getImages();
 
-    @JsonManagedReference
     public List<Link> getLinks();
 
-    @JsonManagedReference
     public List<Tag> getTags();
 }
