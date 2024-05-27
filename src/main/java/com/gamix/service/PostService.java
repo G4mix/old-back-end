@@ -94,13 +94,13 @@ public class PostService {
 
         List<Link> links = LinkService.updateLinksForPost(post, postInput.links());
         post.setLinks(links);
-
+     
         List<Tag> tags = TagService.updateTagsForPost(post, postInput.tags());
         post.setTags(tags);
-
+  
         List<Image> images = imageService.updateImagesForPost(post, partImages, postAuthor.getUser());
         post.setImages(images);
-
+        
         return postRepository.save(post);
     }
 

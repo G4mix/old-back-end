@@ -46,11 +46,11 @@ public class Comment {
     private Comment parentComment;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
     private List<Comment> replies = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
     private List<Like> likes = new ArrayList<>();
 
     @Column(nullable = false, length = 200)
