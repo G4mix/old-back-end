@@ -22,33 +22,17 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             p.id AS id,
             p.title AS title,
             p.content AS content,
-            COUNT(DISTINCT l) AS likesCount,
-            COUNT(DISTINCT v) AS viewsCount,
-            COUNT(DISTINCT c) AS commentsCount,
-            (CASE WHEN COUNT(DISTINCT l) > 0 THEN true ELSE false END) AS isLiked,
-            (CASE WHEN COUNT(DISTINCT v) > 0 THEN true ELSE false END) AS isViewed,
+            (SELECT COUNT(l) FROM p.likes l) AS likesCount,
+            (SELECT COUNT(v) FROM p.views v) AS viewsCount,
+            (SELECT COUNT(c) FROM p.comments c) AS commentsCount,
+            (CASE WHEN (SELECT COUNT(l) FROM p.likes l WHERE l.userProfile.id = :userProfileId) > 0 THEN true ELSE false END) AS isLiked,
+            (CASE WHEN (SELECT COUNT(v) FROM p.views v WHERE v.userProfile.id = :userProfileId) > 0 THEN true ELSE false END) AS isViewed,
             p.createdAt AS createdAt,
             p.updatedAt AS updatedAt,
-            a AS author,
-            ARRAY_AGG(i) AS images,
-            ARRAY_AGG(lnk) AS links,
-            ARRAY_AGG(t) AS tags
+            p.author AS author
         FROM Post p
-        LEFT JOIN p.likes l WITH l.userProfile.id = :userProfileId
-        LEFT JOIN p.views v WITH v.userProfile.id = :userProfileId
-        LEFT JOIN p.comments c
-        LEFT JOIN p.author a
-        INNER JOIN p.images i
-        INNER JOIN p.links lnk
-        INNER JOIN p.tags t
+        LEFT JOIN p.images AS images
         WHERE p.id = :postId
-        GROUP BY
-            p.id,
-            p.title,
-            p.content,
-            p.createdAt,
-            p.updatedAt,
-            a
     """)
     Optional<PostDTO> findByIdDetails(@Param("userProfileId") Integer userProfileId, @Param("postId") Integer postId);
 

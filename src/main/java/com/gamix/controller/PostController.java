@@ -74,7 +74,7 @@ public class PostController {
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
         try {
             Pageable page = PageRequest.of(skip, limit, SortUtils.sortByUpdatedAtOrCreatedAt());
-            return ResponseEntity.ok().body(postService.findAll(JwtManager.getIdFromToken(token), page));
+            return ResponseEntity.ok().body(postService.findAll(JwtManager.getUserProfileIdFromToken(token), page));
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -87,7 +87,7 @@ public class PostController {
         @RequestHeader("Authorization") String token,
         @PathVariable Integer id) {
         try {
-            return ResponseEntity.ok().body(postService.findPostByIdDetails(JwtManager.getIdFromToken(token), id));
+            return ResponseEntity.ok().body(postService.findPostByIdDetails(JwtManager.getUserProfileIdFromToken(token), id));
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
