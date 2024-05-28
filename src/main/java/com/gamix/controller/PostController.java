@@ -93,7 +93,7 @@ public class PostController {
         try {
             Post post = postService.createPost(JwtManager.getIdFromToken(token),
                     new PartialPostInput(title, content, links, tags), images);
-            return ResponseEntity.ok().body(post);
+            return ResponseEntity.status(201).body(post);
         } catch (ExceptionBase ex) {
             return throwError(ex);
         }
@@ -229,8 +229,8 @@ public class PostController {
         security = { @SecurityRequirement(name = "jwt") },
         responses = {
             @ApiResponse(
-                responseCode = "201",
-                description = "Updated",
+                responseCode = "204",
+                description = "Resource deleted",
                 content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = Boolean.class)

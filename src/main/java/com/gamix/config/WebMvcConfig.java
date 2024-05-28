@@ -27,7 +27,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry
                 .addMapping("/**")
                 .allowedOrigins(System.getenv("FRONT_END_BASE_URL"))
-                .allowedMethods("GET", "POST", "OPTIONS")
+                .allowedMethods("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Authorization")
                 .allowCredentials(true);

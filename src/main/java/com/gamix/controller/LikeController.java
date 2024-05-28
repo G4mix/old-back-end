@@ -32,7 +32,7 @@ public class LikeController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                description = "Account accessed",
+                description = "Like post executed with success",
                 content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(example = "true")
@@ -69,7 +69,7 @@ public class LikeController {
         responses = {
             @ApiResponse(
                 responseCode = "200",
-                description = "Account accessed",
+                description = "Like comment executed with success",
                 content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(example = "true")

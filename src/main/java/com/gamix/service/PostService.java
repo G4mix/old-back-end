@@ -153,10 +153,6 @@ public class PostService {
         return true;
     }
 
-    public boolean getIsLiked(Post post, Integer userId) throws ExceptionBase {
-        return postRepository.existsLikeByPostAndUserId(post, userId);
-    }
-
     public List<Image> getImages(Integer postId) {
         return postRepository.findAllImagesByPostId(postId);
     }
