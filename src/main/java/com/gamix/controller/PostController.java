@@ -178,6 +178,12 @@ public class PostController {
         tags = "Post",
         description = "Update post by ID",
         security = { @SecurityRequirement(name = "jwt") },
+        requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                content = @Content(
+                        mediaType = "multipart/form-data",
+                        schema = @Schema(implementation = PostInput.class)
+                )
+        ),
         responses = {
             @ApiResponse(
                 responseCode = "200",
