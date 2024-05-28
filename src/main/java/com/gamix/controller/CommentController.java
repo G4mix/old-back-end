@@ -29,7 +29,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 public class CommentController {
     private final CommentService commentService;
 
-    @Operation(tags = "Comment", description = "Comment in a post", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Comment",
+        description = "Comment in a post",
+        security = { @SecurityRequirement(name = "jwt") }
+    )
     @PostMapping("/post/{postId}")
     @ResponseBody
     public ResponseEntity<Object> commentPost(@RequestHeader("Authorization") String token,
@@ -45,7 +49,11 @@ public class CommentController {
         }
     }
 
-    @Operation(tags = "Comment", description = "Reply to a comment", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Comment",
+        description = "Reply to a comment",
+        security = { @SecurityRequirement(name = "jwt") }
+    )
     @PostMapping("/reply/{commentId}")
     @ResponseBody
     public ResponseEntity<Object> replyComment(@RequestHeader("Authorization") String token,
@@ -58,7 +66,11 @@ public class CommentController {
         }
     }
 
-    @Operation(tags = "Comment", description = "Find all comments of a post", security = { @SecurityRequirement(name = "jwt") })
+    @Operation(
+        tags = "Comment",
+        description = "Find all comments of a post",
+        security = { @SecurityRequirement(name = "jwt") }
+    )
     @GetMapping("/{postId}")
     @ResponseBody
     public ResponseEntity<Object> findAllCommentsOfAPost(@RequestHeader("Authorization") String token,
