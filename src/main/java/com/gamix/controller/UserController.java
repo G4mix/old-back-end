@@ -1,6 +1,8 @@
 package com.gamix.controller;
 
 import com.gamix.security.JwtManager;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,7 +47,9 @@ public class UserController {
         }
     )
     @GetMapping()
-    public ResponseEntity<Object> getUserByAccessToken(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Object> getUserByAccessToken(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token
+    ) {
         try {
             return ResponseEntity.ok().body(userService.findUserByToken(token));
         } catch (ExceptionBase ex) {
@@ -138,7 +142,9 @@ public class UserController {
     )
     @DeleteMapping()
     @ResponseBody
-    public ResponseEntity<Object> deleteUserById(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Object> deleteUserById(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token
+    ) {
         try {
             userService.deleteAccount(JwtManager.getIdFromToken(token));
             return ResponseEntity.status(204).body(true);

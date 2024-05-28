@@ -1,5 +1,6 @@
 package com.gamix.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,7 +55,8 @@ public class LikeController {
     )
     @GetMapping("/post/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> likePost(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> likePost(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @PathVariable Integer postId,
             @RequestParam(value = "isLiked") boolean isLiked)
             throws ExceptionBase {
@@ -91,7 +93,8 @@ public class LikeController {
     )
     @GetMapping("/comment/{commentId}")
     @ResponseBody
-    public ResponseEntity<Object> likeComment(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> likeComment(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @PathVariable Integer commentId,
             @RequestParam(value = "isLiked") boolean isLiked)
             throws ExceptionBase {

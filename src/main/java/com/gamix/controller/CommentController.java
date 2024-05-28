@@ -1,6 +1,8 @@
 package com.gamix.controller;
 
 import static com.gamix.utils.ControllerUtils.throwError;
+
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,7 +58,8 @@ public class CommentController {
     )
     @GetMapping("/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> findAllCommentsOfAPost(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> findAllCommentsOfAPost(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @PathVariable Integer postId,
             @RequestParam(value = "skip", defaultValue = "0") int skip,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
@@ -89,7 +92,8 @@ public class CommentController {
     )
     @GetMapping("/replies/{commentId}")
     @ResponseBody
-    public ResponseEntity<Object> findAllRepliesOfAComment(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> findAllRepliesOfAComment(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @PathVariable Integer commentId,
             @RequestParam(value = "skip", defaultValue = "0") int skip,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
@@ -138,7 +142,8 @@ public class CommentController {
     )
     @PostMapping("/post/{postId}")
     @ResponseBody
-    public ResponseEntity<Object> commentPost(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> commentPost(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @PathVariable Integer postId,
             @RequestBody CommentInput commentData
         ) {
@@ -188,8 +193,10 @@ public class CommentController {
     )
     @PostMapping("/reply/{commentId}")
     @ResponseBody
-    public ResponseEntity<Object> replyComment(@RequestHeader("Authorization") String token,
-            @PathVariable Integer commentId, @RequestBody CommentInput commentData) {
+    public ResponseEntity<Object> replyComment(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
+            @PathVariable Integer commentId,
+            @RequestBody CommentInput commentData) {
         try {
             Comment comment = commentService.replyComment(JwtManager.getIdFromToken(token), commentId, commentData.content());
             return ResponseEntity.status(201).body(comment);

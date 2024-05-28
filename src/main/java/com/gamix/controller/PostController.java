@@ -2,6 +2,8 @@ package com.gamix.controller;
 
 import static com.gamix.utils.ControllerUtils.throwError;
 import java.util.List;
+
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -84,7 +86,8 @@ public class PostController {
     )
     @PostMapping()
     @ResponseBody
-    public ResponseEntity<Object> createPost(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> createPost(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @RequestPart(value = "title", required = false) String title,
             @RequestPart(value = "content", required = false) String content,
             @RequestPart(value = "links", required = false) List<String> links,
@@ -121,7 +124,7 @@ public class PostController {
     @GetMapping()
     @ResponseBody
     public ResponseEntity<Object> findAllPosts(
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @RequestParam(value = "skip", defaultValue = "0") int skip,
             @RequestParam(value = "limit", defaultValue = "10") int limit) {
         try {
@@ -162,7 +165,7 @@ public class PostController {
     @GetMapping("/{id}")
     @ResponseBody
     public ResponseEntity<Object> findPostById(
-        @RequestHeader("Authorization") String token,
+        @RequestHeader("Authorization") @Parameter(hidden=true) String token,
         @PathVariable Integer id) {
         try {
             return ResponseEntity.ok().body(postService.findPostByIdDetails(JwtManager.getUserProfileIdFromToken(token), id));
@@ -208,7 +211,8 @@ public class PostController {
     )
     @PatchMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Object> updatePost(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> updatePost(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @PathVariable Integer id, @RequestPart(value = "title", required = false) String title,
             @RequestPart(value = "content", required = false) String content,
             @RequestPart(value = "links", required = false) List<String> links,
@@ -244,7 +248,8 @@ public class PostController {
     )
     @DeleteMapping("/{id}")
     @ResponseBody
-    public ResponseEntity<Object> deletePostById(@RequestHeader("Authorization") String token,
+    public ResponseEntity<Object> deletePostById(
+            @RequestHeader("Authorization") @Parameter(hidden=true) String token,
             @PathVariable Integer id) {
         try {
             return ResponseEntity.status(204)
