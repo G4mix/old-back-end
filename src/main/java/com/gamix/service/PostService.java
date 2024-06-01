@@ -1,21 +1,22 @@
 package com.gamix.service;
 
-import com.gamix.communication.postController.PartialPostInput;
+import com.gamix.communication.post.PartialPostInput;
+import com.gamix.communication.post.PostDTO;
+import com.gamix.communication.post.PostProjection;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.authentication.InvalidAccessToken;
 import com.gamix.exceptions.parameters.posts.*;
 import com.gamix.exceptions.post.PostNotFoundById;
-import com.gamix.exceptions.post.PostNotFoundByTitle;
 import com.gamix.models.*;
 import com.gamix.repositories.PostRepository;
 import com.gamix.utils.EntityManagerUtils;
-import jakarta.servlet.http.Part;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -24,15 +25,14 @@ public class PostService {
     private final PostRepository postRepository;
     private final ImageService imageService;
 
-    public Post createPost(Integer userId, PartialPostInput postInput, List<Part> partImages)
+    public Post createPost(Integer userId, PartialPostInput postInput, List<MultipartFile> partImages)
             throws ExceptionBase {
 
         if (
-                postInput.content().isEmpty() &&
-                        postInput.title().isEmpty() &&
-                        (postInput.links() == null || postInput.links().isEmpty()) &&
-                        (partImages == null)
-
+            postInput.content().isEmpty() &&
+            postInput.title().isEmpty() &&
+            (postInput.links() == null || postInput.links().isEmpty()) &&
+            (partImages == null)
         ) {
             throw new CompletelyEmptyPost();
         }
@@ -58,6 +58,9 @@ public class PostService {
         }
 
         if (postInput.tags() != null && !postInput.tags().isEmpty()) {
+            if (postInput.tags().size() > 10) {
+                throw new TooManyTags();
+            }
             List<Tag> tags = TagService.createTagsForPost(newPost, postInput.tags());
             newPost.setTags(tags);
         }
@@ -74,10 +77,20 @@ public class PostService {
     }
 
     public Post updatePost(
-            Integer userId, Integer id, PartialPostInput postInput, List<Part> partImages
+        Integer userId, Integer postId, PartialPostInput postInput, List<MultipartFile> partImages
     ) throws ExceptionBase {
-        Post post = findPostById(id);
-        post.setImages(getImages(post)).setLinks(getLinks(post)).setTags(getTags(post));
+        Post post = findPostById(postId);
+
+        if (
+            postInput.content().isEmpty() &&
+            postInput.title().isEmpty() &&
+            (postInput.links() == null || postInput.links().isEmpty()) &&
+            (partImages == null)
+        ) {
+            throw new CompletelyEmptyPost();
+        }
+
+        post.setImages(getImages(post.getId())).setLinks(getLinks(post.getId())).setTags(getTags(post.getId()));
         UserProfile postAuthor = post.getAuthor();
 
         if (!userId.equals(postAuthor.getUser().getId())) {
@@ -94,26 +107,37 @@ public class PostService {
 
         List<Link> links = LinkService.updateLinksForPost(post, postInput.links());
         post.setLinks(links);
-
+     
         List<Tag> tags = TagService.updateTagsForPost(post, postInput.tags());
         post.setTags(tags);
-
+  
         List<Image> images = imageService.updateImagesForPost(post, partImages, postAuthor.getUser());
         post.setImages(images);
-
+        
         return postRepository.save(post);
     }
 
-    public List<Post> findAll(Pageable page) {
-        return postRepository.findAll(page).getContent();
+    public List<PostDTO> findAll(Integer userId, Pageable page) {
+        return postRepository
+            .findAll(userId, page)
+            .getContent()
+            .stream()
+            .map(this::convertToPostDTOWithDetails)
+            .collect(Collectors.toList());
     }
 
-    public Post findPostById(Integer id) throws ExceptionBase {
-        return postRepository.findById(id).orElseThrow(PostNotFoundById::new);
+    public PostDTO findPostByIdDetails(Integer userId, Integer postId) throws ExceptionBase {
+        PostProjection post = postRepository.findByIdDetails(userId, postId).orElseThrow(PostNotFoundById::new);
+        
+        return new PostDTO()
+            .convertToPostDTO(post)
+            .setImages(getImages(postId))
+            .setLinks(getLinks(postId))
+            .setTags(getTags(postId));
     }
 
-    public Post findPostByTitle(String title) throws ExceptionBase {
-        return postRepository.findPostByTitle(title).orElseThrow(PostNotFoundByTitle::new);
+    public Post findPostById(Integer postId) throws ExceptionBase {
+        return postRepository.findById(postId).orElseThrow(PostNotFoundById::new);
     }
 
     @Transactional
@@ -123,41 +147,29 @@ public class PostService {
 
         if (!userId.equals(postAuthor.getId())) return false;
 
-        imageService.deleteImages(getImages(post));
+        imageService.deleteImages(getImages(post.getId()));
         postRepository.delete(post);
 
         return true;
     }
 
-    public boolean getIsLiked(Post post, Integer userId) throws ExceptionBase {
-        return postRepository.existsLikeByPostAndUserId(post, userId);
+    public List<Image> getImages(Integer postId) {
+        return postRepository.findAllImagesByPostId(postId);
     }
 
-    public List<Comment> getComments(Post post) {
-        return postRepository.findAllCommentsByPost(post);
+    public List<Link> getLinks(Integer postId) {
+        return postRepository.findAllLinksByPostId(postId);
     }
 
-    public List<Image> getImages(Post post) {
-        return postRepository.findAllImagesByPost(post);
+    public List<Tag> getTags(Integer postId) {
+        return postRepository.findAllTagsByPostId(postId);
     }
 
-    public List<Link> getLinks(Post post) {
-        return postRepository.findAllLinksByPost(post);
-    }
-
-    public List<Tag> getTags(Post post) {
-        return postRepository.findAllTagsByPost(post);
-    }
-
-    public int getLikesCount(Post post) {
-        return postRepository.countLikesByPost(post);
-    }
-
-    public int getCommentsCount(Post post) {
-        return postRepository.countCommentsByPost(post);
-    }
-
-    public int getViewsCount(Post post) {
-        return postRepository.countViewsByPost(post);
+    private PostDTO convertToPostDTOWithDetails(PostProjection postProjection) {
+        return new PostDTO()
+                .convertToPostDTO(postProjection)
+                .setImages(getImages(postProjection.getId()))
+                .setLinks(getLinks(postProjection.getId()))
+                .setTags(getTags(postProjection.getId()));
     }
 }

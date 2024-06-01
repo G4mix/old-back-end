@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import com.gamix.exceptions.parameters.posts.TooManyTags;
 import com.gamix.models.Post;
 import com.gamix.models.Tag;
 
@@ -25,6 +26,10 @@ public class TagService {
         if (tagsStrings == null || tagsStrings.isEmpty()) {
             postTags.clear();
             return postTags;
+        }
+
+        if (tagsStrings.size() > 10) {
+            throw new TooManyTags();
         }
 
         List<Tag> tagsToRemove = new ArrayList<>();

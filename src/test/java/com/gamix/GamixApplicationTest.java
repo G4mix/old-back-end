@@ -1,13 +1,11 @@
 package com.gamix;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamix.communication.userController.SignInUserInput;
-import com.gamix.communication.userController.SignUpUserInput;
+import com.gamix.communication.auth.SignUpUserInput;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -52,28 +50,5 @@ class GamixApplicationTest {
         variables.put("skip", 0);
         variables.put("limit", 10);
         findAllRequestBody.put("variables", variables);
-
-        mockMvc.perform(post("/graphql").contentType("application/json")
-                .content(objectMapper.writeValueAsString(findAllRequestBody))
-                .header(HttpHeaders.AUTHORIZATION, token))
-                .andExpect(status().isOk());
-
-        // Fazendo o signIn
-        SignInUserInput signInUserInput =
-                new SignInUserInput(signUpUserInput.username(), null,
-                        signUpUserInput.password(), false);
-        MvcResult signInResult = mockMvc
-                .perform(post("/auth/signin").contentType("application/json")
-                        .content(objectMapper.writeValueAsString(signInUserInput)))
-                .andExpect(status().isOk()).andReturn();
-
-        token = "Bearer "+Objects.requireNonNull(signUpResult.getResponse().getHeader("Set-Cookie")).split(";")[0].split("=")[1];
-        assertNotNull(token);
-
-        // Executar o findAll com o novo AccessToken no header
-        mockMvc.perform(post("/graphql").contentType("application/json")
-                .content(objectMapper.writeValueAsString(findAllRequestBody))
-                .header(HttpHeaders.AUTHORIZATION, token))
-                .andExpect(status().isOk());
     }
 }

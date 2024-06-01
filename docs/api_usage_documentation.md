@@ -9,7 +9,6 @@
   - [2. Autenticação](#2-autenticação)
     - [2.1 SignUp (Cadastro)](#21-signup-cadastro)
     - [2.2 SignIn (Login)](#22-signin-login)
-  - [3. Utilizando o sistema](#3-utilizando-o-sistema)
   - [4. Usuários](#4-usuários)
     - [4.1 Encontrar Usuário por Nome de Usuário](#41-encontrar-usuário-por-nome-de-usuário)
     - [4.2 Encontrar Usuário por E-mail](#42-encontrar-usuário-por-e-mail)
@@ -80,19 +79,13 @@ Esse Header é retornado em todos os métodos uma vez que está logado, caso fal
   "rememberMe": true
 }
 ```
-
-## 3. Utilizando o sistema
-
-O restante do sistema é GraphQL, e temos algumas coisas em comum para todas as funcionalidades do GraphQL:
-- **Endpoint**: `/graphql`
-- **Método**: `POST`
-- **Requisitos do Header**:
-  - `Authorization` (String, obrigatório): Token de acesso JWT.
   
-## 4. Usuários
+## 3. Usuários
 
-### 4.1 Encontrar Usuário por Nome de Usuário
+### 3.1 Encontrar Usuário por Nome de Usuário
 
+- **Endpoint**: `/users/:username`
+- **Método**: `GET`
 - **Descrição**: Encontra um usuário pelo nome de usuário.
 - **Parâmetros**:
   - `username` (String, obrigatório): Nome de usuário do usuário.
@@ -101,15 +94,13 @@ O restante do sistema é GraphQL, e temos algumas coisas em comum para todas as 
 
 ```json
 {
-  "query": "query FindUserByUsername($username: String!) { findUserByUsername(username: $username) { id, username, email, icon } }",
-  "variables": {
-    "username": "example_user"
-  }
+  "username": "example_user"
 }
 ```
 
-### 4.2 Encontrar Usuário por E-mail
+### 3.2 Encontrar Usuário por E-mail
 
+- **Endpoint**: `/users/:email`
 - **Descrição**: Encontra um usuário pelo endereço de e-mail.
 - **Parâmetros**:
   - `email` (String, obrigatório): Endereço de e-mail do usuário.
@@ -118,136 +109,192 @@ O restante do sistema é GraphQL, e temos algumas coisas em comum para todas as 
 
 ```json
 {
-  "query": "query FindUserByEmail($email: String!) { findUserByEmail(email: $email) { id, username, email, icon } }",
-  "variables": {
-    "email": "example@gmail.com"
-  }
+  "email": "example_user@email.com"
 }
 ```
 
-### 4.3 Excluir Conta
+### 3.3 Excluir Conta por Id
 
-- **Descrição**: Exclui a conta de um usuário.
+**Endpoint**: `/users/:id`
+- **Descrição**: Exclui a conta de um usuário pelo seu Id.
 - **Retorno**:
   - `success` (Boolean): Indica se a conta foi excluída com sucesso.
 
 ```json
 {
-  "query": "mutation DeleteAccount { deleteAccount }"
+  "sucess": true
 }
 ```
 
-## 5. Posts
+## 4. Posts
 
-### 5.1 Criar Postagem
+### 4.1 Criar Postagem
 
+- **Endpoint**: `/posts`
+- **Método**: `POST`
 - **Descrição**: Cria uma nova postagem.
-- **Parâmetros**: (Objeto PartialPostInput: (authorId: Int!), (title: String), (content: String)): Objeto contendo os campos a serem atualizados (opcional).
+- **Parâmetros**: 
+  - `Objeto PartialPostInput`
+    - `authorId` (Int, obrigatório) - ID do usuário autor da postagem
+    - `title` (String, obrigatório) - Título da postagem
+    - `content` (String, obrigatório) - Conteúdo da postagem
 - **Retorno**:
-  - `sucess` (Objeto Post): Post criado.
+  - `success` (Boolean): Indica se a postagem foi criada com sucesso
+  - `post` (Objeto Post): Post criado
  
 ```json
 {
-    "query": "mutation CreatePost($input: PartialPostInput!) { createPost(input: $input) { author { id displayName } title content }}",
-    "variables": {
-        "input": {
-            "authorId": 1,
-            "title": "Novo projeto em andamento",
-            "content": "Abludaldnadnauydau"
-        }
-    }
+  "success": true,
+  "post": {
+    "authorId": 1,
+    "title": "Minha primeira postagem",
+    "content": "Conteúdo da minha primeira postagem"
+  }
 }
 ```
 
-### 5.2 Listar posts
+### 4.2 Listar posts
 
+- **Endpoint**: `/posts`
+- **Método**: `GET`
 - **Descrição**: Lista todas postagens.
 - **Parâmetros**:
-  - `skip` (Int): Número de registros a serem ignorados (opcional).
-  - `limit` (Int): Número máximo de registros a serem retornados (opcional).
+  - `skip` (Int, opcional): Número de registros a serem ignorados.
+  - `limit` (Int, opcional): Número máximo de registros a serem retornados.
 - **Retorno**:
-  - `sucess` (List<Post>): Lista de todos os posts criados.
+  - List<Post> - lista de postagens cadastradas.
  
 ```json
-{
-    "query": "query FindAllPosts($skip: Int, $limit: Int) { findAllPosts(skip: $skip, limit: $limit) { id author { id displayName } title content }}",
-    "variables": {
-        "skip": 0,
-        "limit": 10
-    }
-}
+[
+  {
+    "id": 1,
+    "author": {
+      "id": 1,
+      "username": "Gabriel",
+      "email": "gabriel.vicente3@fatec.sp.gov.br"
+    },
+    "title": "Postagem 1",
+    "content": "Conteúdo da postagem 1"
+  },
+  {
+    "id": 2,
+    "author": {
+      "id": 2,
+      "username": "João",
+      "email": "joao1@email.com"
+    },
+    "title": "Postagem 2",
+    "content": "Conteúdo da postagem 2"
+  },
+    {
+    "id": 3,
+    "author": {
+      "id": 1,
+      "username": "Gabriel",
+      "email": "gabriel.vicente3@fatec.sp.gov.br"
+    },
+    "title": "Postagem 3",
+    "content": "Conteúdo da postagem 3"
+  }
+]
 ```
 
-### 5.3 Encontrar post por Id
+### 4.3 Encontrar post por Id
 
-- **Descrição**: Lista todas postagens.
+- **Endpoint**: `/posts/:id`
+- **Método**: `GET`
+- **Descrição**: Retorna a postagem de acordo com o Id fornecido.
 - **Parâmetros**:
   - `id` (Int): Id do post a ser recuperado.
 - **Retorno**:
-  - `sucess` (Objeto Post): Post recuperado.
+  - `post` (Objeto Post): Post recuperado.
  
 ```json
 {
-    "query": "query FindPostById($id: Int!) { findPostById(id: $id) { author { id displayName } title content }}",
-    "variables": {
-        "id": 1
-    }
+  "id": 1,
+  "author": {
+    "id": 1,
+    "username": "Gabriel",
+    "email": "gabriel.vicente3@fatec.sp.gov.br"
+  },
+  "title": "Postagem 1",
+  "content": "Conteúdo da postagem 1"
 }
 ```
 
-### 5.4 Encontrar post por título
+### 4.4 Encontrar post por título
 
-- **Descrição**: Lista todas postagens.
+- **Endpoint**: `/post/:title`
+- **Método**: ``GET
+- **Descrição**: Retorna a postagem de acordo com o título fornecido.
 - **Parâmetros**:
   - `title` (String): Título do post a ser recuperado.
 - **Retorno**:
-  - `sucess` (Objeto Post): Post recuperado.
+  - `post` (Objeto Post): Post recuperado.
  
 ```json
 {
-    "query": "query FindPostByTitle($title: String!) { findPostByTitle(title: $title) { id author { displayName } title content }}",
-    "variables": {
-        "title": "Novo projeto em andamento"
-    }
+  "id": 1,
+  "author": {
+    "id": 1,
+    "username": "Gabriel",
+    "email": "gabriel.vicente3@fatec.sp.gov.br"
+  },
+  "title": "Título da postagem 1",
+  "content": "Conteúdo da postagem 1"
 }
 ```
 
-### 5.5 Atualizar postagem
+### 4.5 Atualizar postagem
 
-- **Descrição**: Lista todas postagens.
-- **Parâmetros**:
+- **Endpoint**: `/post/update/:postId`
+- **Método**: `PATCH`
+- **Descrição**: Edita uma postagem já criada, referenciando seu Id.
+- **Parâmetros de rota**:
   - `postId` (Int, obrigatório): Id do post a ser atualizado.
+- **Corpo da requisição**:
   - `input`: (Objeto PartialPostInput): Indica os campos e valores que deverão ser atualizados. 
 - **Retorno**:
-  - `sucess` (Objeto Post): Post atualizado.
+  - `success` (Boolean): Retorna mensagem de sucesso ou erro.
+  - `newPost` (Objeto Post): Retorna o novo post.
+
+- **Corpo da requisição **:
+
+```json
+{
+  "title": "Postagem 1: UPDATE",
+  "content": "Informações adicionais para postagem 1"
+}
+```
  
 ```json
 {
-    "query": "mutation UpdatePost($postId: Int!, $input: PartialPostInput!) { updatePost(postId: $postId, input: $input) { id author { id displayName } title content }}",
-    "variables": {
-        "postId": 1,
-        "input": {
-            "authorId": 1,
-            "title": "Meu novo projeto v1.0"
-        }
-    }
+  "sucess": true,
+  "newPost": {
+    "id": 1,
+    "author": {
+      "id": 1,
+      "username": "Gabriel",
+      "email": "gabriel.vicente3@fatec.sp.gov.br"
+    },
+  "title": "Postagem 1: UPDATE",
+  "content": "Informações adicionais para postagem 1"
+  }
 }
 ```
 
-### 5.6 Excluir postagem
+### 4.6 Excluir postagem
 
-- **Descrição**: Lista todas postagens.
+- **Endpoint**: `/posts/delete/:postId`
+- **Descrição**: Busca e deleta uma postagem com base no Id fornecido
 - **Parâmetros**:
   - `postId` (Int, obrigatório): Id do post a ser excluído.
 - **Retorno**:
-  - `sucess` (Boolean): Indica se a exclusão foi feita corretamente.
+  - `success` (Boolean): Indica se a exclusão foi feita corretamente.
  
 ```json
 {
-    "query": "mutation DeletePost($postId: Int!) { deletePost(postId: $postId) }",
-    "variables": {
-        "postId": 1
-    }
+  "success": true
 }
 ```
 

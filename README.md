@@ -12,7 +12,7 @@ A plataforma Gamix é uma comunidade que une amantes de jogos, desenvolvedores e
 - Framework: Spring Boot
 - Autenticação: JWT (JSON Web Token)
 - Banco de Dados: PostgreSQL
-- API: GraphQL
+- API: Rest
 
 ## Como rodar e utilizar a API
 

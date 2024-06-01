@@ -1,5 +1,6 @@
 package com.gamix.service;
 
+import com.gamix.communication.comment.CommentDTO;
 import com.gamix.exceptions.ExceptionBase;
 import com.gamix.exceptions.comment.CommentIdNotFound;
 import com.gamix.exceptions.comment.EmptyComment;
@@ -27,7 +28,8 @@ public class CommentService {
 
         Comment newComment = new Comment()
                 .setAuthor(entityManagerUtils.getUserProfile(userId))
-                .setPost(entityManagerUtils.getPost(postId)).setContent(content);
+                .setPost(entityManagerUtils.getPost(postId))
+                .setContent(content);
         return commentRepository.save(newComment);
     }
 
@@ -41,23 +43,11 @@ public class CommentService {
         return commentRepository.save(newReply);
     }
 
-    public Comment findCommentById(Integer commentId) throws ExceptionBase {
-        return commentRepository.findCommentById(commentId).orElseThrow(CommentIdNotFound::new);
+    public List<CommentDTO> findAllComments(Integer userProfileId, Integer postId, Pageable page) {
+        return commentRepository.findAllByPostIdAndParentCommentNotNull(userProfileId, postId, page).getContent();
     }
 
-    public List<Comment> findAllCommentsOfAPost(int postId, Pageable page) {
-        return commentRepository.findAllByPostIdAndParentCommentIsNull(postId, page).getContent();
-    }
-
-    public boolean getIsLiked(Comment comment, Integer id) throws ExceptionBase {
-        return commentRepository.existsLikeByCommentAndUserId(comment, id);
-    }
-
-    public int getLikesCount(Comment comment) {
-        return commentRepository.countLikesByPost(comment);
-    }
-
-    public List<Comment> getReplies(Comment comment) {
-        return commentRepository.findAllRepliesByComments(comment);
+    public List<CommentDTO> findAllReplies(Integer userProfileId, Integer commentId, Pageable page) {
+        return commentRepository.findAllRepliesByCommentId(userProfileId, commentId, page).getContent();
     }
 }

@@ -1,4 +1,4 @@
-package com.gamix.communication.userController;
+package com.gamix.communication.auth;
 
 public record SignUpUserInput(String username, String email, String password) {
 }

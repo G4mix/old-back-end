@@ -18,18 +18,17 @@ public class JwtManager {
 
     public static boolean isValid(String token, User user) {
         boolean isValidId = user.getId().equals(getIdFromToken(token));
-        boolean isValidPasswordUser = getPasswordFromToken(token).equals(user.getPassword());
-        return isTokenNotExpired(token) && isValidId && isValidPasswordUser;
+        return isTokenNotExpired(token) && isValidId;
     }
 
     public static String refreshToken(String token) {
-        return generateToken(getIdFromToken(token), getPasswordFromToken(token), getRememberMeFromToken(token));
+        return generateToken(getIdFromToken(token), getUserProfileIdFromToken(token), getRememberMeFromToken(token));
     }
 
-    public static String generateToken(Integer id, String password, boolean rememberMe) {
+    public static String generateToken(Integer id, Integer userProfileId, boolean rememberMe) {
         Claims claims = Jwts.claims().setSubject(id.toString());
+        claims.put("userProfileId", userProfileId);
         claims.put("rememberMe", rememberMe);
-        claims.put("password", password);
         ExpirationTime expirationTime = rememberMe ? ExpirationTime.REMEMBER_ME : ExpirationTime.ACCESS_TOKEN;
         Date expirationDate = new Date(System.currentTimeMillis() + expirationTime.getValue());
 
@@ -45,8 +44,8 @@ public class JwtManager {
         return Integer.parseInt(getClaimFromToken(token, Claims::getSubject));
     }
 
-    public static String getPasswordFromToken(String token) {
-        return getClaimFromToken(token, claims -> claims.get("password", String.class));
+    public static Integer getUserProfileIdFromToken(String token) {
+        return getClaimFromToken(token, claims -> claims.get("userProfileId", Integer.class));
     }
 
     public static Boolean getRememberMeFromToken(String token) {

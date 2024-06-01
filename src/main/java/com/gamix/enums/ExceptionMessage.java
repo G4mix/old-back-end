@@ -35,6 +35,7 @@ public enum ExceptionMessage {
     CONTENT_TOO_LONG(HttpStatus.BAD_REQUEST, "Conteúdo muito longo (comprimento máximo é 700 caracteres)."),
     TOO_MANY_LINKS(HttpStatus.BAD_REQUEST, "Muitos links no post (máximo 5)."),
     TOO_MANY_IMAGES(HttpStatus.BAD_REQUEST, "Muitas imagens no post (máximo 8)."),
+    TOO_MANY_TAGS(HttpStatus.BAD_REQUEST, "Muitas tags no post (máximo 10)"),
 
     ERROR_CREATING_IMAGE(HttpStatus.BAD_REQUEST, "Erro ao criar a imagem."),
     ERROR_UPDATING_IMAGE(HttpStatus.BAD_REQUEST, "Erro ao atualizar as imagens."),
@@ -44,7 +45,8 @@ public enum ExceptionMessage {
     COMMENT_EMPTY(HttpStatus.BAD_REQUEST, "Comentário não pode ser vazio."),
     TOO_LONG_COMMENT(HttpStatus.BAD_REQUEST, "Comentário muito longo (comprimento máximo é 200 caracteres)."),
 
-    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido.");
+    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Erro desconhecido."),
+    FAIL_WHEN_TRIED_TO_DELETE(HttpStatus.INTERNAL_SERVER_ERROR, "Erro ao tentar deletar.");
 
     private final HttpStatusCode httpStatus;
     private final String message;
